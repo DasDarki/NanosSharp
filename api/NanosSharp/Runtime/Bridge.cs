@@ -26,12 +26,19 @@ internal static class Bridge
     [UnmanagedCallersOnly]
     internal static void Initialize()
     {
-        /*Console.WriteLine("[Nanos#] Binding natives...");
-        //Natives.Initialize();
+        Console.WriteLine("[Nanos#] Binding natives...");
+        try
+        {
+            Natives.Initialize();
+        } 
+        catch (Exception e)
+        {
+            Console.WriteLine("[Nanos#] Failed to bind natives: " + e.Message + "\n" + e.StackTrace);
+        }
         
         Console.WriteLine("[Nanos#] Initializing bridge...");
         _mainThreadId = Environment.CurrentManagedThreadId;
-        Console.WriteLine("[Nanos#] Bridge initialized.");*/
+        Console.WriteLine("[Nanos#] Bridge initialized.");
     }
     
     /// <summary>

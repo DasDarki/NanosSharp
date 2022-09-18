@@ -8,6 +8,7 @@ namespace NanosSharp.Runtime;
 /// </summary>
 internal static unsafe class Natives
 {
+    internal static delegate* unmanaged[Cdecl]<IntPtr, void> ScriptLog;
     internal static delegate* unmanaged[Cdecl]<IntPtr, void> FreeString;
     internal static delegate* unmanaged[Cdecl]<IntPtr, uint, void> FreeStringArray;
 
@@ -18,6 +19,7 @@ internal static unsafe class Natives
         const DllImportSearchPath dllImportSearchPath = DllImportSearchPath.LegacyBehavior | DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.SafeDirectories | DllImportSearchPath.System32 | DllImportSearchPath.UserDirectories | DllImportSearchPath.ApplicationDirectory | DllImportSearchPath.UseDllDirectoryForDependencies;
         var handle = NativeLibrary.Load("nanossharp_runtime", Assembly.GetExecutingAssembly(), dllImportSearchPath);
 
+        ScriptLog = (delegate* unmanaged[Cdecl]<IntPtr, void>)NativeLibrary.GetExport(handle, "ScriptLog");
         FreeString = (delegate* unmanaged[Cdecl]<IntPtr, void>) NativeLibrary.GetExport(handle, nameof(FreeString));
         FreeStringArray = (delegate* unmanaged[Cdecl]<IntPtr, uint, void>) NativeLibrary.GetExport(handle, nameof(FreeStringArray));
         

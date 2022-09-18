@@ -7,6 +7,7 @@
 
 #include <filesystem>
 #include <vector>
+#include <string>
 
 #include <coreclr_delegates.h>
 #include <hostfxr.h>
@@ -20,7 +21,7 @@
 #define RUNTIME_ERROR_NO_RUNTIME_CONFIG 2
 #define RUNTIME_ERROR_NO_RUNTIME_LIBRARY 3
 #define RUNTIME_ERROR_ASSEMBLY_FAILED 4
-#define RUNTIME_ERROR_NO_INITIALIZE 5
+#define RUNTIME_ERROR_INIT_FAILED 5
 
 #ifdef _MSC_VER
 #define DLL_HANDLE HMODULE
@@ -57,8 +58,6 @@ private:
 
     std::string m_ApiDllPath;
     std::string m_FriendlyName;
-
-    initialize_fn initialize_fptr = nullptr;
 
 private:
     bool load_host_fxr(const std::filesystem::path &dotnet_path, const std::string &version) {
@@ -133,7 +132,7 @@ public:
      * @param dll_name      The name of the .NET assembly to load without the .dll extension.
      * @param friendly_name The friendly name of the .NET assembly to load.
      */
-    int Start(const std::string &version, const std::string &dll_name, const std::string &friendly_name, void (*print_fn)(const char *)) {
+    int Start(const std::string &version, const std::string &dll_name, const std::string &friendly_name) {
         const std::filesystem::path dotnet_path = std::filesystem::current_path() / "dotnet";
         if (!load_host_fxr(dotnet_path, version)) {
             return RUNTIME_ERROR_HOSTFXR_FAILED;
@@ -150,41 +149,32 @@ public:
             return RUNTIME_ERROR_NO_RUNTIME_CONFIG;
         }
 
-        print_fn("Loading .NET runtime assembly...");
-
         load_assembly_and_get_function_pointer = get_dotnet_load_assembly(dotnet_api_config);
         if (!load_assembly_and_get_function_pointer) {
             return RUNTIME_ERROR_ASSEMBLY_FAILED;
         }
 
-        print_fn("Loading .NET runtime assembly... Done");
-
         m_ApiDllPath = dotnet_api_dll.string();
         m_FriendlyName = friendly_name;
 
-        print_fn("Load runtime initialization function...");
+        const std::string &func_name = "Initialize";
 
-        initialize_fptr = (initialize_fn) get_function("Initialize");
-        if (!initialize_fptr) {
-            return RUNTIME_ERROR_NO_INITIALIZE;
+        initialize_fn init = nullptr;
+        int rc = load_assembly_and_get_function_pointer(
+                TO_WCHAR(m_ApiDllPath),
+                TO_WCHAR(m_FriendlyName),
+                TO_WCHAR(func_name),
+                UNMANAGEDCALLERSONLY_METHOD,
+                nullptr,
+                (void**)&init);
+
+        if (rc != 0 || !init) {
+            return RUNTIME_ERROR_INIT_FAILED;
         }
 
+        init();
         return RUNTIME_SUCCESS;
     }
-
-    /**
-     * Stops the runtime and unloads all components.
-     */
-    void Stop() {
-        unload_host_fxr();
-    }
-
-     /**
-      * Initializes the .NET runtime bridge.
-      */
-     void Initialize() {
-         initialize_fptr();
-     }
 };
 
 #endif //NANOSSHARP_RUNTIME_RUNTIME_H

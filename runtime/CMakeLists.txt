@@ -4,7 +4,7 @@ project(nanossharp_runtime LANGUAGES CXX)
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS 1)
 
-add_library(nanossharp_runtime SHARED src/main.cpp src/runtime.h src/natives.h)
+add_library(nanossharp_runtime SHARED src/main.cpp src/runtime.h)
 
 target_include_directories(nanossharp_runtime PUBLIC deps/module-sdk/include)
 target_include_directories(nanossharp_runtime PUBLIC deps/dotnet)
