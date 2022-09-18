@@ -96,3 +96,5 @@ EXPORT void ScriptLog(const char *message) {
     lua_pushstring(LUA, message);
     lua_call(LUA, 1, 0);
 }
+
+// <% AUTOGENERATE(EXPORT_NATIVES, 0)
