@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
+using NanosSharp.Runtime.Native;
 
 namespace NanosSharp.Runtime;
 
@@ -99,6 +100,59 @@ internal static class Bridge
             var stringResult = Marshal.PtrToStringUTF8(str, size);
             Natives.FreeString(str);
             return stringResult;
+        }
+    }
+    
+    /// <summary>
+    /// Frees the memory of the string allocated by the managed side.
+    /// </summary>
+    /// <param name="str">The pointer to the managed string.</param>
+    internal static void FreeHGlobalUtf8FromManaged(IntPtr str)
+    {
+        Marshal.FreeHGlobal(str);
+    }
+    
+    /// <summary>
+    /// Frees the native string from the given native pointer.
+    /// </summary>
+    /// <param name="str">The pointer to the native string.</param>
+    internal static void FreeHGlobalUtf8FromNative(IntPtr str)
+    {
+        unsafe
+        {
+            Natives.FreeString(str);
+        }
+    }
+
+    /// <summary>
+    /// Logs as script print message to the console.
+    /// </summary>
+    /// <param name="message">The message to be logged.</param>
+    internal static void ScriptLog(string message)
+    {
+        AssertMainThreadInvocation();
+        
+        unsafe
+        {
+            var ptr = StringToHGlobalUtf8(message);
+            Natives.ScriptLog(ptr);
+            FreeHGlobalUtf8FromManaged(ptr);
+        }
+    }
+
+    /// <summary>
+    /// Logs as error print message to the console.
+    /// </summary>
+    /// <param name="message">The message to be logged.</param>
+    internal static void ErrorLog(string message)
+    {
+        AssertMainThreadInvocation();
+        
+        unsafe
+        {
+            var ptr = StringToHGlobalUtf8(message);
+            Natives.ErrorLog(ptr);
+            FreeHGlobalUtf8FromManaged(ptr);
         }
     }
 }

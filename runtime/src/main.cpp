@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "runtime.h"
+#include "icvalues.h"
 
 #ifdef __cplusplus
 #define EXTERN extern "C"
@@ -80,6 +81,8 @@ const char** allocate_string_array(std::vector<std::string> arr, uint32_t& size)
     return out;
 }
 
+// region Hardcoded API
+
 EXPORT void FreeString(const char* string) {
     delete[] string;
 }
@@ -96,5 +99,99 @@ EXPORT void ScriptLog(const char *message) {
     lua_pushstring(LUA, message);
     lua_call(LUA, 1, 0);
 }
+
+EXPORT void ErrorLog(const char *message) {
+    ASSERT_LUA;
+
+    luaL_error(LUA, message);
+}
+
+EXPORT void *ICValue_CreateNull() {
+    const auto ptr = new ICNullValue();
+    return (void *) ptr;
+}
+
+EXPORT void *ICValue_CreateBoolean(bool value) {
+    const auto ptr = new ICBooleanValue(value);
+    return (void *) ptr;
+}
+
+EXPORT void *ICValue_CreateInteger(long long value) {
+    const auto ptr = new ICIntegerValue(value);
+    return (void *) ptr;
+}
+
+EXPORT void *ICValue_CreateDouble(double value) {
+    const auto ptr = new ICDoubleValue(value);
+    return (void *) ptr;
+}
+
+EXPORT void *ICValue_CreateString(const char *value) {
+    const auto ptr = new ICStringValue(value);
+    return (void *) ptr;
+}
+
+EXPORT void *ICValue_CreateArray() {
+    std::vector<ICValue *> vec;
+    const auto ptr = new ICArrayValue(vec);
+    return (void *) ptr;
+}
+
+EXPORT void *ICValue_CreatePointer(void *val_ptr) {
+    const auto ptr = new ICPointerValue(val_ptr);
+    return (void *) ptr;
+}
+
+EXPORT uint8_t ICValue_GetType(void *value) {
+    const auto val = (ICValue *) value;
+    return val->GetType();
+}
+
+EXPORT void ICValue_Destroy(void *value) {
+    const auto val = (ICValue *) value;
+    delete val;
+}
+
+EXPORT bool ICValue_GetBoolean(void *value) {
+    const auto val = (ICBooleanValue *) value;
+    return val->Value;
+}
+
+EXPORT long long ICValue_GetInteger(void *value) {
+    const auto val = (ICIntegerValue *) value;
+    return val->Value;
+}
+
+EXPORT double ICValue_GetDouble(void *value) {
+    const auto val = (ICDoubleValue *) value;
+    return val->Value;
+}
+
+EXPORT const char *ICValue_GetString(void *value, int32_t& size) {
+    const auto val = (ICStringValue *) value;
+    return allocate_string(val->Value, size);
+}
+
+EXPORT uint32_t ICValue_GetArraySize(void *value) {
+    const auto val = (ICArrayValue *) value;
+    return val->Value.size();
+}
+
+EXPORT void *ICValue_GetArrayElement(void *value, uint32_t index) {
+    const auto val = (ICArrayValue *) value;
+    return (void *) val->Value[index];
+}
+
+EXPORT void *ICValue_GetPointer(void *value) {
+    const auto val = (ICPointerValue *) value;
+    return val->Value;
+}
+
+EXPORT void ICValue_AddArrayElement(void *value, void *element) {
+    const auto val = (ICArrayValue *) value;
+    val->Value.push_back((ICValue *) element);
+}
+
+// endregion
 
 // <% AUTOGENERATE(EXPORT_NATIVES, 0)
