@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
-using NanosSharp.Native;
+using NanosSharp.API;
 
 namespace NanosSharp;
 
@@ -9,7 +9,11 @@ namespace NanosSharp;
 /// </summary>
 internal static class Runtime
 {
-    private const string ManagedFunctionIdentifier = "NanosSharp-ManagedDelegate-1748d9d8-7fb5-43ed-a4d2-fb7031c6b5a0";
+    /// <summary>
+    /// Used for pushing managed functions and closures to the native stack.
+    /// </summary>
+    internal const string ManagedFunctionIdentifier = "NanosSharp-ManagedDelegate-1748d9d8-7fb5-43ed-a4d2-fb7031c6b5a0";
+    
     private delegate void LoadModuleDelegate(IntPtr luaStatePtr, IntPtr namePtr, int nameLength);
     
     private static readonly List<LuaVM> CreatedVMs = new();
@@ -27,6 +31,58 @@ internal static class Runtime
 
         return Marshal.GetFunctionPointerForDelegate<LoadModuleDelegate>(LoadModule);
     }
+
+    internal static int ManagedDelegateExecutor(IntPtr luaState)
+    {
+        ILuaVM lua = GetVM(luaState);
+
+        try
+        {
+            lua.PushGlobalTable();
+            lua.GetField(-1, ManagedFunctionIdentifier);
+            int delegateTypeId = (int) lua.ToNumber(-1);
+            lua.Pop(2);
+
+            IntPtr delegateHandle = lua.ToUserType(GetUpValueIndex(1, false), delegateTypeId);
+
+            var managedDelegate = (ILuaVM.CFunction) GCHandle.FromIntPtr(delegateHandle).Target!;
+
+            return Math.Max(0, managedDelegate(lua));
+        }
+        catch (Exception e)
+        {
+            lua.ClearStack();
+            lua.PushString(".NET Exception: " + e);
+            return -1;
+        }
+    }
+    
+    /// <summary>
+    /// Returns the managed luaVM from the pointer to the native luaVM. Or if no such luaVM exists, creates a new one.
+    /// </summary>
+    /// <param name="luaStatePtr">The pointer to the native luaVM.</param>
+    /// <returns>The managed luaVM.</returns>
+    internal static LuaVM GetVM(IntPtr luaStatePtr)
+    {
+        var vm = CreatedVMs.FirstOrDefault(vm => vm.Handle == luaStatePtr);
+        if (vm == null)
+        {
+            vm = new LuaVM(luaStatePtr);
+            CreatedVMs.Add(vm);
+        }
+        
+        return vm;
+    }
+    
+    internal static int GetUpValueIndex(byte upValue, bool managedOffset = true)
+    {
+        if (managedOffset)
+        {
+            return -10003 - upValue;
+        }
+
+        return -10002 - upValue;
+    }
     
     /// <summary>
     /// Loads the module of the given name into this runtime.
@@ -37,22 +93,5 @@ internal static class Runtime
     private static unsafe void LoadModule(IntPtr luaStatePtr, IntPtr namePtr, int nameLength)
     {
         string name = Encoding.UTF8.GetString((byte*) namePtr.ToPointer(), nameLength);
-    }
-    
-    /// <summary>
-    /// Returns the managed luaVM from the pointer to the native luaVM. Or if no such luaVM exists, creates a new one.
-    /// </summary>
-    /// <param name="luaStatePtr">The pointer to the native luaVM.</param>
-    /// <returns>The managed luaVM.</returns>
-    private static LuaVM GetVM(IntPtr luaStatePtr)
-    {
-        var vm = CreatedVMs.FirstOrDefault(vm => vm.Handle == luaStatePtr);
-        if (vm == null)
-        {
-            vm = new LuaVM(luaStatePtr);
-            CreatedVMs.Add(vm);
-        }
-        
-        return vm;
     }
 }
