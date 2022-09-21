@@ -649,39 +649,20 @@ internal class LuaVM : ILuaVM
         }
     }
 
-    public GCHandle PushManagedFunction(ILuaVM.CFunction fn)
+    public void PushManagedFunction(ILuaVM.CFunction fn)
     {
-        GCHandle delegateHandle = GCHandle.Alloc(fn, GCHandleType.Normal);
-        
-        PushGlobalTable();
-        GetField(-1, Runtime.ManagedFunctionIdentifier);
-        int functionTypeId = (int) ToNumber(-1);
-        Pop(2);
-        
-        PushUserType((IntPtr) delegateHandle, functionTypeId);
-        PushCClosure(Marshal.GetFunctionPointerForDelegate<LuaCFunction>(Runtime.ManagedDelegateExecutor), 1);
-
-        return delegateHandle;
+        PushManagedClosure(fn, 0);
     }
 
-    public GCHandle PushManagedClosure(ILuaVM.CFunction fn, byte n)
+    public void PushManagedClosure(ILuaVM.CFunction fn, byte n)
     {
         if (n == byte.MaxValue)
         {
             throw new ArgumentOutOfRangeException(nameof(n), "n must be less than 255");
         }
         
-        GCHandle delegateHandle = GCHandle.Alloc(fn, GCHandleType.Normal);
-        
-        PushGlobalTable();
-        GetField(-1, Runtime.ManagedFunctionIdentifier);
-        int functionTypeId = (int) ToNumber(-1);
-        Pop(2);
-
-        PushUserType((IntPtr) delegateHandle, functionTypeId);
-        Insert(-(n + 1));
-        PushCClosure(Marshal.GetFunctionPointerForDelegate<LuaCFunction>(Runtime.ManagedDelegateExecutor), n + 1);
-
-        return delegateHandle;
+        GCHandle handle = GCHandle.Alloc(fn, GCHandleType.Normal);
+        PushLightUserData(GCHandle.ToIntPtr(handle));
+        PushCClosure(Natives.ManagedFunctionWrapper, n + 1);
     }
 }

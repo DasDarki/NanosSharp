@@ -47,9 +47,11 @@
 #define TO_WCHAR(s) std::wstring(s.begin(), s.end()).c_str()
 
 typedef void (*LoadModule_fn)(void*,void*,int32_t);
-typedef LoadModule_fn (CORECLR_DELEGATE_CALLTYPE* StartRuntime_fn)(void*);
+typedef int (*CallManagedDelegate_fn)(void*,void*);
+typedef LoadModule_fn (CORECLR_DELEGATE_CALLTYPE* StartRuntime_fn)(void*, CallManagedDelegate_fn*);
 
 LoadModule_fn load_module = nullptr;
+CallManagedDelegate_fn call_managed_delegate = nullptr;
 
 class Runtime {
 
@@ -165,7 +167,7 @@ public:
             return RUNTIME_ERROR_INIT_FAILED;
         }
 
-        load_module = start(L);
+        load_module = start(L, &call_managed_delegate);
         return RUNTIME_SUCCESS;
     }
 

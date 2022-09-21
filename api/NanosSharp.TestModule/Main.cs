@@ -10,22 +10,16 @@ public class Main : IModule
         vm.GetField(-1, "print");
         vm.PushString("Hello World!");
         vm.MCall(1, 0);
-        vm.Pop();
-
-        /*vm.PushGlobalTable();
-        vm.NewTable();
+        vm.ClearStack();
 
         vm.PushManagedFunction(ReverseString);
-        vm.SetField(-2, "ReverseString");
-        
-        vm.SetField(-2, "TestModule");
-        vm.Pop();*/
+        vm.SetGlobal("ReverseString");
+        vm.ClearStack();
     }
 
     public int ReverseString(ILuaVM vm)
     {
         string s = vm.ToString(1);
-        Console.WriteLine(s);
         vm.ClearStack();
         
         char[] charArray = s.ToCharArray();

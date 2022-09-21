@@ -351,9 +351,9 @@ EXPORT int Lua_NewMetaTable(lua_State *L, const char *name) {
     return luaL_newmetatable(L, name);
 }
 
-// endregion
-
-
-// region lauxlib.h
+EXPORT int ManagedFunctionWrapper(lua_State *L) {
+    void *gc_handle = lua_touserdata(L, lua_upvalueindex(1));
+    return call_managed_delegate(L, gc_handle);
+}
 
 // endregion

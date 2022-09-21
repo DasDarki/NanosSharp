@@ -11,11 +11,6 @@ namespace NanosSharp;
 /// </summary>
 internal static class Runtime
 {
-    /// <summary>
-    /// Used for pushing managed functions and closures to the native stack.
-    /// </summary>
-    internal const string ManagedFunctionIdentifier = "NanosSharp-ManagedDelegate-1748d9d8-7fb5-43ed-a4d2-fb7031c6b5a0";
-    
     internal static readonly string ModulesPath = Path.Combine(Environment.CurrentDirectory, "Modules_NanosSharp");
 
     private static readonly Type ModuleType = typeof(IModule);
@@ -27,40 +22,18 @@ internal static class Runtime
     /// Gets called by the native runtime to initialize the managed runtime.
     /// </summary>
     /// <param name="luaStatePtr">The pointer to the native luaVM.</param>
+    /// <param name="callManagedDelegatePtr">The pointer to the managed delegate caller.</param>
     [UnmanagedCallersOnly]
-    internal static IntPtr Start(IntPtr luaStatePtr)
+    internal static unsafe IntPtr Start(IntPtr luaStatePtr, IntPtr* callManagedDelegatePtr)
     {
         Directory.CreateDirectory(ModulesPath);
         Natives.Initialize();
         
         CreatedVMs.Add(new LuaVM(luaStatePtr));
+        
+        *callManagedDelegatePtr = (IntPtr) (delegate* unmanaged<IntPtr, IntPtr, int>) &CallManagedDelegate;
 
         return Marshal.GetFunctionPointerForDelegate<LoadModuleDelegate>(LoadModule);
-    }
-
-    internal static int ManagedDelegateExecutor(IntPtr luaState)
-    {
-        ILuaVM lua = GetVM(luaState);
-
-        try
-        {
-            lua.PushGlobalTable();
-            lua.GetField(-1, ManagedFunctionIdentifier);
-            int delegateTypeId = (int) lua.ToNumber(-1);
-            lua.Pop(2);
-
-            IntPtr delegateHandle = lua.ToUserType(GetUpValueIndex(1, false), delegateTypeId);
-
-            var managedDelegate = (ILuaVM.CFunction) GCHandle.FromIntPtr(delegateHandle).Target!;
-
-            return Math.Max(0, managedDelegate(lua));
-        }
-        catch (Exception e)
-        {
-            lua.ClearStack();
-            lua.PushString(".NET Exception: " + e);
-            return -1;
-        }
     }
     
     /// <summary>
@@ -75,25 +48,9 @@ internal static class Runtime
         {
             vm = new LuaVM(luaStatePtr);
             CreatedVMs.Add(vm);
-            
-            int funcTypeId = vm.NewMetaTable("ManagedFunction");
-            vm.PushGlobalTable();
-            vm.PushNumber(funcTypeId);
-            vm.SetField(-2, ManagedFunctionIdentifier);
-            vm.Pop();
         }
         
         return vm;
-    }
-    
-    internal static int GetUpValueIndex(byte upValue, bool managedOffset = true)
-    {
-        if (managedOffset)
-        {
-            return -10003 - upValue;
-        }
-
-        return -10002 - upValue;
     }
     
     /// <summary>
@@ -139,5 +96,18 @@ internal static class Runtime
     {
         using MemoryStream stream = new MemoryStream(File.ReadAllBytes(path));
         return context.LoadFromStream(stream);
+    }
+
+    [UnmanagedCallersOnly]
+    private static int CallManagedDelegate(IntPtr luaStatePtr, IntPtr gcHandlePtr)
+    {
+        GCHandle gcHandle = GCHandle.FromIntPtr(gcHandlePtr);
+        if (gcHandle.Target is ILuaVM.CFunction func)
+        {
+            ILuaVM vm = GetVM(luaStatePtr);
+            return func(vm);
+        }
+
+        return 0;
     }
 }

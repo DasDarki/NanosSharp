@@ -79,6 +79,8 @@ internal static unsafe class Natives
     internal static delegate* unmanaged[Cdecl]<IntPtr, IntPtr, int, void> Lua_PushUserType;
     internal static delegate* unmanaged[Cdecl]<IntPtr, int, int, IntPtr> Lua_ToUserType;
     internal static delegate* unmanaged[Cdecl]<IntPtr, IntPtr, int> Lua_NewMetaTable;
+    
+    internal static IntPtr ManagedFunctionWrapper;
 
     internal static void Initialize()
     {
@@ -154,5 +156,7 @@ internal static unsafe class Natives
         Lua_PushUserType = (delegate* unmanaged[Cdecl]<IntPtr, IntPtr, int, void>) NativeLibrary.GetExport(handle, nameof(Lua_PushUserType));
         Lua_ToUserType = (delegate* unmanaged[Cdecl]<IntPtr, int, int, IntPtr>) NativeLibrary.GetExport(handle, nameof(Lua_ToUserType));
         Lua_NewMetaTable = (delegate* unmanaged[Cdecl]<IntPtr, IntPtr, int>) NativeLibrary.GetExport(handle, nameof(Lua_NewMetaTable));
+        
+        ManagedFunctionWrapper = NativeLibrary.GetExport(handle, nameof(ManagedFunctionWrapper));
     }
 }

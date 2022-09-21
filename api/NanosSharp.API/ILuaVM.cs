@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace NanosSharp.API;
+﻿namespace NanosSharp.API;
 
 /// <summary>
 /// The interface represents a native lua state through which one can interact with the luaVM of a nanos world package.
@@ -79,6 +77,6 @@ public interface ILuaVM
     void PushUserType(IntPtr p, int type);
     int NewMetaTable(string name);
     IntPtr ToUserType(int idx, int type);
-    GCHandle PushManagedFunction(CFunction fn);
-    GCHandle PushManagedClosure(CFunction fn, byte n);
+    void PushManagedFunction(CFunction fn);
+    void PushManagedClosure(CFunction fn, byte n);
 }
