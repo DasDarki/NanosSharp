@@ -50,7 +50,7 @@ EXTERN int luaopen_nanossharp_runtime (lua_State *L) {
     };
 
     luaL_newlib(L, functions);
-    return 0;
+    return 1;
 }
 
 // --------------------------- NanosSharp Exports --------------------------- \\
@@ -345,6 +345,10 @@ EXPORT void *Lua_ToUserType(lua_State *L, int idx, int type) {
         }
     }
     return NULL;
+}
+
+EXPORT int Lua_NewMetaTable(lua_State *L, const char *name) {
+    return luaL_newmetatable(L, name);
 }
 
 // endregion

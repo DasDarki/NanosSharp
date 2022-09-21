@@ -77,6 +77,7 @@ public interface ILuaVM
     void Remove(int idx);
     void Replace(int idx);
     void PushUserType(IntPtr p, int type);
+    int NewMetaTable(string name);
     IntPtr ToUserType(int idx, int type);
     GCHandle PushManagedFunction(CFunction fn);
     GCHandle PushManagedClosure(CFunction fn, byte n);

@@ -628,6 +628,19 @@ internal class LuaVM : ILuaVM
         }
     }
 
+    public int NewMetaTable(string name)
+    {
+        byte[] buff = Encoding.GetBytes(name);
+        
+        unsafe
+        {
+            fixed (byte *ptr = &buff[0])
+            {
+                return Natives.Lua_NewMetaTable(Handle, (IntPtr) ptr);
+            }
+        }
+    }
+
     public IntPtr ToUserType(int idx, int type)
     {
         unsafe
