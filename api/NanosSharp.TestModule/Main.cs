@@ -4,9 +4,6 @@ namespace NanosSharp.TestModule;
 
 public class Main : IModule
 {
-    public string Name => "TestModule";
-    public string Version => "1.0.0";
-    
     public void Initialize(ILuaVM vm)
     {
         vm.PushGlobalTable();

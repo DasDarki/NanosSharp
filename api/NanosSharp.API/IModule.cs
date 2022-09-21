@@ -7,16 +7,6 @@
 public interface IModule
 {
     /// <summary>
-    /// The name of this module.
-    /// </summary>
-    string Name { get; }
-    
-    /// <summary>
-    /// The version of this module.
-    /// </summary>
-    string Version { get; }
-
-    /// <summary>
     /// Gets called when the module is being initialized for a given <see cref="ILuaVM"/>.
     /// </summary>
     /// <param name="vm">The interface representing the managed part of the target luaVM.</param>
