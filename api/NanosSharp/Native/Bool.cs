@@ -1,4 +1,4 @@
-﻿namespace NanosSharp.Runtime.Native;
+﻿namespace NanosSharp.Native;
 
 // Credits: https://github.com/nxrighthere/UnrealCLR/blob/master/Source/Managed/Framework/Codegen.cs
 internal struct Bool {

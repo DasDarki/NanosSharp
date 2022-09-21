@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanosSharp", "NanosSharp\NanosSharp.csproj", "{4E839E78-A751-43EB-87CA-2695B0A51EB3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanosSharp.CodeGen", "NanosSharp.CodeGen\NanosSharp.CodeGen.csproj", "{15ED9EE9-FE7C-4109-ADA6-7EA54A7AD5EA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanosSharp.API", "NanosSharp.API\NanosSharp.API.csproj", "{B02B493D-79B2-43FB-9E14-ADFFB9E222BE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,9 +14,9 @@ Global
 		{4E839E78-A751-43EB-87CA-2695B0A51EB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E839E78-A751-43EB-87CA-2695B0A51EB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E839E78-A751-43EB-87CA-2695B0A51EB3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{15ED9EE9-FE7C-4109-ADA6-7EA54A7AD5EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{15ED9EE9-FE7C-4109-ADA6-7EA54A7AD5EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{15ED9EE9-FE7C-4109-ADA6-7EA54A7AD5EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{15ED9EE9-FE7C-4109-ADA6-7EA54A7AD5EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B02B493D-79B2-43FB-9E14-ADFFB9E222BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B02B493D-79B2-43FB-9E14-ADFFB9E222BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B02B493D-79B2-43FB-9E14-ADFFB9E222BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B02B493D-79B2-43FB-9E14-ADFFB9E222BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

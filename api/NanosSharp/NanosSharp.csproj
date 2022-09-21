@@ -13,4 +13,8 @@
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\NanosSharp.API\NanosSharp.API.csproj" />
+    </ItemGroup>
+
 </Project>

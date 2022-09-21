@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <vector>
 #include <string>
+#include <stdint.h>
 
 #include <coreclr_delegates.h>
 #include <hostfxr.h>
@@ -45,7 +46,10 @@
 
 #define TO_WCHAR(s) std::wstring(s.begin(), s.end()).c_str()
 
-typedef void (CORECLR_DELEGATE_CALLTYPE* initialize_fn)();
+typedef void (*LoadModule_fn)(void*,void*,int32_t);
+typedef LoadModule_fn (CORECLR_DELEGATE_CALLTYPE* StartRuntime_fn)(void*);
+
+LoadModule_fn load_module = nullptr;
 
 class Runtime {
 
@@ -104,18 +108,6 @@ private:
         return (load_assembly_and_get_function_pointer_fn) ptr;
     }
 
-    void* get_function(const std::string &func_name, bool unmanaged_only = true) {
-        void* delegate = nullptr;
-        int rc = load_assembly_and_get_function_pointer(
-                TO_WCHAR(m_ApiDllPath),
-                TO_WCHAR(m_FriendlyName),
-                TO_WCHAR(func_name),
-                unmanaged_only ? UNMANAGEDCALLERSONLY_METHOD : nullptr,
-                nullptr,
-                &delegate);
-        return rc == 0 ? delegate : nullptr;
-    }
-
 public:
     /**
      * Returns a singleton instance of the runtime or creates a new one.
@@ -128,11 +120,12 @@ public:
     /**
      * Initializes the runtime components and starts the whole runtime.
      *
+     * @param L             The lua state for this runtime.
      * @param version       The version of the .NET runtime to use.
      * @param dll_name      The name of the .NET assembly to load without the .dll extension.
      * @param friendly_name The friendly name of the .NET assembly to load.
      */
-    int Start(const std::string &version, const std::string &dll_name, const std::string &friendly_name) {
+    int Start(void *L, const std::string &version, const std::string &dll_name, const std::string &friendly_name) {
         const std::filesystem::path dotnet_path = std::filesystem::current_path() / "dotnet";
         if (!load_host_fxr(dotnet_path, version)) {
             return RUNTIME_ERROR_HOSTFXR_FAILED;
@@ -157,23 +150,35 @@ public:
         m_ApiDllPath = dotnet_api_dll.string();
         m_FriendlyName = friendly_name;
 
-        const std::string &func_name = "Initialize";
+        const std::string &func_name = "Start";
 
-        initialize_fn init = nullptr;
+        StartRuntime_fn start = nullptr;
         int rc = load_assembly_and_get_function_pointer(
                 TO_WCHAR(m_ApiDllPath),
                 TO_WCHAR(m_FriendlyName),
                 TO_WCHAR(func_name),
                 UNMANAGEDCALLERSONLY_METHOD,
                 nullptr,
-                (void**)&init);
+                (void**)&start);
 
-        if (rc != 0 || !init) {
+        if (rc != 0 || !start) {
             return RUNTIME_ERROR_INIT_FAILED;
         }
 
-        init();
+        load_module = start(L);
         return RUNTIME_SUCCESS;
+    }
+
+    /**
+     * Loads a module into the runtime.
+     *
+     * @param L     The state for which the module should be loaded.
+     * @param name  The name of the module.
+     */
+    void LoadModule(void *L, const char *name) {
+        if (load_module) {
+            load_module(L, (void*) name, strlen(name));
+        }
     }
 };
 
