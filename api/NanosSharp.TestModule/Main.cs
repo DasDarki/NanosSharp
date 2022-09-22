@@ -15,6 +15,20 @@ public class Main : IModule
         vm.PushManagedFunction(ReverseString);
         vm.SetGlobal("ReverseString");
         vm.ClearStack();
+        
+        vm.PushGlobalTable();
+        vm.GetField(-1, "Server");
+        vm.GetField(-1, "Subscribe");
+        vm.PushString("Tick");
+        vm.PushManagedFunction(OnTick);
+        vm.MCall(2, 0);
+        vm.ClearStack();
+    }
+
+    public int OnTick(ILuaVM vm)
+    {
+        Console.WriteLine("Tick");
+        return 0;
     }
 
     public int ReverseString(ILuaVM vm)

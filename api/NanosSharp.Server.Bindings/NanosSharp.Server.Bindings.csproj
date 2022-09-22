@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\NanosSharp.API\NanosSharp.API.csproj" />
+      <ProjectReference Include="..\NanosSharp.Server.Bindings.Generator\NanosSharp.Server.Bindings.Generator.csproj"
+                        OutputItemType="Analyzer"
+                        ReferenceOutputAssembly="false" />
+    </ItemGroup>
+
+</Project>

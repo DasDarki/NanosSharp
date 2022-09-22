@@ -6,6 +6,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanosSharp.API", "NanosShar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanosSharp.TestModule", "NanosSharp.TestModule\NanosSharp.TestModule.csproj", "{152284D1-F395-4EC4-86B3-77A2FD7A6D05}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanosSharp.Server", "NanosSharp.Server\NanosSharp.Server.csproj", "{9625EF47-828C-491B-AEE4-AE4E2ADF5400}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanosSharp.Server.Bindings", "NanosSharp.Server.Bindings\NanosSharp.Server.Bindings.csproj", "{87F8B28C-D569-400A-A373-5CD1C833E99C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanosSharp.Server.Bindings.Generator", "NanosSharp.Server.Bindings.Generator\NanosSharp.Server.Bindings.Generator.csproj", "{7388332F-139D-4A2F-881D-F043E6460260}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +30,17 @@ Global
 		{152284D1-F395-4EC4-86B3-77A2FD7A6D05}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{152284D1-F395-4EC4-86B3-77A2FD7A6D05}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{152284D1-F395-4EC4-86B3-77A2FD7A6D05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9625EF47-828C-491B-AEE4-AE4E2ADF5400}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9625EF47-828C-491B-AEE4-AE4E2ADF5400}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9625EF47-828C-491B-AEE4-AE4E2ADF5400}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9625EF47-828C-491B-AEE4-AE4E2ADF5400}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87F8B28C-D569-400A-A373-5CD1C833E99C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87F8B28C-D569-400A-A373-5CD1C833E99C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87F8B28C-D569-400A-A373-5CD1C833E99C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87F8B28C-D569-400A-A373-5CD1C833E99C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7388332F-139D-4A2F-881D-F043E6460260}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7388332F-139D-4A2F-881D-F043E6460260}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7388332F-139D-4A2F-881D-F043E6460260}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7388332F-139D-4A2F-881D-F043E6460260}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
