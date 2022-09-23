@@ -11,7 +11,6 @@ public static class HTTP
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "HTTP");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Request");
         pc++;
         vm.PushString(uri);
@@ -64,7 +63,6 @@ public static class HTTP
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "HTTP");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "RequestSync");
         pc++;
         vm.PushString(uri);

@@ -11,7 +11,6 @@ public static class Assets
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Assets");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetAssetPacks");
         pc++;
         vm.PushString(asset_pack_path);
@@ -25,7 +24,6 @@ public static class Assets
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Assets");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetAnimations");
         pc++;
         vm.PushString(asset_pack_path);
@@ -39,7 +37,6 @@ public static class Assets
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Assets");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetBlueprints");
         pc++;
         vm.PushString(asset_pack_path);
@@ -53,7 +50,6 @@ public static class Assets
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Assets");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetMaps");
         pc++;
         vm.PushString(asset_pack_path);
@@ -67,7 +63,6 @@ public static class Assets
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Assets");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetMaterials");
         pc++;
         vm.PushString(asset_pack_path);
@@ -81,7 +76,6 @@ public static class Assets
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Assets");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetParticles");
         pc++;
         vm.PushString(asset_pack_path);
@@ -95,7 +89,6 @@ public static class Assets
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Assets");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetSounds");
         pc++;
         vm.PushString(asset_pack_path);
@@ -109,7 +102,6 @@ public static class Assets
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Assets");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetSkeletalMeshes");
         pc++;
         vm.PushString(asset_pack_path);
@@ -123,7 +115,6 @@ public static class Assets
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Assets");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetStaticMeshes");
         pc++;
         vm.PushString(asset_pack_path);
@@ -137,7 +128,6 @@ public static class Assets
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Assets");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetOthers");
         pc++;
         vm.PushString(asset_pack_path);
@@ -151,7 +141,6 @@ public static class Assets
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Assets");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Precache");
         pc++;
         vm.PushString(asset_path);

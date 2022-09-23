@@ -11,7 +11,6 @@ public static class NanosUtils
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "NanosUtils");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "IsA");
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, object);
@@ -29,7 +28,6 @@ public static class NanosUtils
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "NanosUtils");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "IsEntityValid");
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, entity);
@@ -45,7 +43,6 @@ public static class NanosUtils
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "NanosUtils");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Dump");
         pc++;
         vm.MCall(pc, 1);
@@ -60,7 +57,6 @@ public static class NanosUtils
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "NanosUtils");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Benchmark");
         pc++;
         vm.PushString(name);
@@ -79,7 +75,6 @@ public static class NanosUtils
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "NanosUtils");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "FormatString");
         pc++;
         vm.PushString(text);

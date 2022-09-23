@@ -11,7 +11,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "BroadcastChatMessage");
         pc++;
         vm.PushString(message);
@@ -24,7 +23,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "ChangeMap");
         pc++;
         vm.PushString(map_path);
@@ -37,7 +35,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "ReloadPackage");
         pc++;
         vm.PushString(package_folder_name);
@@ -50,7 +47,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "SendChatMessage");
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, player);
@@ -65,7 +61,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "SetDescription");
         pc++;
         vm.PushString(description);
@@ -83,7 +78,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "SetLogo");
         pc++;
         vm.PushString(logo_url);
@@ -101,7 +95,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "SetMaxPlayers");
         pc++;
         vm.PushNumber(max_players);
@@ -119,7 +112,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "SetName");
         pc++;
         vm.PushString(name);
@@ -137,7 +129,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "SetPassword");
         pc++;
         vm.PushString(password);
@@ -155,7 +146,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "SetValue");
         pc++;
         vm.PushString(key);
@@ -175,7 +165,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetValue");
         pc++;
         vm.PushString(key);
@@ -190,7 +179,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Unban");
         pc++;
         vm.PushString(account_id);
@@ -203,7 +191,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Stop");
         vm.MCall(pc, 0);
         vm.ClearStack();
@@ -214,7 +201,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Subscribe");
         pc++;
         vm.PushString(event_name);
@@ -231,7 +217,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "UnloadPackage");
         pc++;
         vm.PushString(package_folder_name);
@@ -244,7 +229,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Unsubscribe");
         pc++;
         vm.PushString(event_name);
@@ -262,7 +246,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetMap");
         vm.MCall(pc, 1);
         var r0 = vm.ToString(-1);
@@ -276,7 +259,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetMapConfig");
         vm.MCall(pc, 1);
         vm.ClearStack();
@@ -288,7 +270,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetMaps");
         vm.MCall(pc, 1);
         vm.ClearStack();
@@ -300,7 +281,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetPackages");
         if (only_loaded != null)
         {
@@ -317,7 +297,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetVersion");
         vm.MCall(pc, 1);
         var r0 = vm.ToString(-1);
@@ -331,7 +310,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetIP");
         vm.MCall(pc, 1);
         var r0 = vm.ToString(-1);
@@ -345,7 +323,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetPort");
         vm.MCall(pc, 1);
         var r0 = vm.ToNumber(-1);
@@ -359,7 +336,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetQueryPort");
         vm.MCall(pc, 1);
         var r0 = vm.ToNumber(-1);
@@ -373,7 +349,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetMaxPlayers");
         vm.MCall(pc, 1);
         var r0 = vm.ToNumber(-1);
@@ -387,7 +362,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetDescription");
         vm.MCall(pc, 1);
         var r0 = vm.ToString(-1);
@@ -401,7 +375,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetTickRate");
         vm.MCall(pc, 1);
         var r0 = vm.ToNumber(-1);
@@ -415,7 +388,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetTime");
         vm.MCall(pc, 1);
         var r0 = vm.ToNumber(-1);
@@ -429,7 +401,6 @@ public static class Server
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Server");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "IsAnnounced");
         vm.MCall(pc, 1);
         var r0 = vm.ToBoolean(-1);

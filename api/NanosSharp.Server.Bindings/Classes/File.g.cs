@@ -261,7 +261,6 @@ public class File
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "File");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Time");
         pc++;
         vm.PushString(path);
@@ -277,7 +276,6 @@ public class File
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "File");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "CreateDirectory");
         pc++;
         vm.PushString(path);
@@ -293,7 +291,6 @@ public class File
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "File");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Remove");
         pc++;
         vm.PushString(path);
@@ -309,7 +306,6 @@ public class File
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "File");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Exists");
         pc++;
         vm.PushString(path);
@@ -325,7 +321,6 @@ public class File
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "File");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "IsDirectory");
         pc++;
         vm.PushString(path);
@@ -341,7 +336,6 @@ public class File
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "File");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "IsRegularFile");
         pc++;
         vm.PushString(path);

@@ -11,7 +11,6 @@ public static class Package
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Package");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Log");
         pc++;
         vm.PushString(message);
@@ -26,7 +25,6 @@ public static class Package
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Package");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Warn");
         pc++;
         vm.PushString(message);
@@ -41,7 +39,6 @@ public static class Package
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Package");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Error");
         pc++;
         vm.PushString(message);
@@ -56,7 +53,6 @@ public static class Package
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Package");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Call");
         pc++;
         vm.PushString(package_name);
@@ -75,7 +71,6 @@ public static class Package
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Package");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Export");
         pc++;
         vm.PushString(function_name);
@@ -90,7 +85,6 @@ public static class Package
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Package");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Require");
         pc++;
         vm.PushString(script_file);
@@ -105,7 +99,6 @@ public static class Package
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Package");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "RequirePackage");
         pc++;
         vm.PushString(package_name);
@@ -118,7 +111,6 @@ public static class Package
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Package");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Subscribe");
         pc++;
         vm.PushString(event_name);
@@ -135,7 +127,6 @@ public static class Package
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Package");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Unsubscribe");
         pc++;
         vm.PushString(event_name);
@@ -153,7 +144,6 @@ public static class Package
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Package");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "SetPersistentData");
         pc++;
         vm.PushString(key);
@@ -168,7 +158,6 @@ public static class Package
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Package");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetDirectories");
         if (path_filter != null)
         {
@@ -185,7 +174,6 @@ public static class Package
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Package");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetFiles");
         if (path_filter != null)
         {
@@ -207,7 +195,6 @@ public static class Package
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Package");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetName");
         vm.MCall(pc, 1);
         var r0 = vm.ToString(-1);
@@ -221,7 +208,6 @@ public static class Package
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Package");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetPath");
         vm.MCall(pc, 1);
         var r0 = vm.ToString(-1);
@@ -235,7 +221,6 @@ public static class Package
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Package");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetVersion");
         vm.MCall(pc, 1);
         var r0 = vm.ToString(-1);
@@ -249,7 +234,6 @@ public static class Package
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Package");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetPersistentData");
         vm.MCall(pc, 1);
         vm.ClearStack();

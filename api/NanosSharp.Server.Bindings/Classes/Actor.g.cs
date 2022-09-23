@@ -636,7 +636,6 @@ public class Actor
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Actor");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetAll");
         vm.MCall(pc, 1);
         vm.ClearStack();
@@ -648,7 +647,6 @@ public class Actor
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Actor");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetByIndex");
         pc++;
         vm.PushNumber(index);
@@ -663,7 +661,6 @@ public class Actor
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Actor");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetCount");
         vm.MCall(pc, 1);
         var r0 = vm.ToNumber(-1);

@@ -11,7 +11,6 @@ public static class NanosMath
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "NanosMath");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Round");
         pc++;
         vm.PushNumber(value);
@@ -27,7 +26,6 @@ public static class NanosMath
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "NanosMath");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Clamp");
         pc++;
         vm.PushNumber(value);
@@ -47,7 +45,6 @@ public static class NanosMath
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "NanosMath");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "ClampAxis");
         pc++;
         vm.PushNumber(value);
@@ -63,7 +60,6 @@ public static class NanosMath
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "NanosMath");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "NormalizeAxis");
         pc++;
         vm.PushNumber(value);
@@ -81,7 +77,6 @@ public static class NanosMath
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "NanosMath");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "RelativeTo");
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, location);
@@ -100,7 +95,6 @@ public static class NanosMath
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "NanosMath");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "FInterpTo");
         pc++;
         vm.PushNumber(current);
@@ -122,7 +116,6 @@ public static class NanosMath
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "NanosMath");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "RInterpTo");
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, current);
@@ -143,7 +136,6 @@ public static class NanosMath
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "NanosMath");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "RInterpConstantTo");
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, current);
@@ -164,7 +156,6 @@ public static class NanosMath
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "NanosMath");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "VInterpTo");
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, current);
@@ -185,7 +176,6 @@ public static class NanosMath
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "NanosMath");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "VInterpConstantTo");
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, current);

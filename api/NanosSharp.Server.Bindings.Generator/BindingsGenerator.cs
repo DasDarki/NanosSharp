@@ -183,7 +183,7 @@ internal class BindingsGenerator
                             body.Add("vm.PushGlobalTable();");
                             body.Add("vm.GetField(-1, \"" + clazz.Name + "\");");
 
-                            if (!dir.StartsWith("Struct"))
+                            if (!dir.StartsWith("Struct") && !isStatic)
                             {
                                 body.Add("vm.GetField(-1, \"__function\");");
                             }

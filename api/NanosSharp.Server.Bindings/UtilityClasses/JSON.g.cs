@@ -11,7 +11,6 @@ public static class JSON
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "JSON");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "stringify");
         pc++;
         vm.MCall(pc, 1);
@@ -26,7 +25,6 @@ public static class JSON
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "JSON");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "parse");
         pc++;
         vm.PushString(value);

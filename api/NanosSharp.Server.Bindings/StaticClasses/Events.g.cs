@@ -11,7 +11,6 @@ public static class Events
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Events");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Call");
         pc++;
         vm.PushString(event_name);
@@ -26,7 +25,6 @@ public static class Events
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Events");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "CallRemote");
         pc++;
         vm.PushString(event_name);
@@ -43,7 +41,6 @@ public static class Events
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Events");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "BroadcastRemote");
         pc++;
         vm.PushString(event_name);
@@ -58,7 +55,6 @@ public static class Events
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Events");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Subscribe");
         pc++;
         vm.PushString(event_name);
@@ -75,7 +71,6 @@ public static class Events
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Events");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Unsubscribe");
         pc++;
         vm.PushString(event_name);

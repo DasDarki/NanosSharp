@@ -11,7 +11,6 @@ public static class Timer
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Timer");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "SetTimeout");
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, callback);
@@ -34,7 +33,6 @@ public static class Timer
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Timer");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "SetInterval");
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, callback);
@@ -57,7 +55,6 @@ public static class Timer
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Timer");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "ClearTimeout");
         pc++;
         vm.PushNumber(timeout_id);
@@ -70,7 +67,6 @@ public static class Timer
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Timer");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "ClearInterval");
         pc++;
         vm.PushNumber(interval_id);
@@ -83,7 +79,6 @@ public static class Timer
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Timer");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Bind");
         pc++;
         vm.PushNumber(timer_id);
@@ -98,7 +93,6 @@ public static class Timer
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Timer");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "IsValid");
         pc++;
         vm.PushNumber(timer_id);
@@ -114,7 +108,6 @@ public static class Timer
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Timer");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetElapsedTime");
         pc++;
         vm.PushNumber(timer_id);
@@ -130,7 +123,6 @@ public static class Timer
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Timer");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "GetRemainingTime");
         pc++;
         vm.PushNumber(timer_id);
@@ -146,7 +138,6 @@ public static class Timer
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Timer");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Pause");
         pc++;
         vm.PushNumber(timer_id);
@@ -159,7 +150,6 @@ public static class Timer
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Timer");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "Resume");
         pc++;
         vm.PushNumber(timer_id);
@@ -172,7 +162,6 @@ public static class Timer
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Timer");
-        vm.GetField(-1, "__function");
         vm.GetField(-1, "ResetElapsedTime");
         pc++;
         vm.PushNumber(timer_id);
