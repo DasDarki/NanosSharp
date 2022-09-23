@@ -42,7 +42,7 @@ public static class HTTP
         if (headers != null)
         {
              pc++;
-             vm.PushTable(headers.Value);
+             vm.PushTable(headers);
         }
         if (callback != null)
         {
@@ -103,7 +103,7 @@ public static class HTTP
         if (headers != null)
         {
              pc++;
-             vm.PushTable(headers.Value);
+             vm.PushTable(headers);
         }
         vm.MCall(pc, 1);
         var r0 = vm.ToTable(-1);

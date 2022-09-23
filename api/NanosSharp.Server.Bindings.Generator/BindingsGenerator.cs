@@ -216,7 +216,8 @@ internal class BindingsGenerator
                                                                && !param.Type.ToLower().Contains("path")
                                                                && param.Type.ToLower() != "string"
                                                                && param.Type.ToLower() != "any"
-                                                               && param.Type.ToLower() != "function";
+                                                               && param.Type.ToLower() != "function"
+                                                               && param.Type.ToLower() != "table";
                                         if (isVararg)
                                         {
                                             body.Add((intend ? "     " : "") + "foreach (var a in " + param.VararglessName + ") {");
