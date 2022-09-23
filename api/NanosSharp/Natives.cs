@@ -47,7 +47,10 @@ internal static unsafe class Natives
     internal static delegate* unmanaged[Cdecl]<IntPtr, IntPtr, int> Lua_GetGlobal;
     internal static delegate* unmanaged[Cdecl]<IntPtr, int, int> Lua_GetTable;
     internal static delegate* unmanaged[Cdecl]<IntPtr, int, IntPtr, int> Lua_GetField;
+    internal static delegate* unmanaged[Cdecl]<IntPtr, int, long, int> Lua_GetI;
     internal static delegate* unmanaged[Cdecl]<IntPtr, int, int> Lua_RawGet;
+    internal static delegate* unmanaged[Cdecl]<IntPtr, int, long, int> Lua_RawGetI;
+    internal static delegate* unmanaged[Cdecl]<IntPtr, int, IntPtr, int> Lua_RawGetP;
     internal static delegate* unmanaged[Cdecl]<IntPtr, int, int, void> Lua_CreateTable;
     internal static delegate* unmanaged[Cdecl]<IntPtr, uint, IntPtr> Lua_NewUserData;
     internal static delegate* unmanaged[Cdecl]<IntPtr, int, int> Lua_GetMetaTable;
@@ -76,9 +79,13 @@ internal static unsafe class Natives
     internal static delegate* unmanaged[Cdecl]<IntPtr, int, void> Lua_Insert;
     internal static delegate* unmanaged[Cdecl]<IntPtr, int, void> Lua_Remove;
     internal static delegate* unmanaged[Cdecl]<IntPtr, int, void> Lua_Replace;
-    internal static delegate* unmanaged[Cdecl]<IntPtr, IntPtr, int, void> Lua_PushUserType;
-    internal static delegate* unmanaged[Cdecl]<IntPtr, int, int, IntPtr> Lua_ToUserType;
     internal static delegate* unmanaged[Cdecl]<IntPtr, IntPtr, int> Lua_NewMetaTable;
+    internal static delegate* unmanaged[Cdecl]<IntPtr, int, int> Lua_Next;
+    internal static delegate* unmanaged[Cdecl]<IntPtr, int, void> Lua_Concat;
+    internal static delegate* unmanaged[Cdecl]<IntPtr, int, void> Lua_Len;
+    
+    internal static delegate* unmanaged[Cdecl]<IntPtr, int, int> LuaL_Ref;
+    internal static delegate* unmanaged[Cdecl]<IntPtr, int, int, void> LuaL_Unref;
     
     internal static IntPtr ManagedFunctionWrapper;
 
@@ -124,7 +131,10 @@ internal static unsafe class Natives
         Lua_GetGlobal = (delegate* unmanaged[Cdecl]<IntPtr, IntPtr, int>) NativeLibrary.GetExport(handle, nameof(Lua_GetGlobal));
         Lua_GetTable = (delegate* unmanaged[Cdecl]<IntPtr, int, int>) NativeLibrary.GetExport(handle, nameof(Lua_GetTable));
         Lua_GetField = (delegate* unmanaged[Cdecl]<IntPtr, int, IntPtr, int>) NativeLibrary.GetExport(handle, nameof(Lua_GetField));
+        Lua_GetI = (delegate* unmanaged[Cdecl]<IntPtr, int, long, int>) NativeLibrary.GetExport(handle, nameof(Lua_GetI));
         Lua_RawGet = (delegate* unmanaged[Cdecl]<IntPtr, int, int>) NativeLibrary.GetExport(handle, nameof(Lua_RawGet));
+        Lua_RawGetI = (delegate* unmanaged[Cdecl]<IntPtr, int, long, int>) NativeLibrary.GetExport(handle, nameof(Lua_RawGetI));
+        Lua_RawGetP = (delegate* unmanaged[Cdecl]<IntPtr, int, IntPtr, int>) NativeLibrary.GetExport(handle, nameof(Lua_RawGetP));
         Lua_CreateTable = (delegate* unmanaged[Cdecl]<IntPtr, int, int, void>) NativeLibrary.GetExport(handle, nameof(Lua_CreateTable));
         Lua_NewUserData = (delegate* unmanaged[Cdecl]<IntPtr, uint, IntPtr>) NativeLibrary.GetExport(handle, nameof(Lua_NewUserData));
         Lua_GetMetaTable = (delegate* unmanaged[Cdecl]<IntPtr, int, int>) NativeLibrary.GetExport(handle, nameof(Lua_GetMetaTable));
@@ -153,9 +163,13 @@ internal static unsafe class Natives
         Lua_Insert = (delegate* unmanaged[Cdecl]<IntPtr, int, void>) NativeLibrary.GetExport(handle, nameof(Lua_Insert));
         Lua_Remove = (delegate* unmanaged[Cdecl]<IntPtr, int, void>) NativeLibrary.GetExport(handle, nameof(Lua_Remove));
         Lua_Replace = (delegate* unmanaged[Cdecl]<IntPtr, int, void>) NativeLibrary.GetExport(handle, nameof(Lua_Replace));
-        Lua_PushUserType = (delegate* unmanaged[Cdecl]<IntPtr, IntPtr, int, void>) NativeLibrary.GetExport(handle, nameof(Lua_PushUserType));
-        Lua_ToUserType = (delegate* unmanaged[Cdecl]<IntPtr, int, int, IntPtr>) NativeLibrary.GetExport(handle, nameof(Lua_ToUserType));
         Lua_NewMetaTable = (delegate* unmanaged[Cdecl]<IntPtr, IntPtr, int>) NativeLibrary.GetExport(handle, nameof(Lua_NewMetaTable));
+        Lua_Next = (delegate* unmanaged[Cdecl]<IntPtr, int, int>) NativeLibrary.GetExport(handle, nameof(Lua_Next));
+        Lua_Concat = (delegate* unmanaged[Cdecl]<IntPtr, int, void>) NativeLibrary.GetExport(handle, nameof(Lua_Concat));
+        Lua_Len = (delegate* unmanaged[Cdecl]<IntPtr, int, void>) NativeLibrary.GetExport(handle, nameof(Lua_Len));
+        
+        LuaL_Ref = (delegate* unmanaged[Cdecl]<IntPtr, int, int>) NativeLibrary.GetExport(handle, nameof(LuaL_Ref));
+        LuaL_Unref = (delegate* unmanaged[Cdecl]<IntPtr, int, int, void>) NativeLibrary.GetExport(handle, nameof(LuaL_Unref));
         
         ManagedFunctionWrapper = NativeLibrary.GetExport(handle, nameof(ManagedFunctionWrapper));
     }

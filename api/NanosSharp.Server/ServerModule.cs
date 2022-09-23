@@ -12,6 +12,5 @@ public class ServerModule : IModule
     /// </summary>
     public void Initialize(ILuaVM vm)
     {
-        
     }
 }

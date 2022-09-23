@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\NanosSharp.API\NanosSharp.API.csproj" />
+      <ProjectReference Include="..\NanosSharp.Server.Bindings\NanosSharp.Server.Bindings.csproj" />
     </ItemGroup>
 
 </Project>

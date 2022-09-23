@@ -8,9 +8,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\NanosSharp.API\NanosSharp.API.csproj" />
-      <ProjectReference Include="..\NanosSharp.Server.Bindings.Generator\NanosSharp.Server.Bindings.Generator.csproj"
-                        OutputItemType="Analyzer"
-                        ReferenceOutputAssembly="false" />
     </ItemGroup>
 
 </Project>

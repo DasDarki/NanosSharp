@@ -348,11 +348,35 @@ internal class LuaVM : ILuaVM
         }
     }
 
+    public int GetI(int idx, long n)
+    {
+        unsafe
+        {
+            return Natives.Lua_GetI(Handle, idx, n);
+        }
+    }
+
     public int RawGet(int idx)
     {
         unsafe
         {
             return Natives.Lua_RawGet(Handle, idx);
+        }
+    }
+
+    public int RawGetI(int idx, long n)
+    {
+        unsafe
+        {
+            return Natives.Lua_RawGetI(Handle, idx, n);
+        }
+    }
+
+    public int RawGetP(int idx, IntPtr p)
+    {
+        unsafe
+        {
+            return Natives.Lua_RawGetP(Handle, idx, p);
         }
     }
 
@@ -620,14 +644,6 @@ internal class LuaVM : ILuaVM
         }
     }
 
-    public void PushUserType(IntPtr p, int type)
-    {
-        unsafe
-        {
-            Natives.Lua_PushUserType(Handle, p, type);
-        }
-    }
-
     public int NewMetaTable(string name)
     {
         byte[] buff = Encoding.GetBytes(name);
@@ -641,11 +657,27 @@ internal class LuaVM : ILuaVM
         }
     }
 
-    public IntPtr ToUserType(int idx, int type)
+    public int Next(int idx)
     {
         unsafe
         {
-            return Natives.Lua_ToUserType(Handle, idx, type);
+            return Natives.Lua_Next(Handle, idx);
+        }
+    }
+
+    public void Concat(int n)
+    {
+        unsafe
+        {
+            Natives.Lua_Concat(Handle, n);
+        }
+    }
+
+    public void Len(int idx)
+    {
+        unsafe
+        {
+            Natives.Lua_Len(Handle, idx);
         }
     }
 
@@ -664,5 +696,21 @@ internal class LuaVM : ILuaVM
         GCHandle handle = GCHandle.Alloc(fn, GCHandleType.Normal);
         PushLightUserData(GCHandle.ToIntPtr(handle));
         PushCClosure(Natives.ManagedFunctionWrapper, n + 1);
+    }
+
+    public int Ref(int t)
+    {
+        unsafe
+        {
+            return Natives.LuaL_Ref(Handle, t);
+        }
+    }
+
+    public void Unref(int t, int @ref)
+    {
+        unsafe
+        {
+            Natives.LuaL_Unref(Handle, t, @ref);
+        }
     }
 }

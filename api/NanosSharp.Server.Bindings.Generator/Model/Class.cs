@@ -8,16 +8,16 @@ internal class Class : AuthorityOwned
     internal Value[]? Constructor { get; set; }
     
     [JsonProperty("properties")]
-    internal Value[] Properties { get; set; }
+    internal Value[]? Properties { get; set; }
     
     [JsonProperty("functions")]
-    internal Function[] Functions { get; set; }
+    internal Function[]? Functions { get; set; }
     
     [JsonProperty("static_functions")]
-    internal Function[] StaticFunctions { get; set; }
+    internal Function[]? StaticFunctions { get; set; }
     
     [JsonProperty("events")]
-    internal Event[] Events { get; set; }
+    internal Event[]? Events { get; set; }
     
     [JsonProperty("inheritance")]
     internal string[]? Inheritance { get; set; }

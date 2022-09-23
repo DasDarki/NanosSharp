@@ -5,6 +5,9 @@
 /// </summary>
 public interface ILuaVM
 {
+    const int MaxStack = 1000000;
+    const int RegistryIndex = -MaxStack - 1000;
+    
     delegate int CFunction(ILuaVM state);
     
     int AbsIndex(int idx);
@@ -43,7 +46,10 @@ public interface ILuaVM
     int GetGlobal(string name);
     int GetTable(int idx);
     int GetField(int idx, string k);
+    int GetI(int idx, long n);
     int RawGet(int idx);
+    int RawGetI(int idx, long n);
+    int RawGetP(int idx, IntPtr p);
     void CreateTable(int narr, int nrec);
     IntPtr NewUserData(uint sz);
     int GetMetaTable(int objIndex);
@@ -74,9 +80,12 @@ public interface ILuaVM
     void Insert(int idx);
     void Remove(int idx);
     void Replace(int idx);
-    void PushUserType(IntPtr p, int type);
     int NewMetaTable(string name);
-    IntPtr ToUserType(int idx, int type);
+    int Next(int idx);
+    void Concat(int n);
+    void Len(int idx);
     void PushManagedFunction(CFunction fn);
     void PushManagedClosure(CFunction fn, byte n);
+    int Ref(int t);
+    void Unref(int t, int @ref);
 }

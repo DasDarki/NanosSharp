@@ -210,8 +210,20 @@ EXPORT int Lua_GetField(lua_State *L, int idx, const char *k) {
     return lua_getfield(L, idx, k);
 }
 
+EXPORT int Lua_GetI(lua_State *L, int idx, long long n) {
+    return lua_geti(L, idx, n);
+}
+
 EXPORT int Lua_RawGet(lua_State *L, int idx) {
     return lua_rawget(L, idx);
+}
+
+EXPORT int Lua_RawGetI(lua_State *L, int idx, long long n) {
+    return lua_rawgeti(L, idx, n);
+}
+
+EXPORT int Lua_RawGetP(lua_State *L, int idx, void *p) {
+    return lua_rawgetp(L, idx, p);
 }
 
 EXPORT void Lua_CreateTable(lua_State *L, int narr, int nrec) {
@@ -326,34 +338,36 @@ EXPORT void Lua_Replace(lua_State *L, int idx) {
     lua_replace(L, idx);
 }
 
-EXPORT void Lua_PushUserType(lua_State *L, void *p, int type) {
-    lua_pushlightuserdata(L, p);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, type);
-    lua_setmetatable(L, -2);
-}
-
-EXPORT void *Lua_ToUserType(lua_State *L, int idx, int type) {
-    void *p = lua_touserdata(L, idx);
-    if (p != NULL) {
-        if (lua_getmetatable(L, idx)) {
-            lua_rawgeti(L, LUA_REGISTRYINDEX, type);
-            if (!lua_rawequal(L, -1, -2)) {
-                p = NULL;
-            }
-            lua_pop(L, 2);
-            return p;
-        }
-    }
-    return NULL;
-}
-
 EXPORT int Lua_NewMetaTable(lua_State *L, const char *name) {
     return luaL_newmetatable(L, name);
+}
+
+EXPORT int Lua_Next(lua_State *L, int idx) {
+    return lua_next(L, idx);
+}
+
+EXPORT void Lua_Concat(lua_State *L, int n) {
+    lua_concat(L, n);
+}
+
+EXPORT void Lua_Len(lua_State *L, int idx) {
+    lua_len(L, idx);
 }
 
 EXPORT int ManagedFunctionWrapper(lua_State *L) {
     void *gc_handle = lua_touserdata(L, lua_upvalueindex(1));
     return call_managed_delegate(L, gc_handle);
+}
+
+// endregion
+
+// region luaxlib.h
+EXPORT int LuaL_Ref(lua_State *L, int t) {
+    return luaL_ref(L, t);
+}
+
+EXPORT void LuaL_Unref(lua_State *L, int t, int ref) {
+    luaL_unref(L, t, ref);
 }
 
 // endregion
