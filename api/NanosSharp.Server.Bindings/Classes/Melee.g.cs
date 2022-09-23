@@ -6,7 +6,7 @@ namespace NanosSharp.Server.Bindings;
 
 public class Melee : Pickable
 {
-    public static void AddAnimationCharacterUse(ILuaVM vm, int selfRef, int asset_path, double play_rate, int slot_Type)
+    public static void AddAnimationCharacterUse(ILuaVM vm, int selfRef, string asset_path, double play_rate, LuaRef slot_Type)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -16,7 +16,7 @@ public class Melee : Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, asset_path);
+        vm.PushString(asset_path);
         pc++;
         vm.PushNumber(play_rate);
         pc++;
@@ -38,7 +38,7 @@ public class Melee : Pickable
         vm.ClearStack();
     }
 
-    public static void SetImpactSound(ILuaVM vm, int selfRef, int surface_type, int asset_path, double volume, double pitch)
+    public static void SetImpactSound(ILuaVM vm, int selfRef, LuaRef surface_type, string asset_path, double volume, double pitch)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -50,7 +50,7 @@ public class Melee : Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, surface_type);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, asset_path);
+        vm.PushString(asset_path);
         pc++;
         vm.PushNumber(volume);
         pc++;
@@ -59,7 +59,7 @@ public class Melee : Pickable
         vm.ClearStack();
     }
 
-    public static void SetSoundUse(ILuaVM vm, int selfRef, int asset_path)
+    public static void SetSoundUse(ILuaVM vm, int selfRef, string asset_path)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -69,7 +69,7 @@ public class Melee : Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, asset_path);
+        vm.PushString(asset_path);
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
@@ -124,7 +124,7 @@ public class Melee : Pickable
         vm.ClearStack();
     }
 
-    public static int[] GetAnimationsCharacterUse(ILuaVM vm, int selfRef)
+    public static string[] GetAnimationsCharacterUse(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -134,11 +134,12 @@ public class Melee : Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         vm.MCall(pc, 1);
+        var r0 = vm.ToArray<string>(-1);
         vm.ClearStack();
         return r0;
     }
 
-    public static int GetSoundUse(ILuaVM vm, int selfRef)
+    public static string GetSoundUse(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -148,7 +149,8 @@ public class Melee : Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         vm.MCall(pc, 1);
-        var r0 = vm.Ref(ILuaVM.RegistryIndex);
+        var r0 = vm.ToString(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }

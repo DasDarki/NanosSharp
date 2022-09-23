@@ -85,7 +85,7 @@ public class Particle : Actor
         vm.ClearStack();
     }
 
-    public static void SetParameterVector(ILuaVM vm, int selfRef, string parameter, int value)
+    public static void SetParameterVector(ILuaVM vm, int selfRef, string parameter, LuaRef value)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -102,7 +102,7 @@ public class Particle : Actor
         vm.ClearStack();
     }
 
-    public static void SetParameterColor(ILuaVM vm, int selfRef, string parameter, int value)
+    public static void SetParameterColor(ILuaVM vm, int selfRef, string parameter, LuaRef value)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -119,7 +119,7 @@ public class Particle : Actor
         vm.ClearStack();
     }
 
-    public static void SetParameterMaterial(ILuaVM vm, int selfRef, string parameter, int value)
+    public static void SetParameterMaterial(ILuaVM vm, int selfRef, string parameter, string value)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -131,7 +131,7 @@ public class Particle : Actor
         pc++;
         vm.PushString(parameter);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, value);
+        vm.PushString(value);
         vm.MCall(pc, 0);
         vm.ClearStack();
     }

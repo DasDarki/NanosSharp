@@ -13,6 +13,7 @@ public static class JSON
         vm.GetField(-1, "JSON");
         vm.GetField(-1, "stringify");
         pc++;
+        vm.PushTable(value);
         vm.MCall(pc, 1);
         var r0 = vm.ToString(-1);
         vm.Pop();
@@ -29,7 +30,8 @@ public static class JSON
         pc++;
         vm.PushString(value);
         vm.MCall(pc, 1);
-        var r0 = vm.Ref(ILuaVM.RegistryIndex);
+        var r0 = vm.ToObject(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }

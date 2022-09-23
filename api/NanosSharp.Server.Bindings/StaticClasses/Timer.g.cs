@@ -6,21 +6,23 @@ namespace NanosSharp.Server.Bindings;
 
 public static class Timer
 {
-    public static double SetTimeout(ILuaVM vm, int callback, double? milliseconds = null, params object[] parameters)
+    public static double SetTimeout(ILuaVM vm, ILuaVM.CFunction callback, double? milliseconds = null, params object[] parameters)
     {
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Timer");
         vm.GetField(-1, "SetTimeout");
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, callback);
+        vm.PushManagedFunction(callback);
         if (milliseconds != null)
         {
              pc++;
              vm.PushNumber(milliseconds.Value);
         }
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, parameters);
+        foreach (var a in parameters) {
+            vm.PushObject(a);
+        }
         vm.MCall(pc, 1);
         var r0 = vm.ToNumber(-1);
         vm.Pop();
@@ -28,21 +30,23 @@ public static class Timer
         return r0;
     }
 
-    public static double SetInterval(ILuaVM vm, int callback, double? milliseconds = null, params object[] parameters)
+    public static double SetInterval(ILuaVM vm, ILuaVM.CFunction callback, double? milliseconds = null, params object[] parameters)
     {
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Timer");
         vm.GetField(-1, "SetInterval");
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, callback);
+        vm.PushManagedFunction(callback);
         if (milliseconds != null)
         {
              pc++;
              vm.PushNumber(milliseconds.Value);
         }
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, parameters);
+        foreach (var a in parameters) {
+            vm.PushObject(a);
+        }
         vm.MCall(pc, 1);
         var r0 = vm.ToNumber(-1);
         vm.Pop();
@@ -74,7 +78,7 @@ public static class Timer
         vm.ClearStack();
     }
 
-    public static void Bind(ILuaVM vm, double timer_id, int actor)
+    public static void Bind(ILuaVM vm, double timer_id, LuaRef actor)
     {
         int pc = 0;
         vm.PushGlobalTable();

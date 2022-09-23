@@ -56,7 +56,7 @@ public class Player
         vm.ClearStack();
     }
 
-    public static void Possess(ILuaVM vm, int selfRef, int new_character, double? blend_time = null, double? exp = null)
+    public static void Possess(ILuaVM vm, int selfRef, LuaRef new_character, double? blend_time = null, double? exp = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -81,7 +81,7 @@ public class Player
         vm.ClearStack();
     }
 
-    public static void SetCameraLocation(ILuaVM vm, int selfRef, int location)
+    public static void SetCameraLocation(ILuaVM vm, int selfRef, LuaRef location)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -96,7 +96,7 @@ public class Player
         vm.ClearStack();
     }
 
-    public static void SetCameraRotation(ILuaVM vm, int selfRef, int rotation)
+    public static void SetCameraRotation(ILuaVM vm, int selfRef, LuaRef rotation)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -111,7 +111,7 @@ public class Player
         vm.ClearStack();
     }
 
-    public static void TranslateCameraTo(ILuaVM vm, int selfRef, int location, double time, double? exp = null)
+    public static void TranslateCameraTo(ILuaVM vm, int selfRef, LuaRef location, double time, double? exp = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -133,7 +133,7 @@ public class Player
         vm.ClearStack();
     }
 
-    public static void RotateCameraTo(ILuaVM vm, int selfRef, int rotation, double time, double? exp = null)
+    public static void RotateCameraTo(ILuaVM vm, int selfRef, LuaRef rotation, double time, double? exp = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -155,7 +155,7 @@ public class Player
         vm.ClearStack();
     }
 
-    public static void SetCameraSocketOffset(ILuaVM vm, int selfRef, int socket_offset)
+    public static void SetCameraSocketOffset(ILuaVM vm, int selfRef, LuaRef socket_offset)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -185,7 +185,7 @@ public class Player
         vm.ClearStack();
     }
 
-    public static void AttachCameraTo(ILuaVM vm, int selfRef, int actor, int socket_offset, double blend_speed)
+    public static void AttachCameraTo(ILuaVM vm, int selfRef, LuaRef actor, LuaRef socket_offset, double blend_speed)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -217,7 +217,7 @@ public class Player
         vm.ClearStack();
     }
 
-    public static void Spectate(ILuaVM vm, int selfRef, int player, double? blend_speed = null)
+    public static void Spectate(ILuaVM vm, int selfRef, LuaRef player, double? blend_speed = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -264,7 +264,7 @@ public class Player
         pc++;
         vm.PushString(key);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, value);
+        vm.PushObject(value);
         if (sync_on_clients != null)
         {
              pc++;
@@ -289,7 +289,7 @@ public class Player
         vm.ClearStack();
     }
 
-    public static void SetVOIPSetting(ILuaVM vm, int selfRef, int setting)
+    public static void SetVOIPSetting(ILuaVM vm, int selfRef, LuaRef setting)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -380,7 +380,7 @@ public class Player
         return r0;
     }
 
-    public static int? GetControlledCharacter(ILuaVM vm, int selfRef)
+    public static LuaRef? GetControlledCharacter(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -503,9 +503,10 @@ public class Player
         pc++;
         vm.PushString(key);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, fallback);
+        vm.PushObject(fallback);
         vm.MCall(pc, 1);
-        var r0 = vm.Ref(ILuaVM.RegistryIndex);
+        var r0 = vm.ToObject(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }
@@ -526,7 +527,7 @@ public class Player
         return r0;
     }
 
-    public static int GetVOIPSetting(ILuaVM vm, int selfRef)
+    public static LuaRef GetVOIPSetting(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -541,7 +542,7 @@ public class Player
         return r0;
     }
 
-    public static int Subscribe(ILuaVM vm, int selfRef, string event_name, int function)
+    public static ILuaVM.CFunction Subscribe(ILuaVM vm, int selfRef, string event_name, ILuaVM.CFunction function)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -553,14 +554,15 @@ public class Player
         pc++;
         vm.PushString(event_name);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, function);
+        vm.PushManagedFunction(function);
         vm.MCall(pc, 1);
-        var r0 = vm.Ref(ILuaVM.RegistryIndex);
+        var r0 = vm.ToCFunction(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }
 
-    public static void Unsubscribe(ILuaVM vm, int selfRef, string event_name, int function)
+    public static void Unsubscribe(ILuaVM vm, int selfRef, string event_name, ILuaVM.CFunction function)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -572,7 +574,7 @@ public class Player
         pc++;
         vm.PushString(event_name);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, function);
+        vm.PushManagedFunction(function);
         vm.MCall(pc, 0);
         vm.ClearStack();
     }

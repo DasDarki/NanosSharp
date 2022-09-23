@@ -6,7 +6,7 @@ namespace NanosSharp.Server.Bindings;
 
 public class TextRender : Paintable
 {
-    public static void SetColor(ILuaVM vm, int selfRef, int color)
+    public static void SetColor(ILuaVM vm, int selfRef, LuaRef color)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -21,7 +21,7 @@ public class TextRender : Paintable
         vm.ClearStack();
     }
 
-    public static void SetFont(ILuaVM vm, int selfRef, int font_type)
+    public static void SetFont(ILuaVM vm, int selfRef, LuaRef font_type)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -51,7 +51,7 @@ public class TextRender : Paintable
         vm.ClearStack();
     }
 
-    public static void SetGlyphSettings(ILuaVM vm, int selfRef, double? extrude = null, double? level = null, int? bevel_type = null, double? bevel_segments = null, bool? outline = null)
+    public static void SetGlyphSettings(ILuaVM vm, int selfRef, double? extrude = null, double? level = null, LuaRef? bevel_type = null, double? bevel_segments = null, bool? outline = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -132,7 +132,7 @@ public class TextRender : Paintable
         vm.ClearStack();
     }
 
-    public static void SetTextSettings(ILuaVM vm, int selfRef, double? kerning = null, double? line_spacing = null, double? word_spacing = null, int? horizontal_alignment = null, int? vertical_alignment = null)
+    public static void SetTextSettings(ILuaVM vm, int selfRef, double? kerning = null, double? line_spacing = null, double? word_spacing = null, LuaRef? horizontal_alignment = null, LuaRef? vertical_alignment = null)
     {
         int pc = 0;
         vm.PushGlobalTable();

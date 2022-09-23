@@ -19,7 +19,7 @@ public class Database
         vm.ClearStack();
     }
 
-    public static void Execute(ILuaVM vm, int selfRef, string query, int? callback = null, params object[] parameters)
+    public static void Execute(ILuaVM vm, int selfRef, string query, ILuaVM.CFunction? callback = null, params object[] parameters)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -33,15 +33,17 @@ public class Database
         if (callback != null)
         {
              pc++;
-             vm.RawGetI(ILuaVM.RegistryIndex, callback.Value);
+             vm.PushManagedFunction(callback);
         }
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, parameters);
+        foreach (var a in parameters) {
+            vm.PushObject(a);
+        }
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
 
-    public static void ExecuteSync(ILuaVM vm, int selfRef, string query, params object[] parameters, out double r0, out string r1)
+    public static void ExecuteSync(ILuaVM vm, int selfRef, string query, out double r0, out string r1, params object[] parameters)
     {
         r0 = default;
         r1 = default;
@@ -55,7 +57,9 @@ public class Database
         pc++;
         vm.PushString(query);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, parameters);
+        foreach (var a in parameters) {
+            vm.PushObject(a);
+        }
         vm.MCall(pc, 2);
         r1 = vm.ToString(-1);
         vm.Pop();
@@ -64,7 +68,7 @@ public class Database
         vm.ClearStack();
     }
 
-    public static void Select(ILuaVM vm, int selfRef, string query, int? callback = null, params object[] parameters)
+    public static void Select(ILuaVM vm, int selfRef, string query, ILuaVM.CFunction? callback = null, params object[] parameters)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -78,15 +82,17 @@ public class Database
         if (callback != null)
         {
              pc++;
-             vm.RawGetI(ILuaVM.RegistryIndex, callback.Value);
+             vm.PushManagedFunction(callback);
         }
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, parameters);
+        foreach (var a in parameters) {
+            vm.PushObject(a);
+        }
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
 
-    public static void SelectSync(ILuaVM vm, int selfRef, string query, params object[] parameters, out Dictionary<string, object>[] r0, out string r1)
+    public static void SelectSync(ILuaVM vm, int selfRef, string query, out Dictionary<string, object>[] r0, out string r1, params object[] parameters)
     {
         r0 = default;
         r1 = default;
@@ -100,10 +106,13 @@ public class Database
         pc++;
         vm.PushString(query);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, parameters);
+        foreach (var a in parameters) {
+            vm.PushObject(a);
+        }
         vm.MCall(pc, 2);
         r1 = vm.ToString(-1);
         vm.Pop();
+        r0 = vm.ToArray<Dictionary<string, object>>(-1);
         vm.ClearStack();
     }
 

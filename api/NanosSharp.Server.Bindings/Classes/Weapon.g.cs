@@ -76,7 +76,7 @@ public class Weapon : Pickable
         vm.ClearStack();
     }
 
-    public static void SetAnimationFire(ILuaVM vm, int selfRef, int animation_asset_path, double? play_rate = null)
+    public static void SetAnimationFire(ILuaVM vm, int selfRef, string animation_asset_path, double? play_rate = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -86,7 +86,7 @@ public class Weapon : Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, animation_asset_path);
+        vm.PushString(animation_asset_path);
         if (play_rate != null)
         {
              pc++;
@@ -96,7 +96,7 @@ public class Weapon : Pickable
         vm.ClearStack();
     }
 
-    public static void SetAnimationCharacterFire(ILuaVM vm, int selfRef, int animation_path, double? play_rate = null)
+    public static void SetAnimationCharacterFire(ILuaVM vm, int selfRef, string animation_path, double? play_rate = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -106,7 +106,7 @@ public class Weapon : Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, animation_path);
+        vm.PushString(animation_path);
         if (play_rate != null)
         {
              pc++;
@@ -131,7 +131,7 @@ public class Weapon : Pickable
         vm.ClearStack();
     }
 
-    public static void SetBulletColor(ILuaVM vm, int selfRef, int color)
+    public static void SetBulletColor(ILuaVM vm, int selfRef, LuaRef color)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -146,22 +146,7 @@ public class Weapon : Pickable
         vm.ClearStack();
     }
 
-    public static void SetAutoReload(ILuaVM vm, int selfRef, bool auto_reload)
-    {
-        int pc = 0;
-        vm.PushGlobalTable();
-        vm.GetField(-1, "Weapon");
-        vm.GetField(-1, "__function");
-        vm.GetField(-1, "SetAutoReload");
-        pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
-        pc++;
-        vm.PushBoolean(auto_reload);
-        vm.MCall(pc, 0);
-        vm.ClearStack();
-    }
-
-    public static void SetBulletSettings(ILuaVM vm, int selfRef, double bullet_count, double bullet_max_distance, double bullet_velocity, int bullet_color)
+    public static void SetBulletSettings(ILuaVM vm, int selfRef, double bullet_count, double bullet_max_distance, double bullet_velocity, LuaRef bullet_color)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -227,7 +212,7 @@ public class Weapon : Pickable
         vm.ClearStack();
     }
 
-    public static void SetHandlingMode(ILuaVM vm, int selfRef, int mode)
+    public static void SetHandlingMode(ILuaVM vm, int selfRef, LuaRef mode)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -242,7 +227,7 @@ public class Weapon : Pickable
         vm.ClearStack();
     }
 
-    public static void SetLeftHandTransform(ILuaVM vm, int selfRef, int location, int rotation)
+    public static void SetLeftHandTransform(ILuaVM vm, int selfRef, LuaRef location, LuaRef rotation)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -259,7 +244,7 @@ public class Weapon : Pickable
         vm.ClearStack();
     }
 
-    public static void SetMagazineMesh(ILuaVM vm, int selfRef, int static_mesh_asset_path, string? magazine_mesh_hide_bone = null)
+    public static void SetMagazineMesh(ILuaVM vm, int selfRef, string static_mesh_asset_path, string? magazine_mesh_hide_bone = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -269,7 +254,7 @@ public class Weapon : Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, static_mesh_asset_path);
+        vm.PushString(static_mesh_asset_path);
         if (magazine_mesh_hide_bone != null)
         {
              pc++;
@@ -279,7 +264,7 @@ public class Weapon : Pickable
         vm.ClearStack();
     }
 
-    public static void SetParticlesBulletTrail(ILuaVM vm, int selfRef, int particle_asset_path)
+    public static void SetParticlesBulletTrail(ILuaVM vm, int selfRef, string particle_asset_path)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -289,12 +274,12 @@ public class Weapon : Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, particle_asset_path);
+        vm.PushString(particle_asset_path);
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
 
-    public static void SetParticlesBarrel(ILuaVM vm, int selfRef, int particle_asset_path)
+    public static void SetParticlesBarrel(ILuaVM vm, int selfRef, string particle_asset_path)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -304,12 +289,12 @@ public class Weapon : Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, particle_asset_path);
+        vm.PushString(particle_asset_path);
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
 
-    public static void SetParticlesShells(ILuaVM vm, int selfRef, int particle_asset_path)
+    public static void SetParticlesShells(ILuaVM vm, int selfRef, string particle_asset_path)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -319,12 +304,12 @@ public class Weapon : Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, particle_asset_path);
+        vm.PushString(particle_asset_path);
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
 
-    public static void SetRightHandOffset(ILuaVM vm, int selfRef, int offset)
+    public static void SetRightHandOffset(ILuaVM vm, int selfRef, LuaRef offset)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -354,7 +339,7 @@ public class Weapon : Pickable
         vm.ClearStack();
     }
 
-    public static void SetSightTransform(ILuaVM vm, int selfRef, int location, int rotation)
+    public static void SetSightTransform(ILuaVM vm, int selfRef, LuaRef location, LuaRef rotation)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -371,7 +356,7 @@ public class Weapon : Pickable
         vm.ClearStack();
     }
 
-    public static void SetSoundDry(ILuaVM vm, int selfRef, int sound_asset_path, double? volume = null, double? pitch = null)
+    public static void SetSoundDry(ILuaVM vm, int selfRef, string sound_asset_path, double? volume = null, double? pitch = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -381,7 +366,7 @@ public class Weapon : Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, sound_asset_path);
+        vm.PushString(sound_asset_path);
         if (volume != null)
         {
              pc++;
@@ -396,7 +381,7 @@ public class Weapon : Pickable
         vm.ClearStack();
     }
 
-    public static void SetSoundLoad(ILuaVM vm, int selfRef, int sound_asset_path, double? volume = null, double? pitch = null)
+    public static void SetSoundLoad(ILuaVM vm, int selfRef, string sound_asset_path, double? volume = null, double? pitch = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -406,7 +391,7 @@ public class Weapon : Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, sound_asset_path);
+        vm.PushString(sound_asset_path);
         if (volume != null)
         {
              pc++;
@@ -421,7 +406,7 @@ public class Weapon : Pickable
         vm.ClearStack();
     }
 
-    public static void SetSoundUnload(ILuaVM vm, int selfRef, int sound_asset_path, double? volume = null, double? pitch = null)
+    public static void SetSoundUnload(ILuaVM vm, int selfRef, string sound_asset_path, double? volume = null, double? pitch = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -431,7 +416,7 @@ public class Weapon : Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, sound_asset_path);
+        vm.PushString(sound_asset_path);
         if (volume != null)
         {
              pc++;
@@ -446,7 +431,7 @@ public class Weapon : Pickable
         vm.ClearStack();
     }
 
-    public static void SetSoundZooming(ILuaVM vm, int selfRef, int sound_asset_path, double? volume = null, double? pitch = null)
+    public static void SetSoundZooming(ILuaVM vm, int selfRef, string sound_asset_path, double? volume = null, double? pitch = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -456,7 +441,7 @@ public class Weapon : Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, sound_asset_path);
+        vm.PushString(sound_asset_path);
         if (volume != null)
         {
              pc++;
@@ -471,7 +456,7 @@ public class Weapon : Pickable
         vm.ClearStack();
     }
 
-    public static void SetSoundFire(ILuaVM vm, int selfRef, int sound_asset_path, double? volume = null, double? pitch = null)
+    public static void SetSoundFire(ILuaVM vm, int selfRef, string sound_asset_path, double? volume = null, double? pitch = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -481,7 +466,7 @@ public class Weapon : Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, sound_asset_path);
+        vm.PushString(sound_asset_path);
         if (volume != null)
         {
              pc++;
@@ -496,7 +481,7 @@ public class Weapon : Pickable
         vm.ClearStack();
     }
 
-    public static void SetSoundAim(ILuaVM vm, int selfRef, int sound_asset_path, double? volume = null, double? pitch = null)
+    public static void SetSoundAim(ILuaVM vm, int selfRef, string sound_asset_path, double? volume = null, double? pitch = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -506,7 +491,7 @@ public class Weapon : Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, sound_asset_path);
+        vm.PushString(sound_asset_path);
         if (volume != null)
         {
              pc++;
@@ -521,7 +506,7 @@ public class Weapon : Pickable
         vm.ClearStack();
     }
 
-    public static void SetSoundFireLastBullets(ILuaVM vm, int selfRef, int sound_asset_path, double? remaining_bullets_count = null)
+    public static void SetSoundFireLastBullets(ILuaVM vm, int selfRef, string sound_asset_path, double? remaining_bullets_count = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -531,7 +516,7 @@ public class Weapon : Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, sound_asset_path);
+        vm.PushString(sound_asset_path);
         if (remaining_bullets_count != null)
         {
              pc++;
@@ -653,7 +638,7 @@ public class Weapon : Pickable
         return r0;
     }
 
-    public static int GetHandlingMode(ILuaVM vm, int selfRef)
+    public static LuaRef GetHandlingMode(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -892,7 +877,7 @@ public class Weapon : Pickable
         return r0;
     }
 
-    public static int GetBulletColor(ILuaVM vm, int selfRef)
+    public static LuaRef GetBulletColor(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -955,7 +940,7 @@ public class Weapon : Pickable
         return r0;
     }
 
-    public static int GetRightHandOffset(ILuaVM vm, int selfRef)
+    public static LuaRef GetRightHandOffset(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -970,7 +955,7 @@ public class Weapon : Pickable
         return r0;
     }
 
-    public static int GetLeftHandLocation(ILuaVM vm, int selfRef)
+    public static LuaRef GetLeftHandLocation(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -985,7 +970,7 @@ public class Weapon : Pickable
         return r0;
     }
 
-    public static int GetLeftHandRotation(ILuaVM vm, int selfRef)
+    public static LuaRef GetLeftHandRotation(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1000,7 +985,7 @@ public class Weapon : Pickable
         return r0;
     }
 
-    public static int GetSightLocation(ILuaVM vm, int selfRef)
+    public static LuaRef GetSightLocation(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1015,7 +1000,7 @@ public class Weapon : Pickable
         return r0;
     }
 
-    public static int GetSightRotation(ILuaVM vm, int selfRef)
+    public static LuaRef GetSightRotation(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();

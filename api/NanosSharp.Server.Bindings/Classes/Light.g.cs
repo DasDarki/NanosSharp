@@ -6,7 +6,7 @@ namespace NanosSharp.Server.Bindings;
 
 public class Light : Actor
 {
-    public static void SetColor(ILuaVM vm, int selfRef, int color)
+    public static void SetColor(ILuaVM vm, int selfRef, LuaRef color)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -21,7 +21,7 @@ public class Light : Actor
         vm.ClearStack();
     }
 
-    public static void SetTextureLightProfile(ILuaVM vm, int selfRef, int light_profile)
+    public static void SetTextureLightProfile(ILuaVM vm, int selfRef, LuaRef light_profile)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -129,7 +129,7 @@ public class Light : Actor
         return r0;
     }
 
-    public static int GetColor(ILuaVM vm, int selfRef)
+    public static LuaRef GetColor(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();

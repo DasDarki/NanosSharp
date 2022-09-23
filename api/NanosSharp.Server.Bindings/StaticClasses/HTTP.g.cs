@@ -6,7 +6,7 @@ namespace NanosSharp.Server.Bindings;
 
 public static class HTTP
 {
-    public static void Request(ILuaVM vm, string uri, string? endpoint = null, string? method = null, string? data = null, string? content_type = null, bool? compress = null, Dictionary<string, object>? headers = null, int? callback = null)
+    public static void Request(ILuaVM vm, string uri, string? endpoint = null, string? method = null, string? data = null, string? content_type = null, bool? compress = null, Dictionary<string, object>? headers = null, ILuaVM.CFunction? callback = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -42,11 +42,12 @@ public static class HTTP
         if (headers != null)
         {
              pc++;
+             vm.PushTable(headers.Value);
         }
         if (callback != null)
         {
              pc++;
-             vm.RawGetI(ILuaVM.RegistryIndex, callback.Value);
+             vm.PushManagedFunction(callback);
         }
         vm.MCall(pc, 0);
         vm.ClearStack();
@@ -56,6 +57,14 @@ public static class HTTP
     {
         public double Status;
         public string Data;
+        public static implicit operator RequestSync_Return0(Dictionary<string, object> d)
+        {
+            return new RequestSync_Return0
+            {
+                Status = (double)d["Status"],
+                Data = (string)d["Data"],
+            };
+        }
     }
 
     public static RequestSync_Return0 RequestSync(ILuaVM vm, string uri, string? endpoint = null, string? method = null, string? data = null, string? content_type = null, bool? compress = null, Dictionary<string, object>? headers = null)
@@ -94,8 +103,11 @@ public static class HTTP
         if (headers != null)
         {
              pc++;
+             vm.PushTable(headers.Value);
         }
         vm.MCall(pc, 1);
+        var r0 = vm.ToTable(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }

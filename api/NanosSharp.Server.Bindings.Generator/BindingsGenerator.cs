@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp;
+﻿using System.Text;
+using LibGit2Sharp;
 using NanosSharp.Server.Bindings.Generator.Model;
 using NanosSharp.Server.Bindings.Generator.SourceBuilder;
 using Newtonsoft.Json.Linq;
@@ -99,8 +100,14 @@ internal class BindingsGenerator
         {
             void GenerateFunctions(IEnumerable<Function> functions, bool isStatic)
             {
+                var usedFunctions = new List<string>();
+                
                 foreach (var func in functions)
                 {
+                    var funcId = GetFunctionIdentifier(func);
+                    if (usedFunctions.Contains(funcId)) continue;
+                    usedFunctions.Add(funcId);
+                    
                     if (func is not {IsAllowed: true}) continue;
                     if (func.Return != null && func.Return.Any(r => r.Type == "iterator")) continue;
 
@@ -202,25 +209,24 @@ internal class BindingsGenerator
                                 {
                                     void AddPushToBody(bool intend = false, bool isNullable = false)
                                     {
-                                        if (param.Type.Contains("[]"))
-                                        {
-                                            Console.ForegroundColor = ConsoleColor.Yellow;
-                                            Console.WriteLine("Warning: " + clazz.Name + "." + func.Name + " has an array parameter. This is not supported by the C# bindings.");
-                                            Console.ResetColor();
-                                            return;
-                                        }
-
                                         var push = TypeTransformer.DeterminePush(param.Type);
-                                        if (push.StartsWith("Dictionary"))
-                                        {
-                                            Console.ForegroundColor = ConsoleColor.Yellow;
-                                            Console.WriteLine("Warning: " + clazz.Name + "." + func.Name + " has a table parameter. This is not supported by the C# bindings.");
-                                            Console.ResetColor();
-                                            return;
-                                        }
-                                        
                                         var isVararg = param.Name.EndsWith("...");
-                                        body.Add((intend ? "     " : "") + "vm." + push.Replace("%", param.VararglessName + (isNullable && !isVararg && param.Type.ToLower() != "string" ? ".Value" : "")) + ";");
+                                        var needsValue = () => isNullable 
+                                                               && !isVararg 
+                                                               && !param.Type.ToLower().Contains("path")
+                                                               && param.Type.ToLower() != "string"
+                                                               && param.Type.ToLower() != "any"
+                                                               && param.Type.ToLower() != "function";
+                                        if (isVararg)
+                                        {
+                                            body.Add((intend ? "     " : "") + "foreach (var a in " + param.VararglessName + ") {");
+                                            body.Add((intend ? "     " : "") + "    vm." + push.Replace("%", "a" + (needsValue() ? ".Value" : "")) + ";");
+                                            body.Add((intend ? "     " : "") + "}");
+                                        }
+                                        else
+                                        {
+                                            body.Add((intend ? "     " : "") + "vm." + push.Replace("%", param.VararglessName + (needsValue() ? ".Value" : "")) + ";");
+                                        }
                                     }
                                     
                                     var isNullable = (param.Type.EndsWith("?") || param.Default != null) && !param.Name.EndsWith("...");
@@ -248,23 +254,7 @@ internal class BindingsGenerator
                                 for (int i = returnCount - 1; i >= 0; i--)
                                 {
                                     var ret = func.Return[i];
-                                    if (ret.Type.Contains("[]"))
-                                    {
-                                        Console.ForegroundColor = ConsoleColor.Yellow;
-                                        Console.WriteLine("Warning: " + clazz.Name + "." + func.Name + " has an array parameter. This is not supported by the C# bindings.");
-                                        Console.ResetColor();
-                                        continue;
-                                    }
-
                                     var pop = TypeTransformer.DeterminePull(ret.Type, out var needPop);
-                                    if (pop.StartsWith("Dictionary"))
-                                    {
-                                        Console.ForegroundColor = ConsoleColor.Yellow;
-                                        Console.WriteLine("Warning: " + clazz.Name + "." + func.Name + " has a table parameter. This is not supported by the C# bindings.");
-                                        Console.ResetColor();
-                                        continue;
-                                    }
-                                    
                                     body.Add($"{(returnCount > 1 ? "" : "var ")}r{i} = vm.{pop};");
                                     
                                     if (needPop)
@@ -327,6 +317,31 @@ internal class BindingsGenerator
         File.WriteAllText(filename, code);
         
         Console.WriteLine("Generated: " + filename);
+    }
+
+    private string GetFunctionIdentifier(Function f)
+    {
+        var sb = new StringBuilder();
+
+        if (f.Return != null)
+        {
+            foreach (var v in f.Return)
+            {
+                sb.Append(v.Type);
+            }
+        }
+
+        sb.Append(f.Name);
+        
+        if (f.Parameters != null)
+        {
+            foreach (var v in f.Parameters)
+            {
+                sb.Append(v.Type);
+            }
+        }
+        
+        return sb.ToString();
     }
 
     private void DeleteReadOnlyDirectory(string directory)

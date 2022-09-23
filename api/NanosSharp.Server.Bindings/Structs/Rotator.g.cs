@@ -6,7 +6,7 @@ namespace NanosSharp.Server.Bindings;
 
 public class Rotator
 {
-    public static int GetForwardVector(ILuaVM vm, int selfRef)
+    public static LuaRef GetForwardVector(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -20,7 +20,7 @@ public class Rotator
         return r0;
     }
 
-    public static int GetRightVector(ILuaVM vm, int selfRef)
+    public static LuaRef GetRightVector(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -34,7 +34,7 @@ public class Rotator
         return r0;
     }
 
-    public static int GetUpVector(ILuaVM vm, int selfRef)
+    public static LuaRef GetUpVector(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -48,7 +48,7 @@ public class Rotator
         return r0;
     }
 
-    public static int RotateVector(ILuaVM vm, int selfRef, int vector)
+    public static LuaRef RotateVector(ILuaVM vm, int selfRef, LuaRef vector)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -76,7 +76,7 @@ public class Rotator
         vm.ClearStack();
     }
 
-    public static int UnrotateVector(ILuaVM vm, int selfRef, int vector)
+    public static LuaRef UnrotateVector(ILuaVM vm, int selfRef, LuaRef vector)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -92,7 +92,7 @@ public class Rotator
         return r0;
     }
 
-    public static int Quaternion(ILuaVM vm, int selfRef)
+    public static LuaRef Quaternion(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -106,7 +106,7 @@ public class Rotator
         return r0;
     }
 
-    public static int GetNormalized(ILuaVM vm, int selfRef)
+    public static LuaRef GetNormalized(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -155,7 +155,7 @@ public class Rotator
         return r0;
     }
 
-    public static int Random(ILuaVM vm, bool? roll = null)
+    public static LuaRef Random(ILuaVM vm, bool? roll = null)
     {
         int pc = 0;
         vm.PushGlobalTable();

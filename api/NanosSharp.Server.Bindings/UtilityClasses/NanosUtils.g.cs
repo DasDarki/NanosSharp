@@ -6,16 +6,16 @@ namespace NanosSharp.Server.Bindings;
 
 public static class NanosUtils
 {
-    public static bool IsA(ILuaVM vm, object object, object type)
+    public static bool IsA(ILuaVM vm, object obj, object type)
     {
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "NanosUtils");
         vm.GetField(-1, "IsA");
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, object);
+        vm.PushObject(obj);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, type);
+        vm.PushObject(type);
         vm.MCall(pc, 1);
         var r0 = vm.ToBoolean(-1);
         vm.Pop();
@@ -30,7 +30,7 @@ public static class NanosUtils
         vm.GetField(-1, "NanosUtils");
         vm.GetField(-1, "IsEntityValid");
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, entity);
+        vm.PushObject(entity);
         vm.MCall(pc, 1);
         var r0 = vm.ToBoolean(-1);
         vm.Pop();
@@ -45,6 +45,7 @@ public static class NanosUtils
         vm.GetField(-1, "NanosUtils");
         vm.GetField(-1, "Dump");
         pc++;
+        vm.PushTable(table);
         vm.MCall(pc, 1);
         var r0 = vm.ToString(-1);
         vm.Pop();
@@ -52,7 +53,7 @@ public static class NanosUtils
         return r0;
     }
 
-    public static void Benchmark(ILuaVM vm, string name, double amount, int func, params object[] args)
+    public static void Benchmark(ILuaVM vm, string name, double amount, ILuaVM.CFunction func, params object[] args)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -63,9 +64,11 @@ public static class NanosUtils
         pc++;
         vm.PushNumber(amount);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, func);
+        vm.PushManagedFunction(func);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, args);
+        foreach (var a in args) {
+            vm.PushObject(a);
+        }
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
@@ -79,7 +82,9 @@ public static class NanosUtils
         pc++;
         vm.PushString(text);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, args);
+        foreach (var a in args) {
+            vm.PushObject(a);
+        }
         vm.MCall(pc, 1);
         var r0 = vm.ToString(-1);
         vm.Pop();

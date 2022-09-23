@@ -6,7 +6,7 @@ namespace NanosSharp.Server.Bindings;
 
 public class Cable : Paintable
 {
-    public static void AttachStartTo(ILuaVM vm, int selfRef, int other, int? relative_location = null, string? bone_name = null)
+    public static void AttachStartTo(ILuaVM vm, int selfRef, LuaRef other, LuaRef? relative_location = null, string? bone_name = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -31,7 +31,7 @@ public class Cable : Paintable
         vm.ClearStack();
     }
 
-    public static void AttachEndTo(ILuaVM vm, int selfRef, int other, int? relative_location = null, string? bone_name = null)
+    public static void AttachEndTo(ILuaVM vm, int selfRef, LuaRef other, LuaRef? relative_location = null, string? bone_name = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -101,7 +101,7 @@ public class Cable : Paintable
         vm.ClearStack();
     }
 
-    public static void SetForces(ILuaVM vm, int selfRef, int force, double? gravity_scale = null)
+    public static void SetForces(ILuaVM vm, int selfRef, LuaRef force, double? gravity_scale = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -121,7 +121,7 @@ public class Cable : Paintable
         vm.ClearStack();
     }
 
-    public static void SetAngularLimits(ILuaVM vm, int selfRef, int swing_1_motion, int swing_2_motion, int twist_motion, double? swing_1_limit = null, double? swing_2_limit = null, double? twist_limit = null)
+    public static void SetAngularLimits(ILuaVM vm, int selfRef, LuaRef swing_1_motion, LuaRef swing_2_motion, LuaRef twist_motion, double? swing_1_limit = null, double? swing_2_limit = null, double? twist_limit = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -155,7 +155,7 @@ public class Cable : Paintable
         vm.ClearStack();
     }
 
-    public static void SetLinearLimits(ILuaVM vm, int selfRef, int x_motion, int y_motion, int z_motion, double? limit = null, double? restitution = null, bool? use_soft_constraint = null, double? stiffness = null, double? damping = null)
+    public static void SetLinearLimits(ILuaVM vm, int selfRef, LuaRef x_motion, LuaRef y_motion, LuaRef z_motion, double? limit = null, double? restitution = null, bool? use_soft_constraint = null, double? stiffness = null, double? damping = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -218,7 +218,7 @@ public class Cable : Paintable
         vm.ClearStack();
     }
 
-    public static int GetAttachedStartTo(ILuaVM vm, int selfRef)
+    public static LuaRef GetAttachedStartTo(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -233,7 +233,7 @@ public class Cable : Paintable
         return r0;
     }
 
-    public static int GetAttachedEndTo(ILuaVM vm, int selfRef)
+    public static LuaRef GetAttachedEndTo(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();

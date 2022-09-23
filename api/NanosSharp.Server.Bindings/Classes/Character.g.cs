@@ -6,7 +6,7 @@ namespace NanosSharp.Server.Bindings;
 
 public class Character : Paintable
 {
-    public static double ApplyDamage(ILuaVM vm, int selfRef, double damage, string? bone_name = null, int? damage_type = null, int? from_direction = null, int? instigator = null, object? causer = null)
+    public static double ApplyDamage(ILuaVM vm, int selfRef, double damage, string? bone_name = null, LuaRef? damage_type = null, LuaRef? from_direction = null, LuaRef? instigator = null, object? causer = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -40,7 +40,7 @@ public class Character : Paintable
         if (causer != null)
         {
              pc++;
-             vm.RawGetI(ILuaVM.RegistryIndex, causer.Value);
+             vm.PushObject(causer);
         }
         vm.MCall(pc, 1);
         var r0 = vm.ToNumber(-1);
@@ -49,7 +49,7 @@ public class Character : Paintable
         return r0;
     }
 
-    public static void AddSkeletalMeshAttached(ILuaVM vm, int selfRef, string id, int? skeletal_mesh_asset = null)
+    public static void AddSkeletalMeshAttached(ILuaVM vm, int selfRef, string id, string? skeletal_mesh_asset = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -63,13 +63,13 @@ public class Character : Paintable
         if (skeletal_mesh_asset != null)
         {
              pc++;
-             vm.RawGetI(ILuaVM.RegistryIndex, skeletal_mesh_asset.Value);
+             vm.PushString(skeletal_mesh_asset);
         }
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
 
-    public static void AddStaticMeshAttached(ILuaVM vm, int selfRef, string id, int? static_mesh_asset = null, string? socket = null, int? relative_location = null, int? relative_rotation = null)
+    public static void AddStaticMeshAttached(ILuaVM vm, int selfRef, string id, string? static_mesh_asset = null, string? socket = null, LuaRef? relative_location = null, LuaRef? relative_rotation = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -83,7 +83,7 @@ public class Character : Paintable
         if (static_mesh_asset != null)
         {
              pc++;
-             vm.RawGetI(ILuaVM.RegistryIndex, static_mesh_asset.Value);
+             vm.PushString(static_mesh_asset);
         }
         if (socket != null)
         {
@@ -117,7 +117,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void EnterVehicle(ILuaVM vm, int selfRef, int vehicle, double? seat = null)
+    public static void EnterVehicle(ILuaVM vm, int selfRef, LuaRef vehicle, double? seat = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -137,7 +137,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void GrabProp(ILuaVM vm, int selfRef, int prop)
+    public static void GrabProp(ILuaVM vm, int selfRef, LuaRef prop)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -229,7 +229,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void LookAt(ILuaVM vm, int selfRef, int location)
+    public static void LookAt(ILuaVM vm, int selfRef, LuaRef location)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -244,7 +244,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void MoveTo(ILuaVM vm, int selfRef, int location, double? acceptance_radius = null)
+    public static void MoveTo(ILuaVM vm, int selfRef, LuaRef location, double? acceptance_radius = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -264,7 +264,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void Follow(ILuaVM vm, int selfRef, int actor, double? acceptance_radius = null, bool? stop_on_succeed = null, bool? stop_on_fail = null, double? update_rate = null)
+    public static void Follow(ILuaVM vm, int selfRef, LuaRef actor, double? acceptance_radius = null, bool? stop_on_succeed = null, bool? stop_on_fail = null, double? update_rate = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -312,7 +312,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void PickUp(ILuaVM vm, int selfRef, int pickable)
+    public static void PickUp(ILuaVM vm, int selfRef, LuaRef pickable)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -327,7 +327,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void PlayAnimation(ILuaVM vm, int selfRef, int animation_path, int? slot_type = null, bool? loop_indefinitely = null, double? blend_in_time = null, double? blend_out_time = null, double? play_rate = null, bool? stop_all_montages = null)
+    public static void PlayAnimation(ILuaVM vm, int selfRef, string animation_path, LuaRef? slot_type = null, bool? loop_indefinitely = null, double? blend_in_time = null, double? blend_out_time = null, double? play_rate = null, bool? stop_all_montages = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -337,7 +337,7 @@ public class Character : Paintable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, animation_path);
+        vm.PushString(animation_path);
         if (slot_type != null)
         {
              pc++;
@@ -428,7 +428,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void Respawn(ILuaVM vm, int selfRef, int? location = null, int? rotation = null)
+    public static void Respawn(ILuaVM vm, int selfRef, LuaRef? location = null, LuaRef? rotation = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -451,7 +451,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void SetAnimationIdleWalkRunStanding(ILuaVM vm, int selfRef, int blend_space_path, bool? enable_turn_in_place = null)
+    public static void SetAnimationIdleWalkRunStanding(ILuaVM vm, int selfRef, LuaRef blend_space_path, bool? enable_turn_in_place = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -471,7 +471,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void SetAnimationIdleWalkRunCrouching(ILuaVM vm, int selfRef, int blend_space_path, bool? enable_turn_in_place = null)
+    public static void SetAnimationIdleWalkRunCrouching(ILuaVM vm, int selfRef, LuaRef blend_space_path, bool? enable_turn_in_place = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -491,7 +491,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void SetAnimationIdleWalkRunProning(ILuaVM vm, int selfRef, int blend_space_path)
+    public static void SetAnimationIdleWalkRunProning(ILuaVM vm, int selfRef, LuaRef blend_space_path)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -506,7 +506,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void SetAnimationsTransitionStandingCrouching(ILuaVM vm, int selfRef, int standing_to_crouching, int crouching_to_standing)
+    public static void SetAnimationsTransitionStandingCrouching(ILuaVM vm, int selfRef, LuaRef standing_to_crouching, LuaRef crouching_to_standing)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -523,7 +523,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void SetAnimationsTransitionCrouchingProning(ILuaVM vm, int selfRef, int crouching_to_proning, int pronng_to_crouching)
+    public static void SetAnimationsTransitionCrouchingProning(ILuaVM vm, int selfRef, LuaRef crouching_to_proning, LuaRef pronng_to_crouching)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -631,7 +631,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void SetCameraMode(ILuaVM vm, int selfRef, int camera_mode)
+    public static void SetCameraMode(ILuaVM vm, int selfRef, LuaRef camera_mode)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -905,7 +905,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void SetGaitMode(ILuaVM vm, int selfRef, int mode)
+    public static void SetGaitMode(ILuaVM vm, int selfRef, LuaRef mode)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1010,7 +1010,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void SetMesh(ILuaVM vm, int selfRef, int skeletal_mesh_asset)
+    public static void SetMesh(ILuaVM vm, int selfRef, string skeletal_mesh_asset)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1020,7 +1020,7 @@ public class Character : Paintable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, skeletal_mesh_asset);
+        vm.PushString(skeletal_mesh_asset);
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
@@ -1150,7 +1150,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void SetParachuteTexture(ILuaVM vm, int selfRef, int texture)
+    public static void SetParachuteTexture(ILuaVM vm, int selfRef, string texture)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1160,12 +1160,12 @@ public class Character : Paintable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, texture);
+        vm.PushString(texture);
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
 
-    public static void SetPainSound(ILuaVM vm, int selfRef, int sound_asset)
+    public static void SetPainSound(ILuaVM vm, int selfRef, string sound_asset)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1175,7 +1175,7 @@ public class Character : Paintable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, sound_asset);
+        vm.PushString(sound_asset);
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
@@ -1240,7 +1240,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void SetStanceMode(ILuaVM vm, int selfRef, int mode)
+    public static void SetStanceMode(ILuaVM vm, int selfRef, LuaRef mode)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1270,7 +1270,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void SetViewMode(ILuaVM vm, int selfRef, int view_mode)
+    public static void SetViewMode(ILuaVM vm, int selfRef, LuaRef view_mode)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1285,7 +1285,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void SetWeaponAimMode(ILuaVM vm, int selfRef, int aim_mode)
+    public static void SetWeaponAimMode(ILuaVM vm, int selfRef, LuaRef aim_mode)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1300,7 +1300,7 @@ public class Character : Paintable
         vm.ClearStack();
     }
 
-    public static void StopAnimation(ILuaVM vm, int selfRef, int animation_asset)
+    public static void StopAnimation(ILuaVM vm, int selfRef, string animation_asset)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1310,7 +1310,7 @@ public class Character : Paintable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, animation_asset);
+        vm.PushString(animation_asset);
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
@@ -1376,7 +1376,7 @@ public class Character : Paintable
         return r0;
     }
 
-    public static int GetCameraMode(ILuaVM vm, int selfRef)
+    public static LuaRef GetCameraMode(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1507,6 +1507,14 @@ public class Character : Paintable
     {
         public double Radius;
         public double HalfHeight;
+        public static implicit operator GetCapsuleSize_Return0(Dictionary<string, object> d)
+        {
+            return new GetCapsuleSize_Return0
+            {
+                Radius = (double)d["Radius"],
+                HalfHeight = (double)d["HalfHeight"],
+            };
+        }
     }
 
     public static GetCapsuleSize_Return0 GetCapsuleSize(ILuaVM vm, int selfRef)
@@ -1519,11 +1527,13 @@ public class Character : Paintable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         vm.MCall(pc, 1);
+        var r0 = vm.ToTable(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }
 
-    public static int GetControlRotation(ILuaVM vm, int selfRef)
+    public static LuaRef GetControlRotation(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1572,7 +1582,7 @@ public class Character : Paintable
         return r0;
     }
 
-    public static int GetFallingMode(ILuaVM vm, int selfRef)
+    public static LuaRef GetFallingMode(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1603,7 +1613,7 @@ public class Character : Paintable
         return r0;
     }
 
-    public static int GetGaitMode(ILuaVM vm, int selfRef)
+    public static LuaRef GetGaitMode(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1618,7 +1628,7 @@ public class Character : Paintable
         return r0;
     }
 
-    public static int? GetGrabbedProp(ILuaVM vm, int selfRef)
+    public static LuaRef? GetGrabbedProp(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1713,7 +1723,7 @@ public class Character : Paintable
         return r0;
     }
 
-    public static int GetMesh(ILuaVM vm, int selfRef)
+    public static string GetMesh(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1723,12 +1733,13 @@ public class Character : Paintable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         vm.MCall(pc, 1);
-        var r0 = vm.Ref(ILuaVM.RegistryIndex);
+        var r0 = vm.ToString(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }
 
-    public static int GetMovingTo(ILuaVM vm, int selfRef)
+    public static LuaRef GetMovingTo(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1743,7 +1754,7 @@ public class Character : Paintable
         return r0;
     }
 
-    public static int? GetPicked(ILuaVM vm, int selfRef)
+    public static LuaRef? GetPicked(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1758,7 +1769,7 @@ public class Character : Paintable
         return r0;
     }
 
-    public static int? GetPlayer(ILuaVM vm, int selfRef)
+    public static LuaRef? GetPlayer(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1805,7 +1816,7 @@ public class Character : Paintable
         return r0;
     }
 
-    public static int GetStanceMode(ILuaVM vm, int selfRef)
+    public static LuaRef GetStanceMode(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1820,7 +1831,7 @@ public class Character : Paintable
         return r0;
     }
 
-    public static int GetSwimmingMode(ILuaVM vm, int selfRef)
+    public static LuaRef GetSwimmingMode(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1851,7 +1862,7 @@ public class Character : Paintable
         return r0;
     }
 
-    public static int? GetVehicle(ILuaVM vm, int selfRef)
+    public static LuaRef? GetVehicle(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1866,7 +1877,7 @@ public class Character : Paintable
         return r0;
     }
 
-    public static int GetViewMode(ILuaVM vm, int selfRef)
+    public static LuaRef GetViewMode(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -1881,7 +1892,7 @@ public class Character : Paintable
         return r0;
     }
 
-    public static int GetWeaponAimMode(ILuaVM vm, int selfRef)
+    public static LuaRef GetWeaponAimMode(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();

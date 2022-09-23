@@ -6,7 +6,7 @@ namespace NanosSharp.Server.Bindings;
 
 public class Pickable
 {
-    public static void AddSkeletalMeshAttached(ILuaVM vm, int selfRef, string id, int skeletal_mesh_path)
+    public static void AddSkeletalMeshAttached(ILuaVM vm, int selfRef, string id, string skeletal_mesh_path)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -18,12 +18,12 @@ public class Pickable
         pc++;
         vm.PushString(id);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, skeletal_mesh_path);
+        vm.PushString(skeletal_mesh_path);
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
 
-    public static void AddStaticMeshAttached(ILuaVM vm, int selfRef, string id, int static_mesh_path, string? socket = null, int? relative_location = null, int? relative_rotation = null)
+    public static void AddStaticMeshAttached(ILuaVM vm, int selfRef, string id, string static_mesh_path, string? socket = null, LuaRef? relative_location = null, LuaRef? relative_rotation = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -35,7 +35,7 @@ public class Pickable
         pc++;
         vm.PushString(id);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, static_mesh_path);
+        vm.PushString(static_mesh_path);
         if (socket != null)
         {
              pc++;
@@ -116,7 +116,7 @@ public class Pickable
         vm.ClearStack();
     }
 
-    public static void SetAttachmentSettings(ILuaVM vm, int selfRef, int relative_location, int? relative_rotation = null, string? socket = null)
+    public static void SetAttachmentSettings(ILuaVM vm, int selfRef, LuaRef relative_location, LuaRef? relative_rotation = null, string? socket = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -141,7 +141,7 @@ public class Pickable
         vm.ClearStack();
     }
 
-    public static void SetCrosshairMaterial(ILuaVM vm, int selfRef, int material_asset)
+    public static void SetCrosshairMaterial(ILuaVM vm, int selfRef, string material_asset)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -151,7 +151,7 @@ public class Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, material_asset);
+        vm.PushString(material_asset);
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
@@ -171,7 +171,7 @@ public class Pickable
         vm.ClearStack();
     }
 
-    public static int GetAssetName(ILuaVM vm, int selfRef)
+    public static string GetAssetName(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -181,12 +181,13 @@ public class Pickable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         vm.MCall(pc, 1);
-        var r0 = vm.Ref(ILuaVM.RegistryIndex);
+        var r0 = vm.ToString(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }
 
-    public static int? GetHandler(ILuaVM vm, int selfRef)
+    public static LuaRef? GetHandler(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();

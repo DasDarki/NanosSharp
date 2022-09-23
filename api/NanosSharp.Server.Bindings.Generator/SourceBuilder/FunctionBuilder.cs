@@ -60,6 +60,14 @@ internal class FunctionBuilder : ISourceBuilder
                 returnType = _returns[0];
                 break;
         }
+        
+        var paramIndex = _params.FindIndex(p => p.StartsWith("params"));
+        if (paramIndex != -1)
+        {
+            var param = _params[paramIndex];
+            _params.RemoveAt(paramIndex);
+            _params.Add(param);
+        }
 
         sb.AppendLineWithIndent($"public static {returnType ?? "void"} {_name}({string.Join(", ", _params)})", indent);
         sb.AppendLineWithIndent("{", indent);

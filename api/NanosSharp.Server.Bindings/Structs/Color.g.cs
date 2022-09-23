@@ -21,7 +21,7 @@ public class Color
         return r0;
     }
 
-    public static int RandomPalette(ILuaVM vm, bool? includes_black = null)
+    public static LuaRef RandomPalette(ILuaVM vm, bool? includes_black = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -38,7 +38,7 @@ public class Color
         return r0;
     }
 
-    public static int Random(ILuaVM vm)
+    public static LuaRef Random(ILuaVM vm)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -50,7 +50,7 @@ public class Color
         return r0;
     }
 
-    public static int FromRGBA(ILuaVM vm, double? r = null, double? g = null, double? b = null, double? a = null)
+    public static LuaRef FromRGBA(ILuaVM vm, double? r = null, double? g = null, double? b = null, double? a = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -82,7 +82,7 @@ public class Color
         return r0;
     }
 
-    public static int FromCYMK(ILuaVM vm, double? c = null, double? y = null, double? m = null, double? k = null, double? a = null)
+    public static LuaRef FromCYMK(ILuaVM vm, double? c = null, double? y = null, double? m = null, double? k = null, double? a = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -119,7 +119,7 @@ public class Color
         return r0;
     }
 
-    public static int FromHSL(ILuaVM vm, double? h = null, double? s = null, double? l = null)
+    public static LuaRef FromHSL(ILuaVM vm, double? h = null, double? s = null, double? l = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -146,7 +146,7 @@ public class Color
         return r0;
     }
 
-    public static int FromHSV(ILuaVM vm, double? h = null, double? s = null, double? v = null)
+    public static LuaRef FromHSV(ILuaVM vm, double? h = null, double? s = null, double? v = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -173,7 +173,7 @@ public class Color
         return r0;
     }
 
-    public static int FromHEX(ILuaVM vm, string hex)
+    public static LuaRef FromHEX(ILuaVM vm, string hex)
     {
         int pc = 0;
         vm.PushGlobalTable();

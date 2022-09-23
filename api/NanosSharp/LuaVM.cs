@@ -306,6 +306,150 @@ internal class LuaVM : ILuaVM
         }
     }
 
+    public void PushObject(object? o)
+    {
+        if (o == null)
+        {
+            PushNil();
+            return;
+        }
+        
+        switch (o)
+        {
+            case LuaRef r:
+                RawGetI(ILuaVM.RegistryIndex, r);
+                break;
+            case bool b:
+                PushBoolean(b);
+                break;
+            case double d:
+                PushNumber(d);
+                break;
+            case int i:
+                PushNumber(i);
+                break;
+            case string s:
+                PushString(s);
+                break;
+        }
+    }
+
+    public void PushTable(Dictionary<string, object?> table)
+    {
+        CreateTable(table.Count, 0);
+        
+        foreach (var (key, value) in table)
+        {
+            PushString(key);
+            PushObject(value);
+            SetTable(-3);
+        }
+    }
+
+    public object? ToObject(int idx)
+    {
+        var type = Type(idx);
+        switch (type)
+        {
+            case LuaType.Nil:
+                Pop();
+                return null;
+            case LuaType.Boolean:
+                return ToBoolean(idx);
+            case LuaType.Number:
+                return ToNumber(idx);
+            case LuaType.String:
+                return ToString(idx);
+            case LuaType.Function:
+                return ToCFunction(idx);
+            case LuaType.UserData:
+                return ToUserData(idx);
+            case LuaType.Table:
+                return ToTable(idx);
+            default:
+                throw new NotSupportedException("The type " + type + " is not supported for ToObject.");
+        }
+    }
+
+    public void PushArray(Array arr)
+    {
+        CreateTable(arr.Length, 0);
+        for (int i = 0; i < arr.Length; i++)
+        {
+            var val = arr.GetValue(i);
+            if (val != null)
+            {
+                PushObject(val);
+            }
+            else
+            {
+                PushNil();
+            }
+            
+            RawSetI(-2, i + 1);
+        }
+    }
+
+    public object?[] ToArray(int idx)
+    {
+        List<object?> list = new();
+        
+        PushNil();
+        while (Next(idx) != 0)
+        {
+            list.Add(ToObject(-1));
+            Pop();
+        }
+        
+        return list.ToArray();
+    }
+
+    public T?[] ToArray<T>(int idx)
+    {
+        var arr = ToArray(idx);
+        return arr.Select(o =>
+        {
+            try
+            {
+                return (T) o!;
+            }
+            catch
+            {
+                return default;
+            }
+        }).ToArray();
+    }
+
+    public LuaRef[] ToRefArray(int idx)
+    {
+        List<LuaRef> list = new();
+        
+        PushNil();
+        while (Next(idx) != 0)
+        {
+            list.Add(Ref(ILuaVM.RegistryIndex));
+        }
+        
+        return list.ToArray();
+    }
+
+    public Dictionary<string, object?> ToTable(int idx)
+    {
+        var table = new Dictionary<string, object?>();
+
+        PushNil();
+        while (Next(idx) != 0)
+        {
+            var type = Type(-2);
+            var key = type == LuaType.String ? ToString(-2) : ToInteger(-2).ToString();
+            var value = ToObject(-1);
+            table.Add(key, value);
+            Pop();
+        }
+        
+        return table;
+    }
+
     public void PushLightUserData(IntPtr p)
     {
         unsafe
@@ -369,6 +513,14 @@ internal class LuaVM : ILuaVM
         unsafe
         {
             return Natives.Lua_RawGetI(Handle, idx, n);
+        }
+    }
+
+    public void RawSetI(int idx, long n)
+    {
+        unsafe
+        {
+            Natives.Lua_RawSetI(Handle, idx, n);
         }
     }
 
@@ -698,7 +850,7 @@ internal class LuaVM : ILuaVM
         PushCClosure(Natives.ManagedFunctionWrapper, n + 1);
     }
 
-    public int Ref(int t)
+    public LuaRef Ref(int t)
     {
         unsafe
         {
@@ -706,7 +858,7 @@ internal class LuaVM : ILuaVM
         }
     }
 
-    public void Unref(int t, int @ref)
+    public void Unref(int t, LuaRef @ref)
     {
         unsafe
         {

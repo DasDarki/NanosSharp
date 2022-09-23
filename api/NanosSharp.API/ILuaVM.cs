@@ -49,6 +49,7 @@ public interface ILuaVM
     int GetI(int idx, long n);
     int RawGet(int idx);
     int RawGetI(int idx, long n);
+    void RawSetI(int idx, long n);
     int RawGetP(int idx, IntPtr p);
     void CreateTable(int narr, int nrec);
     IntPtr NewUserData(uint sz);
@@ -86,6 +87,14 @@ public interface ILuaVM
     void Len(int idx);
     void PushManagedFunction(CFunction fn);
     void PushManagedClosure(CFunction fn, byte n);
-    int Ref(int t);
-    void Unref(int t, int @ref);
+    LuaRef Ref(int t);
+    void Unref(int t, LuaRef @ref);
+    void PushObject(object? o);
+    void PushArray(Array arr);
+    void PushTable(Dictionary<string, object?> table);
+    object? ToObject(int idx);
+    object?[] ToArray(int idx);
+    T?[] ToArray<T>(int idx);
+    LuaRef[] ToRefArray(int idx);
+    Dictionary<string, object?> ToTable(int idx);
 }

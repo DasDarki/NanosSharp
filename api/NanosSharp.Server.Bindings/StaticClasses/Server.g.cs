@@ -42,7 +42,7 @@ public static class Server
         vm.ClearStack();
     }
 
-    public static void SendChatMessage(ILuaVM vm, int player, string message)
+    public static void SendChatMessage(ILuaVM vm, LuaRef player, string message)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -150,7 +150,7 @@ public static class Server
         pc++;
         vm.PushString(key);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, value);
+        vm.PushObject(value);
         if (sync_on_client != null)
         {
              pc++;
@@ -169,7 +169,7 @@ public static class Server
         pc++;
         vm.PushString(key);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, fallback);
+        vm.PushObject(fallback);
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
@@ -196,7 +196,7 @@ public static class Server
         vm.ClearStack();
     }
 
-    public static int Subscribe(ILuaVM vm, string event_name, int function)
+    public static ILuaVM.CFunction Subscribe(ILuaVM vm, string event_name, ILuaVM.CFunction function)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -205,9 +205,10 @@ public static class Server
         pc++;
         vm.PushString(event_name);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, function);
+        vm.PushManagedFunction(function);
         vm.MCall(pc, 1);
-        var r0 = vm.Ref(ILuaVM.RegistryIndex);
+        var r0 = vm.ToCFunction(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }
@@ -224,7 +225,7 @@ public static class Server
         vm.ClearStack();
     }
 
-    public static void Unsubscribe(ILuaVM vm, string event_name, int? function = null)
+    public static void Unsubscribe(ILuaVM vm, string event_name, ILuaVM.CFunction? function = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -235,7 +236,7 @@ public static class Server
         if (function != null)
         {
              pc++;
-             vm.RawGetI(ILuaVM.RegistryIndex, function.Value);
+             vm.PushManagedFunction(function);
         }
         vm.MCall(pc, 0);
         vm.ClearStack();
@@ -261,6 +262,8 @@ public static class Server
         vm.GetField(-1, "Server");
         vm.GetField(-1, "GetMapConfig");
         vm.MCall(pc, 1);
+        var r0 = vm.ToTable(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }
@@ -272,6 +275,7 @@ public static class Server
         vm.GetField(-1, "Server");
         vm.GetField(-1, "GetMaps");
         vm.MCall(pc, 1);
+        var r0 = vm.ToArray<string>(-1);
         vm.ClearStack();
         return r0;
     }
@@ -288,6 +292,7 @@ public static class Server
              vm.PushBoolean(only_loaded.Value);
         }
         vm.MCall(pc, 1);
+        var r0 = vm.ToArray<string>(-1);
         vm.ClearStack();
         return r0;
     }

@@ -50,6 +50,7 @@ internal static unsafe class Natives
     internal static delegate* unmanaged[Cdecl]<IntPtr, int, long, int> Lua_GetI;
     internal static delegate* unmanaged[Cdecl]<IntPtr, int, int> Lua_RawGet;
     internal static delegate* unmanaged[Cdecl]<IntPtr, int, long, int> Lua_RawGetI;
+    internal static delegate* unmanaged[Cdecl]<IntPtr, int, long, void> Lua_RawSetI;
     internal static delegate* unmanaged[Cdecl]<IntPtr, int, IntPtr, int> Lua_RawGetP;
     internal static delegate* unmanaged[Cdecl]<IntPtr, int, int, void> Lua_CreateTable;
     internal static delegate* unmanaged[Cdecl]<IntPtr, uint, IntPtr> Lua_NewUserData;
@@ -134,6 +135,7 @@ internal static unsafe class Natives
         Lua_GetI = (delegate* unmanaged[Cdecl]<IntPtr, int, long, int>) NativeLibrary.GetExport(handle, nameof(Lua_GetI));
         Lua_RawGet = (delegate* unmanaged[Cdecl]<IntPtr, int, int>) NativeLibrary.GetExport(handle, nameof(Lua_RawGet));
         Lua_RawGetI = (delegate* unmanaged[Cdecl]<IntPtr, int, long, int>) NativeLibrary.GetExport(handle, nameof(Lua_RawGetI));
+        Lua_RawSetI = (delegate* unmanaged[Cdecl]<IntPtr, int, long, void>) NativeLibrary.GetExport(handle, nameof(Lua_RawSetI));
         Lua_RawGetP = (delegate* unmanaged[Cdecl]<IntPtr, int, IntPtr, int>) NativeLibrary.GetExport(handle, nameof(Lua_RawGetP));
         Lua_CreateTable = (delegate* unmanaged[Cdecl]<IntPtr, int, int, void>) NativeLibrary.GetExport(handle, nameof(Lua_CreateTable));
         Lua_NewUserData = (delegate* unmanaged[Cdecl]<IntPtr, uint, IntPtr>) NativeLibrary.GetExport(handle, nameof(Lua_NewUserData));

@@ -13,6 +13,18 @@ namespace NanosSharp.Server.Bindings.Generator.Model
         [JsonProperty("description_long")]
         internal string DescriptionLong { get; set; }
         
-        internal string VararglessName => Name.EndsWith("...") ? Name[..^3] : Name;
+        internal string VararglessName
+        {
+            get
+            {
+                var varargless = Name.EndsWith("...") ? Name[..^3] : Name;
+                if (varargless == "object")
+                {
+                    return "obj";
+                }
+
+                return varargless;
+            }
+        }
     }
 }

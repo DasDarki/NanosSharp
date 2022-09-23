@@ -30,6 +30,19 @@ internal class StructBuilder : ISourceBuilder
             sb.AppendLineWithIndent($"public {type} {name};", indent + 1);
         }
         
+        sb.AppendLineWithIndent($"public static implicit operator {_name}(Dictionary<string, object> d)", indent + 1);
+        sb.AppendLineWithIndent("{", indent + 1);
+        sb.AppendLineWithIndent($"return new {_name}", indent + 2);
+        sb.AppendLineWithIndent("{", indent + 2);
+        
+        foreach (var (name, type) in _fields)
+        {
+            sb.AppendLineWithIndent($"{name} = ({type})d[\"{name}\"],", indent + 3);
+        }
+        
+        sb.AppendLineWithIndent("};", indent + 2);
+        sb.AppendLineWithIndent("}", indent + 1);
+
         sb.AppendLineWithIndent("}", indent);
         return sb.ToString();
     }

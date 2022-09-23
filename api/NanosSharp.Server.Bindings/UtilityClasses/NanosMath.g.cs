@@ -70,7 +70,7 @@ public static class NanosMath
         return r0;
     }
 
-    public static void RelativeTo(ILuaVM vm, int location, int rotation, int actor, out int r0, out int r1)
+    public static void RelativeTo(ILuaVM vm, LuaRef location, LuaRef rotation, LuaRef actor, out LuaRef r0, out LuaRef r1)
     {
         r0 = default;
         r1 = default;
@@ -111,7 +111,7 @@ public static class NanosMath
         return r0;
     }
 
-    public static int RInterpTo(ILuaVM vm, int current, int target, double delta_time, double interp_speed)
+    public static LuaRef RInterpTo(ILuaVM vm, LuaRef current, LuaRef target, double delta_time, double interp_speed)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -131,7 +131,7 @@ public static class NanosMath
         return r0;
     }
 
-    public static int RInterpConstantTo(ILuaVM vm, int current, int target, double delta_time, double interp_speed)
+    public static LuaRef RInterpConstantTo(ILuaVM vm, LuaRef current, LuaRef target, double delta_time, double interp_speed)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -151,7 +151,7 @@ public static class NanosMath
         return r0;
     }
 
-    public static int VInterpTo(ILuaVM vm, int current, int target, double delta_time, double interp_speed)
+    public static LuaRef VInterpTo(ILuaVM vm, LuaRef current, LuaRef target, double delta_time, double interp_speed)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -171,7 +171,7 @@ public static class NanosMath
         return r0;
     }
 
-    public static int VInterpConstantTo(ILuaVM vm, int current, int target, double delta_time, double interp_speed)
+    public static LuaRef VInterpConstantTo(ILuaVM vm, LuaRef current, LuaRef target, double delta_time, double interp_speed)
     {
         int pc = 0;
         vm.PushGlobalTable();

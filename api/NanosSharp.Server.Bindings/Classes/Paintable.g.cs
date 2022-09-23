@@ -6,7 +6,7 @@ namespace NanosSharp.Server.Bindings;
 
 public class Paintable
 {
-    public static void SetMaterial(ILuaVM vm, int selfRef, int material_path, double? index = null)
+    public static void SetMaterial(ILuaVM vm, int selfRef, string material_path, double? index = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -16,7 +16,7 @@ public class Paintable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, material_path);
+        vm.PushString(material_path);
         if (index != null)
         {
              pc++;
@@ -44,7 +44,7 @@ public class Paintable
         vm.ClearStack();
     }
 
-    public static void SetMaterialColorParameter(ILuaVM vm, int selfRef, string parameter_name, int color)
+    public static void SetMaterialColorParameter(ILuaVM vm, int selfRef, string parameter_name, LuaRef color)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -78,7 +78,7 @@ public class Paintable
         vm.ClearStack();
     }
 
-    public static void SetMaterialTextureParameter(ILuaVM vm, int selfRef, string parameter_name, int texture_path)
+    public static void SetMaterialTextureParameter(ILuaVM vm, int selfRef, string parameter_name, string texture_path)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -90,12 +90,12 @@ public class Paintable
         pc++;
         vm.PushString(parameter_name);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, texture_path);
+        vm.PushString(texture_path);
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
 
-    public static void SetMaterialVectorParameter(ILuaVM vm, int selfRef, string parameter_name, int vector)
+    public static void SetMaterialVectorParameter(ILuaVM vm, int selfRef, string parameter_name, LuaRef vector)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -112,7 +112,7 @@ public class Paintable
         vm.ClearStack();
     }
 
-    public static void SetPhysicalMaterial(ILuaVM vm, int selfRef, int physical_material_path)
+    public static void SetPhysicalMaterial(ILuaVM vm, int selfRef, string physical_material_path)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -122,7 +122,7 @@ public class Paintable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, physical_material_path);
+        vm.PushString(physical_material_path);
         vm.MCall(pc, 0);
         vm.ClearStack();
     }

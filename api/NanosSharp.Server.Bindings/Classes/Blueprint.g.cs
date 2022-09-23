@@ -18,9 +18,12 @@ public class Blueprint : Paintable
         pc++;
         vm.PushString(event_name);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, arguments);
+        foreach (var a in arguments) {
+            vm.PushObject(a);
+        }
         vm.MCall(pc, 1);
-        var r0 = vm.Ref(ILuaVM.RegistryIndex);
+        var r0 = vm.ToObject(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }

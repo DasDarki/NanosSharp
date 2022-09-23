@@ -6,7 +6,7 @@ namespace NanosSharp.Server.Bindings;
 
 public class Prop : Paintable
 {
-    public static void SetGrabMode(ILuaVM vm, int selfRef, int grab_mode)
+    public static void SetGrabMode(ILuaVM vm, int selfRef, LuaRef grab_mode)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -54,7 +54,7 @@ public class Prop : Paintable
         return r0;
     }
 
-    public static int? GetHandler(ILuaVM vm, int selfRef)
+    public static LuaRef? GetHandler(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -69,7 +69,7 @@ public class Prop : Paintable
         return r0;
     }
 
-    public static int GetGrabMode(ILuaVM vm, int selfRef)
+    public static LuaRef GetGrabMode(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();

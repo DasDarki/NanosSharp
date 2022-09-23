@@ -6,7 +6,7 @@ namespace NanosSharp.Server.Bindings;
 
 public class Vector
 {
-    public static bool Equals(ILuaVM vm, int selfRef, int other, double? tolerance = null)
+    public static bool Equals(ILuaVM vm, int selfRef, LuaRef other, double? tolerance = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -28,7 +28,7 @@ public class Vector
         return r0;
     }
 
-    public static double Distance(ILuaVM vm, int selfRef, int other)
+    public static double Distance(ILuaVM vm, int selfRef, LuaRef other)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -45,7 +45,7 @@ public class Vector
         return r0;
     }
 
-    public static double DistanceSquared(ILuaVM vm, int selfRef, int other)
+    public static double DistanceSquared(ILuaVM vm, int selfRef, LuaRef other)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -62,7 +62,7 @@ public class Vector
         return r0;
     }
 
-    public static int GetUnsafeNormal(ILuaVM vm, int selfRef)
+    public static LuaRef GetUnsafeNormal(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -76,7 +76,7 @@ public class Vector
         return r0;
     }
 
-    public static int GetSafeNormal(ILuaVM vm, int selfRef)
+    public static LuaRef GetSafeNormal(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -170,7 +170,7 @@ public class Vector
         return r0;
     }
 
-    public static int Rotation(ILuaVM vm, int selfRef)
+    public static LuaRef Rotation(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();

@@ -19,7 +19,7 @@ public class Trigger : Actor
         vm.ClearStack();
     }
 
-    public static void SetExtent(ILuaVM vm, int selfRef, int extent)
+    public static void SetExtent(ILuaVM vm, int selfRef, LuaRef extent)
     {
         int pc = 0;
         vm.PushGlobalTable();

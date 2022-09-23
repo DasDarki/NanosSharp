@@ -6,7 +6,7 @@ namespace NanosSharp.Server.Bindings;
 
 public class Matrix
 {
-    public static int TransformVector(ILuaVM vm, int selfRef, int vector)
+    public static LuaRef TransformVector(ILuaVM vm, int selfRef, LuaRef vector)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -22,7 +22,7 @@ public class Matrix
         return r0;
     }
 
-    public static int GetTransposed(ILuaVM vm, int selfRef)
+    public static LuaRef GetTransposed(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();

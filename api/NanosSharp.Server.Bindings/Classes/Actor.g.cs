@@ -6,7 +6,7 @@ namespace NanosSharp.Server.Bindings;
 
 public class Actor
 {
-    public static void AddImpulse(ILuaVM vm, int selfRef, int force, bool? velocity_change = null)
+    public static void AddImpulse(ILuaVM vm, int selfRef, LuaRef force, bool? velocity_change = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -26,7 +26,7 @@ public class Actor
         vm.ClearStack();
     }
 
-    public static void AttachTo(ILuaVM vm, int selfRef, int other, int? attachment_rule = null, string? bone_name = null, double? lifespan_when_detached = null, bool? use_absolute_rotation = null)
+    public static void AttachTo(ILuaVM vm, int selfRef, LuaRef other, LuaRef? attachment_rule = null, string? bone_name = null, double? lifespan_when_detached = null, bool? use_absolute_rotation = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -87,7 +87,7 @@ public class Actor
         vm.ClearStack();
     }
 
-    public static void SetCollision(ILuaVM vm, int selfRef, int collision_type)
+    public static void SetCollision(ILuaVM vm, int selfRef, LuaRef collision_type)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -102,7 +102,7 @@ public class Actor
         vm.ClearStack();
     }
 
-    public static void SetForce(ILuaVM vm, int selfRef, int force, bool? is_local = null)
+    public static void SetForce(ILuaVM vm, int selfRef, LuaRef force, bool? is_local = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -167,7 +167,7 @@ public class Actor
         vm.ClearStack();
     }
 
-    public static void SetLocation(ILuaVM vm, int selfRef, int location)
+    public static void SetLocation(ILuaVM vm, int selfRef, LuaRef location)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -182,7 +182,7 @@ public class Actor
         vm.ClearStack();
     }
 
-    public static void SetRotation(ILuaVM vm, int selfRef, int rotation)
+    public static void SetRotation(ILuaVM vm, int selfRef, LuaRef rotation)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -197,7 +197,7 @@ public class Actor
         vm.ClearStack();
     }
 
-    public static void SetRelativeLocation(ILuaVM vm, int selfRef, int relative_location)
+    public static void SetRelativeLocation(ILuaVM vm, int selfRef, LuaRef relative_location)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -212,7 +212,7 @@ public class Actor
         vm.ClearStack();
     }
 
-    public static void SetRelativeRotation(ILuaVM vm, int selfRef, int relative_rotation)
+    public static void SetRelativeRotation(ILuaVM vm, int selfRef, LuaRef relative_rotation)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -227,7 +227,7 @@ public class Actor
         vm.ClearStack();
     }
 
-    public static void SetScale(ILuaVM vm, int selfRef, int scale)
+    public static void SetScale(ILuaVM vm, int selfRef, LuaRef scale)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -242,7 +242,7 @@ public class Actor
         vm.ClearStack();
     }
 
-    public static void SetNetworkAuthority(ILuaVM vm, int selfRef, int? player = null)
+    public static void SetNetworkAuthority(ILuaVM vm, int selfRef, LuaRef? player = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -272,7 +272,7 @@ public class Actor
         pc++;
         vm.PushString(key);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, value);
+        vm.PushObject(value);
         if (sync_on_clients != null)
         {
              pc++;
@@ -282,7 +282,7 @@ public class Actor
         vm.ClearStack();
     }
 
-    public static void TranslateTo(ILuaVM vm, int selfRef, int location, double time, double? exp = null)
+    public static void TranslateTo(ILuaVM vm, int selfRef, LuaRef location, double time, double? exp = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -304,7 +304,7 @@ public class Actor
         vm.ClearStack();
     }
 
-    public static void RotateTo(ILuaVM vm, int selfRef, int rotation, double time, double? exp = null)
+    public static void RotateTo(ILuaVM vm, int selfRef, LuaRef rotation, double time, double? exp = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -422,7 +422,7 @@ public class Actor
         return r0;
     }
 
-    public static int[] GetAttachedEntities(ILuaVM vm, int selfRef)
+    public static LuaRef[] GetAttachedEntities(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -432,11 +432,12 @@ public class Actor
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         vm.MCall(pc, 1);
+        var r0 = vm.ToRefArray(-1);
         vm.ClearStack();
         return r0;
     }
 
-    public static int? GetAttachedTo(ILuaVM vm, int selfRef)
+    public static LuaRef? GetAttachedTo(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -451,7 +452,7 @@ public class Actor
         return r0;
     }
 
-    public static int GetCollision(ILuaVM vm, int selfRef)
+    public static LuaRef GetCollision(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -482,7 +483,7 @@ public class Actor
         return r0;
     }
 
-    public static int GetLocation(ILuaVM vm, int selfRef)
+    public static LuaRef GetLocation(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -497,7 +498,7 @@ public class Actor
         return r0;
     }
 
-    public static int GetRotation(ILuaVM vm, int selfRef)
+    public static LuaRef GetRotation(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -512,7 +513,7 @@ public class Actor
         return r0;
     }
 
-    public static int GetForce(ILuaVM vm, int selfRef)
+    public static LuaRef GetForce(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -527,7 +528,7 @@ public class Actor
         return r0;
     }
 
-    public static int GetScale(ILuaVM vm, int selfRef)
+    public static LuaRef GetScale(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -570,14 +571,15 @@ public class Actor
         pc++;
         vm.PushString(key);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, fallback);
+        vm.PushObject(fallback);
         vm.MCall(pc, 1);
-        var r0 = vm.Ref(ILuaVM.RegistryIndex);
+        var r0 = vm.ToObject(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }
 
-    public static int GetVelocity(ILuaVM vm, int selfRef)
+    public static LuaRef GetVelocity(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -592,7 +594,7 @@ public class Actor
         return r0;
     }
 
-    public static int Subscribe(ILuaVM vm, int selfRef, string event_name, int callback)
+    public static ILuaVM.CFunction Subscribe(ILuaVM vm, int selfRef, string event_name, ILuaVM.CFunction callback)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -604,14 +606,15 @@ public class Actor
         pc++;
         vm.PushString(event_name);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, callback);
+        vm.PushManagedFunction(callback);
         vm.MCall(pc, 1);
-        var r0 = vm.Ref(ILuaVM.RegistryIndex);
+        var r0 = vm.ToCFunction(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }
 
-    public static void Unsubscribe(ILuaVM vm, int selfRef, string event_name, int? callback = null)
+    public static void Unsubscribe(ILuaVM vm, int selfRef, string event_name, ILuaVM.CFunction? callback = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -625,24 +628,25 @@ public class Actor
         if (callback != null)
         {
              pc++;
-             vm.RawGetI(ILuaVM.RegistryIndex, callback.Value);
+             vm.PushManagedFunction(callback);
         }
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
 
-    public static int[] GetAll(ILuaVM vm)
+    public static LuaRef[] GetAll(ILuaVM vm)
     {
         int pc = 0;
         vm.PushGlobalTable();
         vm.GetField(-1, "Actor");
         vm.GetField(-1, "GetAll");
         vm.MCall(pc, 1);
+        var r0 = vm.ToRefArray(-1);
         vm.ClearStack();
         return r0;
     }
 
-    public static int GetByIndex(ILuaVM vm, double index)
+    public static LuaRef GetByIndex(ILuaVM vm, double index)
     {
         int pc = 0;
         vm.PushGlobalTable();

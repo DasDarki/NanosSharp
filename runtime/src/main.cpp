@@ -222,6 +222,10 @@ EXPORT int Lua_RawGetI(lua_State *L, int idx, long long n) {
     return lua_rawgeti(L, idx, n);
 }
 
+EXPORT void Lua_RawSetI(lua_State *L, int idx, long long n) {
+    lua_rawseti(L, idx, n);
+}
+
 EXPORT int Lua_RawGetP(lua_State *L, int idx, void *p) {
     return lua_rawgetp(L, idx, p);
 }

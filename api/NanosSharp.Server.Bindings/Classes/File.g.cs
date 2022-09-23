@@ -117,7 +117,7 @@ public class File
         return r0;
     }
 
-    public static void ReadAsync(ILuaVM vm, int selfRef, double length, int callback)
+    public static void ReadAsync(ILuaVM vm, int selfRef, double length, ILuaVM.CFunction callback)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -129,7 +129,7 @@ public class File
         pc++;
         vm.PushNumber(length);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, callback);
+        vm.PushManagedFunction(callback);
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
@@ -160,11 +160,13 @@ public class File
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         vm.MCall(pc, 1);
+        var r0 = vm.ToTable(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }
 
-    public static void ReadJSONAsync(ILuaVM vm, int selfRef, int callback)
+    public static void ReadJSONAsync(ILuaVM vm, int selfRef, ILuaVM.CFunction callback)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -174,7 +176,7 @@ public class File
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, callback);
+        vm.PushManagedFunction(callback);
         vm.MCall(pc, 0);
         vm.ClearStack();
     }

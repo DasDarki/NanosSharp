@@ -15,6 +15,7 @@ public static class Assets
         pc++;
         vm.PushString(asset_pack_path);
         vm.MCall(pc, 1);
+        var r0 = vm.ToArray<Dictionary<string, object>>(-1);
         vm.ClearStack();
         return r0;
     }
@@ -28,6 +29,7 @@ public static class Assets
         pc++;
         vm.PushString(asset_pack_path);
         vm.MCall(pc, 1);
+        var r0 = vm.ToArray<string>(-1);
         vm.ClearStack();
         return r0;
     }
@@ -41,6 +43,7 @@ public static class Assets
         pc++;
         vm.PushString(asset_pack_path);
         vm.MCall(pc, 1);
+        var r0 = vm.ToArray<string>(-1);
         vm.ClearStack();
         return r0;
     }
@@ -54,6 +57,7 @@ public static class Assets
         pc++;
         vm.PushString(asset_pack_path);
         vm.MCall(pc, 1);
+        var r0 = vm.ToArray<string>(-1);
         vm.ClearStack();
         return r0;
     }
@@ -67,6 +71,7 @@ public static class Assets
         pc++;
         vm.PushString(asset_pack_path);
         vm.MCall(pc, 1);
+        var r0 = vm.ToArray<string>(-1);
         vm.ClearStack();
         return r0;
     }
@@ -80,6 +85,7 @@ public static class Assets
         pc++;
         vm.PushString(asset_pack_path);
         vm.MCall(pc, 1);
+        var r0 = vm.ToArray<string>(-1);
         vm.ClearStack();
         return r0;
     }
@@ -93,6 +99,7 @@ public static class Assets
         pc++;
         vm.PushString(asset_pack_path);
         vm.MCall(pc, 1);
+        var r0 = vm.ToArray<string>(-1);
         vm.ClearStack();
         return r0;
     }
@@ -106,6 +113,7 @@ public static class Assets
         pc++;
         vm.PushString(asset_pack_path);
         vm.MCall(pc, 1);
+        var r0 = vm.ToArray<string>(-1);
         vm.ClearStack();
         return r0;
     }
@@ -119,6 +127,7 @@ public static class Assets
         pc++;
         vm.PushString(asset_pack_path);
         vm.MCall(pc, 1);
+        var r0 = vm.ToArray<string>(-1);
         vm.ClearStack();
         return r0;
     }
@@ -132,11 +141,12 @@ public static class Assets
         pc++;
         vm.PushString(asset_pack_path);
         vm.MCall(pc, 1);
+        var r0 = vm.ToArray<string>(-1);
         vm.ClearStack();
         return r0;
     }
 
-    public static void Precache(ILuaVM vm, string asset_path, int asset_type)
+    public static void Precache(ILuaVM vm, string asset_path, LuaRef asset_type)
     {
         int pc = 0;
         vm.PushGlobalTable();

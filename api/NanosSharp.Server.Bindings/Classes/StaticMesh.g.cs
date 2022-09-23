@@ -6,7 +6,7 @@ namespace NanosSharp.Server.Bindings;
 
 public class StaticMesh : Paintable
 {
-    public static int GetMesh(ILuaVM vm, int selfRef)
+    public static string GetMesh(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -16,7 +16,8 @@ public class StaticMesh : Paintable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         vm.MCall(pc, 1);
-        var r0 = vm.Ref(ILuaVM.RegistryIndex);
+        var r0 = vm.ToString(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }

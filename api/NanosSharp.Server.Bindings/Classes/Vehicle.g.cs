@@ -6,7 +6,7 @@ namespace NanosSharp.Server.Bindings;
 
 public class Vehicle : Paintable
 {
-    public static void AddStaticMeshAttached(ILuaVM vm, int selfRef, string id, int? static_mesh_asset = null, string? socket = null, int? relative_location = null, int? relative_rotation = null)
+    public static void AddStaticMeshAttached(ILuaVM vm, int selfRef, string id, string? static_mesh_asset = null, string? socket = null, LuaRef? relative_location = null, LuaRef? relative_rotation = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -20,7 +20,7 @@ public class Vehicle : Paintable
         if (static_mesh_asset != null)
         {
              pc++;
-             vm.RawGetI(ILuaVM.RegistryIndex, static_mesh_asset.Value);
+             vm.PushString(static_mesh_asset);
         }
         if (socket != null)
         {
@@ -127,7 +127,7 @@ public class Vehicle : Paintable
         vm.ClearStack();
     }
 
-    public static void SetDifferentialSetup(ILuaVM vm, int selfRef, int? differential_type = null, double? front_rear_split = null, double? front_left_right_split = null, double? rear_left_right_split = null, double? center_bias = null, double? front_bias = null, double? rear_bias = null)
+    public static void SetDifferentialSetup(ILuaVM vm, int selfRef, LuaRef? differential_type = null, double? front_rear_split = null, double? front_left_right_split = null, double? rear_left_right_split = null, double? center_bias = null, double? front_bias = null, double? rear_bias = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -294,7 +294,7 @@ public class Vehicle : Paintable
         vm.ClearStack();
     }
 
-    public static void SetWheel(ILuaVM vm, int selfRef, double index, string bone_name, double? radius = null, double? width = null, double? max_steer_angle = null, int? offset = null, bool? is_affected_by_engine = null, bool? is_affected_by_brake = null, bool? is_affected_by_handbrake = null, bool? has_abs_enabled = null, bool? has_traction_control_enabled = null, double? max_brake_torque = null, double? max_handbrake_torque = null, double? cornering_stiffness = null, double? side_slip_modifier = null, double? friction_force_multiplier = null, double? slip_threshold = null, double? skid_threshold = null, double? suspension_spring_rate = null, double? suspension_spring_preload = null, double? suspension_max_raise = null, double? suspension_max_drop = null, double? suspension_smoothing = null, double? suspension_damping_ratio = null, double? suspension_wheel_load_ratio = null, int? suspension_axis = null, int? suspension_force_offset = null)
+    public static void SetWheel(ILuaVM vm, int selfRef, double index, string bone_name, double? radius = null, double? width = null, double? max_steer_angle = null, LuaRef? offset = null, bool? is_affected_by_engine = null, bool? is_affected_by_brake = null, bool? is_affected_by_handbrake = null, bool? has_abs_enabled = null, bool? has_traction_control_enabled = null, double? max_brake_torque = null, double? max_handbrake_torque = null, double? cornering_stiffness = null, double? side_slip_modifier = null, double? friction_force_multiplier = null, double? slip_threshold = null, double? skid_threshold = null, double? suspension_spring_rate = null, double? suspension_spring_preload = null, double? suspension_max_raise = null, double? suspension_max_drop = null, double? suspension_smoothing = null, double? suspension_damping_ratio = null, double? suspension_wheel_load_ratio = null, LuaRef? suspension_axis = null, LuaRef? suspension_force_offset = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -436,7 +436,7 @@ public class Vehicle : Paintable
         vm.ClearStack();
     }
 
-    public static void SetDoor(ILuaVM vm, int selfRef, double seat_index, int offset_location, int seat_location, int seat_rotation, double trigger_radius, double leave_lateral_offset)
+    public static void SetDoor(ILuaVM vm, int selfRef, double seat_index, LuaRef offset_location, LuaRef seat_location, LuaRef seat_rotation, double trigger_radius, double leave_lateral_offset)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -461,7 +461,7 @@ public class Vehicle : Paintable
         vm.ClearStack();
     }
 
-    public static void SetSteeringWheelSetup(ILuaVM vm, int selfRef, int location, double radius)
+    public static void SetSteeringWheelSetup(ILuaVM vm, int selfRef, LuaRef location, double radius)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -478,7 +478,7 @@ public class Vehicle : Paintable
         vm.ClearStack();
     }
 
-    public static void SetHeadlightsSetup(ILuaVM vm, int selfRef, int location, int? color = null)
+    public static void SetHeadlightsSetup(ILuaVM vm, int selfRef, LuaRef location, LuaRef? color = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -498,7 +498,7 @@ public class Vehicle : Paintable
         vm.ClearStack();
     }
 
-    public static void SetTaillightsSetup(ILuaVM vm, int selfRef, int location)
+    public static void SetTaillightsSetup(ILuaVM vm, int selfRef, LuaRef location)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -513,7 +513,7 @@ public class Vehicle : Paintable
         vm.ClearStack();
     }
 
-    public static int GetAssetName(ILuaVM vm, int selfRef)
+    public static string GetAssetName(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -523,12 +523,13 @@ public class Vehicle : Paintable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         vm.MCall(pc, 1);
-        var r0 = vm.Ref(ILuaVM.RegistryIndex);
+        var r0 = vm.ToString(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }
 
-    public static int GetPassenger(ILuaVM vm, int selfRef, double seat)
+    public static LuaRef GetPassenger(ILuaVM vm, int selfRef, double seat)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -545,7 +546,7 @@ public class Vehicle : Paintable
         return r0;
     }
 
-    public static int[] GetPassengers(ILuaVM vm, int selfRef)
+    public static LuaRef[] GetPassengers(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -555,6 +556,7 @@ public class Vehicle : Paintable
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         vm.MCall(pc, 1);
+        var r0 = vm.ToRefArray(-1);
         vm.ClearStack();
         return r0;
     }

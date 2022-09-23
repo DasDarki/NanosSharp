@@ -18,7 +18,7 @@ public class Quat
         vm.ClearStack();
     }
 
-    public static int Rotator(ILuaVM vm, int selfRef)
+    public static LuaRef Rotator(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -32,7 +32,7 @@ public class Quat
         return r0;
     }
 
-    public static int Inverse(ILuaVM vm, int selfRef)
+    public static LuaRef Inverse(ILuaVM vm, int selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();

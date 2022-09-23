@@ -15,7 +15,9 @@ public static class Package
         pc++;
         vm.PushString(message);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, args);
+        foreach (var a in args) {
+            vm.PushObject(a);
+        }
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
@@ -29,7 +31,9 @@ public static class Package
         pc++;
         vm.PushString(message);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, args);
+        foreach (var a in args) {
+            vm.PushObject(a);
+        }
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
@@ -43,7 +47,9 @@ public static class Package
         pc++;
         vm.PushString(message);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, args);
+        foreach (var a in args) {
+            vm.PushObject(a);
+        }
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
@@ -59,14 +65,17 @@ public static class Package
         pc++;
         vm.PushString(function_name);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, args);
+        foreach (var a in args) {
+            vm.PushObject(a);
+        }
         vm.MCall(pc, 1);
-        var r0 = vm.Ref(ILuaVM.RegistryIndex);
+        var r0 = vm.ToObject(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }
 
-    public static void Export(ILuaVM vm, string function_name, int callback)
+    public static void Export(ILuaVM vm, string function_name, ILuaVM.CFunction callback)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -75,7 +84,7 @@ public static class Package
         pc++;
         vm.PushString(function_name);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, callback);
+        vm.PushManagedFunction(callback);
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
@@ -89,7 +98,8 @@ public static class Package
         pc++;
         vm.PushString(script_file);
         vm.MCall(pc, 1);
-        var r0 = vm.Ref(ILuaVM.RegistryIndex);
+        var r0 = vm.ToObject(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }
@@ -106,7 +116,7 @@ public static class Package
         vm.ClearStack();
     }
 
-    public static int Subscribe(ILuaVM vm, string event_name, int callback)
+    public static ILuaVM.CFunction Subscribe(ILuaVM vm, string event_name, ILuaVM.CFunction callback)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -115,14 +125,15 @@ public static class Package
         pc++;
         vm.PushString(event_name);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, callback);
+        vm.PushManagedFunction(callback);
         vm.MCall(pc, 1);
-        var r0 = vm.Ref(ILuaVM.RegistryIndex);
+        var r0 = vm.ToCFunction(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }
 
-    public static void Unsubscribe(ILuaVM vm, string event_name, int? callback = null)
+    public static void Unsubscribe(ILuaVM vm, string event_name, ILuaVM.CFunction? callback = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -133,7 +144,7 @@ public static class Package
         if (callback != null)
         {
              pc++;
-             vm.RawGetI(ILuaVM.RegistryIndex, callback.Value);
+             vm.PushManagedFunction(callback);
         }
         vm.MCall(pc, 0);
         vm.ClearStack();
@@ -148,7 +159,7 @@ public static class Package
         pc++;
         vm.PushString(key);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, value);
+        vm.PushObject(value);
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
@@ -165,11 +176,12 @@ public static class Package
              vm.PushString(path_filter);
         }
         vm.MCall(pc, 1);
+        var r0 = vm.ToArray<string>(-1);
         vm.ClearStack();
         return r0;
     }
 
-    public static string[] GetFiles(ILuaVM vm, int? path_filter = null, string? extension_filter = null)
+    public static string[] GetFiles(ILuaVM vm, LuaRef? path_filter = null, string? extension_filter = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -186,6 +198,7 @@ public static class Package
              vm.PushString(extension_filter);
         }
         vm.MCall(pc, 1);
+        var r0 = vm.ToArray<string>(-1);
         vm.ClearStack();
         return r0;
     }
@@ -236,6 +249,8 @@ public static class Package
         vm.GetField(-1, "Package");
         vm.GetField(-1, "GetPersistentData");
         vm.MCall(pc, 1);
+        var r0 = vm.ToTable(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }

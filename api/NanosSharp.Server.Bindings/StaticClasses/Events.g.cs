@@ -15,12 +15,14 @@ public static class Events
         pc++;
         vm.PushString(event_name);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, args);
+        foreach (var a in args) {
+            vm.PushObject(a);
+        }
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
 
-    public static void CallRemote(ILuaVM vm, string event_name, int player, params object[] args)
+    public static void CallRemote(ILuaVM vm, string event_name, LuaRef player, params object[] args)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -31,7 +33,9 @@ public static class Events
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, player);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, args);
+        foreach (var a in args) {
+            vm.PushObject(a);
+        }
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
@@ -45,12 +49,14 @@ public static class Events
         pc++;
         vm.PushString(event_name);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, args);
+        foreach (var a in args) {
+            vm.PushObject(a);
+        }
         vm.MCall(pc, 0);
         vm.ClearStack();
     }
 
-    public static int Subscribe(ILuaVM vm, string event_name, int callback)
+    public static ILuaVM.CFunction Subscribe(ILuaVM vm, string event_name, ILuaVM.CFunction callback)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -59,14 +65,15 @@ public static class Events
         pc++;
         vm.PushString(event_name);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, callback);
+        vm.PushManagedFunction(callback);
         vm.MCall(pc, 1);
-        var r0 = vm.Ref(ILuaVM.RegistryIndex);
+        var r0 = vm.ToCFunction(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }
 
-    public static void Unsubscribe(ILuaVM vm, string event_name, int? callback = null)
+    public static void Unsubscribe(ILuaVM vm, string event_name, ILuaVM.CFunction? callback = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -77,7 +84,7 @@ public static class Events
         if (callback != null)
         {
              pc++;
-             vm.RawGetI(ILuaVM.RegistryIndex, callback.Value);
+             vm.PushManagedFunction(callback);
         }
         vm.MCall(pc, 0);
         vm.ClearStack();

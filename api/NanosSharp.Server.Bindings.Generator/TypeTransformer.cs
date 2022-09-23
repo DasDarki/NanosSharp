@@ -23,7 +23,8 @@ internal static class TypeTransformer
             "boolean" => "bool",
             "table" => "Dictionary<string, object>",
             "any" => "object",
-            _ => type.EndsWith("path") ? "string" : "int"
+            "function" => "ILuaVM.CFunction",
+            _ => type.ToLower().EndsWith("path") ? "string" : "LuaRef"
         };
         
         return (isArray ? $"{basicType}[]" : basicType) + (isNullable ? "?" : "");
@@ -38,7 +39,7 @@ internal static class TypeTransformer
         
         if (type.EndsWith("[]"))
         {
-            type = type[..^2];
+            return "PushArray(%)";
         }
 
         return type.ToLower() switch
@@ -46,13 +47,17 @@ internal static class TypeTransformer
             "number" => "PushNumber(%)",
             "string" => "PushString(%)",
             "boolean" => "PushBoolean(%)",
-            "table" => "Dictionary<string, object>",
-            _ => type.EndsWith("path") ? "PushString(%)" : "RawGetI(ILuaVM.RegistryIndex, %)"
+            "table" => "PushTable(%)",
+            "any" => "PushObject(%)",
+            "function" => "PushManagedFunction(%)",
+            _ => type.ToLower().EndsWith("path") ? "PushString(%)" : "RawGetI(ILuaVM.RegistryIndex, %)"
         };
     }
 
     internal static string DeterminePull(string type, out bool needPop)
     {
+        needPop = true;
+        
         if (type.EndsWith("?"))
         {
             type = type[..^1];
@@ -61,9 +66,29 @@ internal static class TypeTransformer
         if (type.EndsWith("[]"))
         {
             type = type[..^2];
+            needPop = false;
+
+            switch (type.ToLower())
+            {
+                case "number":
+                    return "ToArray<double>(-1)";
+                case "string":
+                    return "ToArray<string>(-1)";
+                case "boolean":
+                    return "ToArray<boolean>(-1)";
+                case "table":
+                    return "ToArray<Dictionary<string, object>>(-1)";
+                case "any":
+                    return "ToArray(-1)";
+                default:
+                    if (type.ToLower().EndsWith("path"))
+                    {
+                        return "ToArray<string>(-1)";
+                    }
+                    
+                    return "ToRefArray(-1)";
+            }
         }
-        
-        needPop = true;
 
         switch (type.ToLower())
         {
@@ -74,9 +99,13 @@ internal static class TypeTransformer
             case "boolean":
                 return "ToBoolean(-1)";
             case "table":
-                return "Dictionary<string, object>";
+                return "ToTable(-1)";
+            case "any":
+                return "ToObject(-1)";
+            case "function":
+                return "ToCFunction(-1)";
             default:
-                if (type.EndsWith("path"))
+                if (type.ToLower().EndsWith("path"))
                 {
                     return "ToString(-1)";
                 }
