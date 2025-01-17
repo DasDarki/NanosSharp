@@ -6,7 +6,7 @@ namespace NanosSharp.Server.Bindings;
 
 public class Color
 {
-    public static string ToHex(ILuaVM vm, int selfRef)
+    public static string ToHex(ILuaVM vm, int selfRef, bool? appends_transparency = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -14,6 +14,11 @@ public class Color
         vm.GetField(-1, "ToHex");
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
+        if (appends_transparency != null)
+        {
+             pc++;
+             vm.PushBoolean(appends_transparency.Value);
+        }
         vm.MCall(pc, 1);
         var r0 = vm.ToString(-1);
         vm.Pop();

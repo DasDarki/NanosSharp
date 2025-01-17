@@ -6,23 +6,6 @@ namespace NanosSharp.Server.Bindings;
 
 public static class NanosUtils
 {
-    public static bool IsA(ILuaVM vm, object obj, object type)
-    {
-        int pc = 0;
-        vm.PushGlobalTable();
-        vm.GetField(-1, "NanosUtils");
-        vm.GetField(-1, "IsA");
-        pc++;
-        vm.PushObject(obj);
-        pc++;
-        vm.PushObject(type);
-        vm.MCall(pc, 1);
-        var r0 = vm.ToBoolean(-1);
-        vm.Pop();
-        vm.ClearStack();
-        return r0;
-    }
-
     public static bool IsEntityValid(ILuaVM vm, object entity)
     {
         int pc = 0;
@@ -33,21 +16,6 @@ public static class NanosUtils
         vm.PushObject(entity);
         vm.MCall(pc, 1);
         var r0 = vm.ToBoolean(-1);
-        vm.Pop();
-        vm.ClearStack();
-        return r0;
-    }
-
-    public static string Dump(ILuaVM vm, Dictionary<string, object> table)
-    {
-        int pc = 0;
-        vm.PushGlobalTable();
-        vm.GetField(-1, "NanosUtils");
-        vm.GetField(-1, "Dump");
-        pc++;
-        vm.PushTable(table);
-        vm.MCall(pc, 1);
-        var r0 = vm.ToString(-1);
         vm.Pop();
         vm.ClearStack();
         return r0;
@@ -71,25 +39,6 @@ public static class NanosUtils
         }
         vm.MCall(pc, 0);
         vm.ClearStack();
-    }
-
-    public static string FormatString(ILuaVM vm, string text, params object[] args)
-    {
-        int pc = 0;
-        vm.PushGlobalTable();
-        vm.GetField(-1, "NanosUtils");
-        vm.GetField(-1, "FormatString");
-        pc++;
-        vm.PushString(text);
-        pc++;
-        foreach (var a in args) {
-            vm.PushObject(a);
-        }
-        vm.MCall(pc, 1);
-        var r0 = vm.ToString(-1);
-        vm.Pop();
-        vm.ClearStack();
-        return r0;
     }
 
 }

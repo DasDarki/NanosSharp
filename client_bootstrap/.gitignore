@@ -1,0 +1,6 @@
+.vs/
+deps/
+version/
+x64/
+
+version.vcxproj.user

@@ -12,6 +12,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanosSharp.Server.Bindings"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanosSharp.Server.Bindings.Generator", "NanosSharp.Server.Bindings.Generator\NanosSharp.Server.Bindings.Generator.csproj", "{C5870F1B-155A-4D48-A468-066C3546D823}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanosSharp.Client", "NanosSharp.Client\NanosSharp.Client.csproj", "{1D789C42-C8BE-476A-B1F4-04DEC3B925BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanosSharp.Client.API", "NanosSharp.Client.API\NanosSharp.Client.API.csproj", "{B11542B2-4BE3-482D-9BE6-222565BF5BAB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +46,13 @@ Global
 		{C5870F1B-155A-4D48-A468-066C3546D823}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5870F1B-155A-4D48-A468-066C3546D823}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C5870F1B-155A-4D48-A468-066C3546D823}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D789C42-C8BE-476A-B1F4-04DEC3B925BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D789C42-C8BE-476A-B1F4-04DEC3B925BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D789C42-C8BE-476A-B1F4-04DEC3B925BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D789C42-C8BE-476A-B1F4-04DEC3B925BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B11542B2-4BE3-482D-9BE6-222565BF5BAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B11542B2-4BE3-482D-9BE6-222565BF5BAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B11542B2-4BE3-482D-9BE6-222565BF5BAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B11542B2-4BE3-482D-9BE6-222565BF5BAB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

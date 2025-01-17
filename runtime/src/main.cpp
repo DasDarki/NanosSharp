@@ -26,7 +26,7 @@ int load_module_internally(lua_State *L) {
 }
 
 EXTERN int luaopen_nanossharp_runtime (lua_State *L) {
-    int result = Runtime::GetInstance().Start(L, "6.0.6", "NanosSharp", "NanosSharp.Runtime, NanosSharp");
+    int result = Runtime::GetInstance().Start(L, "9.0.0", "NanosSharp", "NanosSharp.Runtime, NanosSharp");
     switch (result) {
         case RUNTIME_SUCCESS:
             break;

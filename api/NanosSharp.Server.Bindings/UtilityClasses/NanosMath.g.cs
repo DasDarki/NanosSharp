@@ -90,6 +90,22 @@ public static class NanosMath
         vm.ClearStack();
     }
 
+    public static LuaRef RandomFloat(ILuaVM vm, LuaRef min, LuaRef max)
+    {
+        int pc = 0;
+        vm.PushGlobalTable();
+        vm.GetField(-1, "NanosMath");
+        vm.GetField(-1, "RandomFloat");
+        pc++;
+        vm.RawGetI(ILuaVM.RegistryIndex, min);
+        pc++;
+        vm.RawGetI(ILuaVM.RegistryIndex, max);
+        vm.MCall(pc, 1);
+        var r0 = vm.Ref(ILuaVM.RegistryIndex);
+        vm.ClearStack();
+        return r0;
+    }
+
     public static double FInterpTo(ILuaVM vm, double current, double target, double delta_time, double interp_speed)
     {
         int pc = 0;

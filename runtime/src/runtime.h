@@ -6,7 +6,6 @@
 #define NANOSSHARP_RUNTIME_RUNTIME_H
 
 #include <filesystem>
-#include <vector>
 #include <string>
 #include <stdint.h>
 

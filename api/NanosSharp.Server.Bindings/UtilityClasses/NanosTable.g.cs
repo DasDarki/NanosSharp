@@ -4,16 +4,16 @@ using NanosSharp.API;
 
 namespace NanosSharp.Server.Bindings;
 
-public static class JSON
+public static class NanosTable
 {
-    public static string stringify(ILuaVM vm, Dictionary<string, object> value)
+    public static string Dump(ILuaVM vm, Dictionary<string, object> table)
     {
         int pc = 0;
         vm.PushGlobalTable();
-        vm.GetField(-1, "JSON");
-        vm.GetField(-1, "stringify");
+        vm.GetField(-1, "NanosTable");
+        vm.GetField(-1, "Dump");
         pc++;
-        vm.PushTable(value);
+        vm.PushTable(table);
         vm.MCall(pc, 1);
         var r0 = vm.ToString(-1);
         vm.Pop();
@@ -21,16 +21,16 @@ public static class JSON
         return r0;
     }
 
-    public static object parse(ILuaVM vm, string value)
+    public static Dictionary<string, object> ShallowCopy(ILuaVM vm, Dictionary<string, object> table)
     {
         int pc = 0;
         vm.PushGlobalTable();
-        vm.GetField(-1, "JSON");
-        vm.GetField(-1, "parse");
+        vm.GetField(-1, "NanosTable");
+        vm.GetField(-1, "ShallowCopy");
         pc++;
-        vm.PushString(value);
+        vm.PushTable(table);
         vm.MCall(pc, 1);
-        var r0 = vm.ToObject(-1);
+        var r0 = vm.ToTable(-1);
         vm.Pop();
         vm.ClearStack();
         return r0;

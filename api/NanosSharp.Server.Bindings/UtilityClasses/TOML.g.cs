@@ -4,14 +4,14 @@ using NanosSharp.API;
 
 namespace NanosSharp.Server.Bindings;
 
-public static class JSON
+public static class TOML
 {
-    public static string stringify(ILuaVM vm, Dictionary<string, object> value)
+    public static string Dump(ILuaVM vm, Dictionary<string, object> value)
     {
         int pc = 0;
         vm.PushGlobalTable();
-        vm.GetField(-1, "JSON");
-        vm.GetField(-1, "stringify");
+        vm.GetField(-1, "TOML");
+        vm.GetField(-1, "Dump");
         pc++;
         vm.PushTable(value);
         vm.MCall(pc, 1);
@@ -21,12 +21,12 @@ public static class JSON
         return r0;
     }
 
-    public static object parse(ILuaVM vm, string value)
+    public static object Parse(ILuaVM vm, string value)
     {
         int pc = 0;
         vm.PushGlobalTable();
-        vm.GetField(-1, "JSON");
-        vm.GetField(-1, "parse");
+        vm.GetField(-1, "TOML");
+        vm.GetField(-1, "Parse");
         pc++;
         vm.PushString(value);
         vm.MCall(pc, 1);

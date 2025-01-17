@@ -155,7 +155,7 @@ public class Rotator
         return r0;
     }
 
-    public static LuaRef Random(ILuaVM vm, bool? roll = null)
+    public static LuaRef Random(ILuaVM vm, bool? roll = null, LuaRef? min = null, LuaRef? max = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -165,6 +165,16 @@ public class Rotator
         {
              pc++;
              vm.PushBoolean(roll.Value);
+        }
+        if (min != null)
+        {
+             pc++;
+             vm.RawGetI(ILuaVM.RegistryIndex, min.Value);
+        }
+        if (max != null)
+        {
+             pc++;
+             vm.RawGetI(ILuaVM.RegistryIndex, max.Value);
         }
         vm.MCall(pc, 1);
         var r0 = vm.Ref(ILuaVM.RegistryIndex);

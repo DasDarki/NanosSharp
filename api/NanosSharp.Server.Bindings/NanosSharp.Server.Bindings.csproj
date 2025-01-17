@@ -10,4 +10,10 @@
       <ProjectReference Include="..\NanosSharp.API\NanosSharp.API.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Classes\" />
+      <Folder Include="StandardLibraries\" />
+      <Folder Include="StaticClasses\" />
+    </ItemGroup>
+
 </Project>
