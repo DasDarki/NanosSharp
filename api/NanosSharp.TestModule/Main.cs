@@ -12,7 +12,7 @@ public class Main : IModule
         vm.MCall(1, 0);
         vm.ClearStack();
 
-        vm.PushManagedFunction(ReverseString);
+        /*vm.PushManagedFunction(ReverseString);
         vm.SetGlobal("ReverseString");
         vm.ClearStack();
         
@@ -22,7 +22,7 @@ public class Main : IModule
         vm.PushString("Tick");
         vm.PushManagedFunction(OnTick);
         vm.MCall(2, 0);
-        vm.ClearStack();*/
+        vm.ClearStack();#1#
         
         vm.PushGlobalTable();
         vm.GetField(-1, "File");
@@ -59,7 +59,7 @@ public class Main : IModule
         vm.MCall(1, 0);
         vm.ClearStack();
         
-        vm.Unref(ILuaVM.RegistryIndex, fileRef);
+        vm.Unref(ILuaVM.RegistryIndex, fileRef);*/
     }
 
     public int OnTick(ILuaVM vm)

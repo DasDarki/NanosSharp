@@ -12,7 +12,7 @@ internal class ClassBuilder : ISourceBuilder
     internal ClassBuilder(bool isStatic, string name, string[] inheritances)
     {
         _isStatic = isStatic;
-        _name = name;
+        _name = ISourceBuilder.MakeSafeName(name);
         _inheritance = GetMostValuableInheritance(inheritances);
         _builders = new List<ISourceBuilder>();
     }

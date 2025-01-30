@@ -6,11 +6,17 @@ namespace NanosSharp.Server.Bindings.Generator.SourceBuilder
     {
         private readonly string _name;
         private readonly Dictionary<string, string> _values;
+        private string _description = "";
 
         internal EnumBuilder(string name)
         {
             _name = name;
             _values = new Dictionary<string, string>();
+        }
+        
+        internal void SetDescription(string description)
+        {
+            _description = description;
         }
         
         internal void AddValue(string name, string value)
@@ -21,6 +27,9 @@ namespace NanosSharp.Server.Bindings.Generator.SourceBuilder
         public string Generate(int indent = 0)
         {
             var sb = new StringBuilder();
+            sb.AppendLineWithIndent($"/// <summary>", indent);
+            sb.AppendLineWithIndent($"/// {_description}", indent);
+            sb.AppendLineWithIndent($"/// </summary>", indent);
             sb.AppendLineWithIndent($"public enum {_name}", indent).AppendLineWithIndent("{", indent);
 
             int i = 0;

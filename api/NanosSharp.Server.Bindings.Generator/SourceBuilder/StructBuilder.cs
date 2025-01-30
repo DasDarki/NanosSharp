@@ -9,7 +9,7 @@ internal class StructBuilder : ISourceBuilder
     
     internal StructBuilder(string name)
     {
-        _name = name;
+        _name = ISourceBuilder.MakeSafeName(name);
         _fields = new Dictionary<string, string>();
     }
     

@@ -6,7 +6,7 @@ namespace NanosSharp.Server.Bindings;
 
 public class Rotator
 {
-    public static LuaRef GetForwardVector(ILuaVM vm, int selfRef)
+    public static LuaRef GetForwardVector(ILuaVM vm, LuaRef selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -20,7 +20,7 @@ public class Rotator
         return r0;
     }
 
-    public static LuaRef GetRightVector(ILuaVM vm, int selfRef)
+    public static LuaRef GetRightVector(ILuaVM vm, LuaRef selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -34,7 +34,7 @@ public class Rotator
         return r0;
     }
 
-    public static LuaRef GetUpVector(ILuaVM vm, int selfRef)
+    public static LuaRef GetUpVector(ILuaVM vm, LuaRef selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -48,7 +48,7 @@ public class Rotator
         return r0;
     }
 
-    public static LuaRef RotateVector(ILuaVM vm, int selfRef, LuaRef vector)
+    public static LuaRef RotateVector(ILuaVM vm, LuaRef selfRef, LuaRef vector)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -64,7 +64,7 @@ public class Rotator
         return r0;
     }
 
-    public static void Normalize(ILuaVM vm, int selfRef)
+    public static void Normalize(ILuaVM vm, LuaRef selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -76,7 +76,7 @@ public class Rotator
         vm.ClearStack();
     }
 
-    public static LuaRef UnrotateVector(ILuaVM vm, int selfRef, LuaRef vector)
+    public static LuaRef UnrotateVector(ILuaVM vm, LuaRef selfRef, LuaRef vector)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -92,7 +92,7 @@ public class Rotator
         return r0;
     }
 
-    public static LuaRef Quaternion(ILuaVM vm, int selfRef)
+    public static LuaRef Quaternion(ILuaVM vm, LuaRef selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -106,7 +106,7 @@ public class Rotator
         return r0;
     }
 
-    public static LuaRef GetNormalized(ILuaVM vm, int selfRef)
+    public static LuaRef GetNormalized(ILuaVM vm, LuaRef selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -120,7 +120,7 @@ public class Rotator
         return r0;
     }
 
-    public static bool IsNearlyZero(ILuaVM vm, int selfRef, double? tolerance = null)
+    public static bool IsNearlyZero(ILuaVM vm, LuaRef selfRef, double? tolerance = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -140,7 +140,7 @@ public class Rotator
         return r0;
     }
 
-    public static bool IsZero(ILuaVM vm, int selfRef)
+    public static bool IsZero(ILuaVM vm, LuaRef selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();

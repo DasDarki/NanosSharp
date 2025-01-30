@@ -1,14 +1,10 @@
 ﻿namespace NanosSharp.API;
 
-public struct LuaRef
+public struct LuaRef(int index)
 {
-    private readonly int _index;
-    
-    public LuaRef(int index)
-    {
-        _index = index;
-    }
+    private readonly int _index = index;
 
     public static implicit operator int(LuaRef luaRef) => luaRef._index;
+    public static implicit operator long(LuaRef luaRef) => luaRef._index;
     public static implicit operator LuaRef(int index) => new(index);
 }

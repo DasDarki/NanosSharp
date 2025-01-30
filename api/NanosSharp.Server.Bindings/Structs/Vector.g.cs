@@ -6,7 +6,7 @@ namespace NanosSharp.Server.Bindings;
 
 public class Vector
 {
-    public static bool Equals(ILuaVM vm, int selfRef, LuaRef other, double? tolerance = null)
+    public static bool Equals(ILuaVM vm, LuaRef selfRef, LuaRef other, double? tolerance = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -28,7 +28,7 @@ public class Vector
         return r0;
     }
 
-    public static double Distance(ILuaVM vm, int selfRef, LuaRef other)
+    public static double Distance(ILuaVM vm, LuaRef selfRef, LuaRef other)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -45,7 +45,7 @@ public class Vector
         return r0;
     }
 
-    public static double DistanceSquared(ILuaVM vm, int selfRef, LuaRef other)
+    public static double DistanceSquared(ILuaVM vm, LuaRef selfRef, LuaRef other)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -62,7 +62,7 @@ public class Vector
         return r0;
     }
 
-    public static LuaRef GetUnsafeNormal(ILuaVM vm, int selfRef)
+    public static LuaRef GetUnsafeNormal(ILuaVM vm, LuaRef selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -76,7 +76,7 @@ public class Vector
         return r0;
     }
 
-    public static LuaRef GetSafeNormal(ILuaVM vm, int selfRef)
+    public static LuaRef GetSafeNormal(ILuaVM vm, LuaRef selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -90,7 +90,7 @@ public class Vector
         return r0;
     }
 
-    public static bool IsNearlyZero(ILuaVM vm, int selfRef, double? tolerance = null)
+    public static bool IsNearlyZero(ILuaVM vm, LuaRef selfRef, double? tolerance = null)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -110,7 +110,7 @@ public class Vector
         return r0;
     }
 
-    public static bool IsZero(ILuaVM vm, int selfRef)
+    public static bool IsZero(ILuaVM vm, LuaRef selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -125,7 +125,7 @@ public class Vector
         return r0;
     }
 
-    public static bool Normalize(ILuaVM vm, int selfRef)
+    public static bool Normalize(ILuaVM vm, LuaRef selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -140,7 +140,7 @@ public class Vector
         return r0;
     }
 
-    public static double Size(ILuaVM vm, int selfRef)
+    public static double Size(ILuaVM vm, LuaRef selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -155,7 +155,7 @@ public class Vector
         return r0;
     }
 
-    public static double SizeSquared(ILuaVM vm, int selfRef)
+    public static double SizeSquared(ILuaVM vm, LuaRef selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -170,7 +170,7 @@ public class Vector
         return r0;
     }
 
-    public static LuaRef Rotation(ILuaVM vm, int selfRef)
+    public static LuaRef Rotation(ILuaVM vm, LuaRef selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();

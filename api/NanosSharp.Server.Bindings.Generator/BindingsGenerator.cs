@@ -15,6 +15,7 @@ internal class BindingsGenerator
 {
     private readonly bool _useBleedingEdge = true;
     private readonly List<Model.File> _files = new();
+    private readonly List<string> _enumNames = new();
     
     private readonly string _outputPath;
     private readonly string _repositoryPath;
@@ -74,16 +75,15 @@ internal class BindingsGenerator
     /// </summary>
     public void Execute()
     {
-        foreach (var file in _files)
+        var enumFile = _files.FirstOrDefault(f => f.Path.StartsWith("Enums"));
+        if (enumFile != null)
         {
-            if (file.Path.StartsWith("Enums"))
-            {
-                GenerateEnums(file.Data.ToObject<Model.Enum>()!);
-            }
-            else
-            {
-                GenerateClass(Path.GetDirectoryName(file.Path)!, file.Data.ToObject<Class>()!);
-            }
+            GenerateEnums(enumFile.Data.ToObject<Model.Enum>()!);
+        }
+        
+        foreach (var file in _files.Where(file => !file.Path.StartsWith("Enums")))
+        {
+            GenerateClass(Path.GetDirectoryName(file.Path)!, file.Data.ToObject<Class>()!);
         }
     }
 
@@ -140,7 +140,7 @@ internal class BindingsGenerator
                                 {
                                     foreach (var tableProperty in ret.TableProperties)
                                     {
-                                        structBuilder.AddField(tableProperty.Name, TypeTransformer.Transform(tableProperty.Type));
+                                        structBuilder.AddField(tableProperty.Name, TypeTransformer.Transform(tableProperty.Type, _enumNames));
                                     }
                                 });
                             }
@@ -157,13 +157,13 @@ internal class BindingsGenerator
                                 var isNullable = param.Type.EndsWith("?") || param.Default != null;
                                 if (param.Type.ToLower() == "table" && param.TableProperties != null)
                                 {
-                                    funcBuilder.Param(func.Name + "_Param" + i + (isNullable ? "?" : ""), param.Name + (isNullable ? " = null" : ""));
+                                    funcBuilder.Param(func.Name + "_Param" + i + (isNullable ? "?" : ""), ISourceBuilder.MakeSafeName(param.Name) + (isNullable ? " = null" : ""));
                                 }
                                 else
                                 {
                                     var isVararg = param.Name.EndsWith("...");
-                                    var transformed = (isVararg ? "params " : "") + TypeTransformer.Transform(param.Type) + (isVararg ? "[]" : "");
-                                    funcBuilder.Param(transformed + (isNullable && !transformed.EndsWith("?") && !isVararg ? "?" : ""), param.VararglessName + (isNullable && !isVararg ? " = null" : ""));
+                                    var transformed = (isVararg ? "params " : "") + TypeTransformer.Transform(param.Type, _enumNames) + (isVararg ? "[]" : "");
+                                    funcBuilder.Param(transformed + (isNullable && !transformed.EndsWith("?") && !isVararg ? "?" : ""), ISourceBuilder.MakeSafeName(param.VararglessName) + (isNullable && !isVararg ? " = null" : ""));
                                 }
                             }
                         }
@@ -179,7 +179,7 @@ internal class BindingsGenerator
                                 }
                                 else
                                 {
-                                    funcBuilder.Returns(TypeTransformer.Transform(ret.Type));
+                                    funcBuilder.Returns(TypeTransformer.Transform(ret.Type, _enumNames));
                                 }
                             }
                         }
@@ -209,31 +209,33 @@ internal class BindingsGenerator
                                 {
                                     void AddPushToBody(bool intend = false, bool isNullable = false)
                                     {
-                                        var push = TypeTransformer.DeterminePush(param.Type);
+                                        var push = TypeTransformer.DeterminePush(param.Type, _enumNames);
                                         var isVararg = param.Name.EndsWith("...");
-                                        var needsValue = () => isNullable 
-                                                               && !isVararg 
-                                                               && !param.Type.ToLower().Contains("path")
-                                                               && param.Type.ToLower() != "string"
-                                                               && param.Type.ToLower() != "any"
-                                                               && param.Type.ToLower() != "function"
-                                                               && param.Type.ToLower() != "table";
+                                        
+                                        bool NeedsValue()
+                                        {
+                                            return isNullable && !isVararg && !param.Type.ToLower().Contains("path") &&
+                                                   !param.Type.ToLower().StartsWith("string") && !param.Type.ToLower().StartsWith("any") &&
+                                                   !param.Type.ToLower().StartsWith("function") &&
+                                                   !param.Type.ToLower().StartsWith("table");
+                                        }
+
                                         if (isVararg)
                                         {
-                                            body.Add((intend ? "     " : "") + "foreach (var a in " + param.VararglessName + ") {");
-                                            body.Add((intend ? "     " : "") + "    vm." + push.Replace("%", "a" + (needsValue() ? ".Value" : "")) + ";");
+                                            body.Add((intend ? "     " : "") + "foreach (var a in " + ISourceBuilder.MakeSafeName(param.VararglessName) + ") {");
+                                            body.Add((intend ? "     " : "") + "    vm." + push.Replace("%", "a" + (NeedsValue() ? ".Value" : "")) + ";");
                                             body.Add((intend ? "     " : "") + "}");
                                         }
                                         else
                                         {
-                                            body.Add((intend ? "     " : "") + "vm." + push.Replace("%", param.VararglessName + (needsValue() ? ".Value" : "")) + ";");
+                                            body.Add((intend ? "     " : "") + "vm." + push.Replace("%", ISourceBuilder.MakeSafeName(param.VararglessName) + (NeedsValue() ? ".Value" : "")) + ";");
                                         }
                                     }
                                     
                                     var isNullable = (param.Type.EndsWith("?") || param.Default != null) && !param.Name.EndsWith("...");
                                     if (isNullable)
                                     {
-                                        body.Add("if (" + param.VararglessName + " != null)");
+                                        body.Add("if (" + ISourceBuilder.MakeSafeName(param.VararglessName) + " != null)");
                                         body.Add("{");
                                         body.Add("     pc++;");
                                         AddPushToBody(true, true);
@@ -255,7 +257,7 @@ internal class BindingsGenerator
                                 for (int i = returnCount - 1; i >= 0; i--)
                                 {
                                     var ret = func.Return[i];
-                                    var pop = TypeTransformer.DeterminePull(ret.Type, out var needPop);
+                                    var pop = TypeTransformer.DeterminePull(ret.Type, _enumNames, out var needPop);
                                     body.Add($"{(returnCount > 1 ? "" : "var ")}r{i} = vm.{pop};");
                                     
                                     if (needPop)
@@ -299,9 +301,13 @@ internal class BindingsGenerator
             
         foreach (var @enum in enums)
         {
+            _enumNames.Add(@enum.Key);
+            
             builder.AddEnum(@enum.Key, enumBuilder =>
             {
-                foreach (var value in @enum.Value)
+                enumBuilder.SetDescription(@enum.Value.Description);
+                
+                foreach (var value in @enum.Value.Enums)
                 {
                     enumBuilder.AddValue(value.Key, value.Value);
                 }

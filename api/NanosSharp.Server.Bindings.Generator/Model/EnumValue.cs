@@ -9,8 +9,5 @@ namespace NanosSharp.Server.Bindings.Generator.Model
         
         [JsonProperty("value")]
         internal string Value { get; set; }
-    
-        [JsonProperty("description")]
-        internal string Description { get; set; }
     }
 }

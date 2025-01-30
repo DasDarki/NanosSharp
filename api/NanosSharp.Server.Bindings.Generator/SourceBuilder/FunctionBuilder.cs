@@ -11,14 +11,14 @@ internal class FunctionBuilder : ISourceBuilder
 
     internal FunctionBuilder(string name, bool isStatic)
     {
-        _name = name;
+        _name = ISourceBuilder.MakeSafeName(name);
         _body = new List<string>();
         _params = new List<string> {"ILuaVM vm"};
         _returns = new List<string>();
         
         if (!isStatic)
         {
-            _params.Add("int selfRef");
+            _params.Add("LuaRef selfRef");
         }
     }
 

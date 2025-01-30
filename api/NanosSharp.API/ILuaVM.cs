@@ -91,10 +91,12 @@ public interface ILuaVM
     void Unref(int t, LuaRef @ref);
     void PushObject(object? o);
     void PushArray(Array arr);
+    void PushEnum(Enum e);
     void PushTable(Dictionary<string, object?> table);
     object? ToObject(int idx);
     object?[] ToArray(int idx);
     T?[] ToArray<T>(int idx);
+    T ToEnum<T>(int idx) where T : Enum;
     LuaRef[] ToRefArray(int idx);
     Dictionary<string, object?> ToTable(int idx);
 }

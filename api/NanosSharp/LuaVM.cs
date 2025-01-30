@@ -314,6 +314,12 @@ internal class LuaVM : ILuaVM
             return;
         }
         
+        if (o is Enum e)
+        {
+            PushEnum(e);
+            return;
+        }
+        
         switch (o)
         {
             case LuaRef r:
@@ -332,6 +338,11 @@ internal class LuaVM : ILuaVM
                 PushString(s);
                 break;
         }
+    }
+
+    public void PushEnum(Enum e)
+    {
+        PushInteger(Convert.ToInt32(e));
     }
 
     public void PushTable(Dictionary<string, object?> table)
@@ -411,6 +422,11 @@ internal class LuaVM : ILuaVM
         {
             try
             {
+                if (typeof(T).IsEnum)
+                {
+                    return (T) Enum.ToObject(typeof(T), Convert.ToInt32(o));
+                }
+                
                 return (T) o!;
             }
             catch
@@ -418,6 +434,11 @@ internal class LuaVM : ILuaVM
                 return default;
             }
         }).ToArray();
+    }
+
+    public T ToEnum<T>(int idx) where T : Enum
+    {
+        return (T) Enum.ToObject(typeof(T), ToInteger(idx));
     }
 
     public LuaRef[] ToRefArray(int idx)

@@ -4,34 +4,35 @@ using NanosSharp.API;
 
 namespace NanosSharp.Server.Bindings;
 
-public class Matrix
+public class StaticMesh : Paintable
 {
-    public static LuaRef TransformVector(ILuaVM vm, LuaRef selfRef, LuaRef vector)
+    public static void SetMesh(ILuaVM vm, LuaRef selfRef, string static_mesh_asset)
     {
         int pc = 0;
         vm.PushGlobalTable();
-        vm.GetField(-1, "Matrix");
-        vm.GetField(-1, "TransformVector");
+        vm.GetField(-1, "StaticMesh");
+        vm.GetField(-1, "__function");
+        vm.GetField(-1, "SetMesh");
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         pc++;
-        vm.RawGetI(ILuaVM.RegistryIndex, vector);
-        vm.MCall(pc, 1);
-        var r0 = vm.Ref(ILuaVM.RegistryIndex);
+        vm.PushString(static_mesh_asset);
+        vm.MCall(pc, 0);
         vm.ClearStack();
-        return r0;
     }
 
-    public static LuaRef GetTransposed(ILuaVM vm, LuaRef selfRef)
+    public static string GetMesh(ILuaVM vm, LuaRef selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
-        vm.GetField(-1, "Matrix");
-        vm.GetField(-1, "GetTransposed");
+        vm.GetField(-1, "StaticMesh");
+        vm.GetField(-1, "__function");
+        vm.GetField(-1, "GetMesh");
         pc++;
         vm.RawGetI(ILuaVM.RegistryIndex, selfRef);
         vm.MCall(pc, 1);
-        var r0 = vm.Ref(ILuaVM.RegistryIndex);
+        var r0 = vm.ToString(-1);
+        vm.Pop();
         vm.ClearStack();
         return r0;
     }

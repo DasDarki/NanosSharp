@@ -2,7 +2,7 @@
 
 namespace NanosSharp.Server.Bindings.Generator.Model
 {
-    internal class Enum : Dictionary<string, List<EnumValue>>
+    internal class Enum : Dictionary<string, EnumData>
     {
     
     }

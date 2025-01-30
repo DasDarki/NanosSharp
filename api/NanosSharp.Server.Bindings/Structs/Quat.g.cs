@@ -6,7 +6,7 @@ namespace NanosSharp.Server.Bindings;
 
 public class Quat
 {
-    public static void Normalize(ILuaVM vm, int selfRef)
+    public static void Normalize(ILuaVM vm, LuaRef selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -18,7 +18,7 @@ public class Quat
         vm.ClearStack();
     }
 
-    public static LuaRef Rotator(ILuaVM vm, int selfRef)
+    public static LuaRef Rotator(ILuaVM vm, LuaRef selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();
@@ -32,7 +32,7 @@ public class Quat
         return r0;
     }
 
-    public static LuaRef Inverse(ILuaVM vm, int selfRef)
+    public static LuaRef Inverse(ILuaVM vm, LuaRef selfRef)
     {
         int pc = 0;
         vm.PushGlobalTable();

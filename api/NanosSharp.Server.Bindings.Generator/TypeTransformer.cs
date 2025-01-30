@@ -2,8 +2,13 @@
 
 internal static class TypeTransformer
 {
-    internal static string Transform(string type)
+    internal static string Transform(string type, List<string> availableEnums)
     {
+        if (type.Contains('|'))
+        {
+            type = type.Split('|')[0];
+        }
+        
         var isNullable = type.EndsWith("?");
         if (isNullable)
         {
@@ -14,6 +19,12 @@ internal static class TypeTransformer
         if (isArray)
         {
             type = type[..^2];
+        }
+        
+        var enumType = availableEnums.FirstOrDefault(x => string.Equals(x, type, StringComparison.CurrentCultureIgnoreCase));
+        if (!string.IsNullOrEmpty(enumType))
+        {
+            return (isArray ? $"{enumType}[]" : enumType) + (isNullable ? "?" : "");
         }
         
         var basicType = type.ToLower() switch
@@ -30,8 +41,13 @@ internal static class TypeTransformer
         return (isArray ? $"{basicType}[]" : basicType) + (isNullable ? "?" : "");
     }
 
-    internal static string DeterminePush(string type)
+    internal static string DeterminePush(string type, List<string> availableEnums)
     {
+        if (type.Contains('|'))
+        {
+            type = type.Split('|')[0];
+        }
+        
         if (type.EndsWith("?"))
         {
             type = type[..^1];
@@ -40,6 +56,12 @@ internal static class TypeTransformer
         if (type.EndsWith("[]"))
         {
             return "PushArray(%)";
+        }
+        
+        var enumType = availableEnums.FirstOrDefault(x => string.Equals(x, type, StringComparison.CurrentCultureIgnoreCase));
+        if (!string.IsNullOrEmpty(enumType))
+        {
+            return "PushEnum(%)";
         }
 
         return type.ToLower() switch
@@ -54,9 +76,14 @@ internal static class TypeTransformer
         };
     }
 
-    internal static string DeterminePull(string type, out bool needPop)
+    internal static string DeterminePull(string type, List<string> availableEnums, out bool needPop)
     {
         needPop = true;
+
+        if (type.Contains('|'))
+        {
+            type = type.Split('|')[0];
+        }
         
         if (type.EndsWith("?"))
         {
@@ -67,6 +94,12 @@ internal static class TypeTransformer
         {
             type = type[..^2];
             needPop = false;
+            
+            var enumType = availableEnums.FirstOrDefault(x => string.Equals(x, type, StringComparison.CurrentCultureIgnoreCase));
+            if (!string.IsNullOrEmpty(enumType))
+            {
+                return $"ToArray<{enumType}[]>(-1)";
+            }
 
             switch (type.ToLower())
             {
@@ -88,6 +121,12 @@ internal static class TypeTransformer
                     
                     return "ToRefArray(-1)";
             }
+        }
+        
+        var enumType2 = availableEnums.FirstOrDefault(x => string.Equals(x, type, StringComparison.CurrentCultureIgnoreCase));
+        if (!string.IsNullOrEmpty(enumType2))
+        {
+            return $"ToEnum<{enumType2}>(-1)";
         }
 
         switch (type.ToLower())
