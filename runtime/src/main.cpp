@@ -50,6 +50,9 @@ EXTERN int luaopen_nanossharp_runtime (lua_State *L) {
     };
 
     luaL_newlib(L, functions);
+
+    Runtime::GetInstance().LoadModule(L, "@autoload");
+
     return 1;
 }
 

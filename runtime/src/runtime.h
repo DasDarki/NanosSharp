@@ -63,6 +63,7 @@ private:
 
     std::string m_ApiDllPath;
     std::string m_FriendlyName;
+    bool m_Loaded = false;
 
 private:
     bool load_host_fxr(const std::filesystem::path &dotnet_path, const std::string &version) {
@@ -127,6 +128,10 @@ public:
      * @param friendly_name The friendly name of the .NET assembly to load.
      */
     int Start(void *L, const std::string &version, const std::string &dll_name, const std::string &friendly_name) {
+        if (m_Loaded) {
+            return RUNTIME_SUCCESS;
+        }
+
         const std::filesystem::path dotnet_path = std::filesystem::current_path() / "dotnet";
         if (!load_host_fxr(dotnet_path, version)) {
             return RUNTIME_ERROR_HOSTFXR_FAILED;
@@ -167,6 +172,9 @@ public:
         }
 
         load_module = start(L, &call_managed_delegate);
+
+        m_Loaded = true;
+
         return RUNTIME_SUCCESS;
     }
 
