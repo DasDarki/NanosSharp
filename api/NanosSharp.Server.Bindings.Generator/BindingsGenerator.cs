@@ -83,6 +83,11 @@ internal class BindingsGenerator
         
         foreach (var file in _files.Where(file => !file.Path.StartsWith("Enums")))
         {
+            if (file.Path.StartsWith("Utility") || file.Path.StartsWith("StandardLib"))
+            {
+                continue;
+            }
+            
             GenerateClass(Path.GetDirectoryName(file.Path)!, file.Data.ToObject<Class>()!);
         }
     }
@@ -98,6 +103,18 @@ internal class BindingsGenerator
         
         builder.AddClass(dir.StartsWith("Static") || dir.StartsWith("Utility"), clazz.Name, clazz.Inheritance ?? Array.Empty<string>(), classBuilder =>
         {
+            if (clazz.Functions != null)
+            {
+                GenerateFunctions(clazz.Functions, false);
+            }
+            
+            if (clazz.StaticFunctions != null)
+            {
+                GenerateFunctions(clazz.StaticFunctions, true);
+            }
+
+            return;
+
             void GenerateFunctions(IEnumerable<Function> functions, bool isStatic)
             {
                 var usedFunctions = new List<string>();
@@ -113,7 +130,7 @@ internal class BindingsGenerator
 
                     if (func.Parameters != null)
                     {
-                        for (int i = 0; i < func.Parameters.Length; i++)
+                        for (var i = 0; i < func.Parameters.Length; i++)
                         {
                             var param = func.Parameters[i];
                             if (param.Type.ToLower() == "table" && param.TableProperties != null)
@@ -122,7 +139,7 @@ internal class BindingsGenerator
                                 {
                                     foreach (var tableProperty in param.TableProperties)
                                     {
-                                        structBuilder.AddField(tableProperty.Name, tableProperty.Type);
+                                        structBuilder.AddField(tableProperty.Name, TypeTransformer.Transform(tableProperty.Type, _enumNames));
                                     }
                                 });
                             }
@@ -131,7 +148,7 @@ internal class BindingsGenerator
 
                     if (func.Return != null)
                     {
-                        for (int i = 0; i < func.Return.Length; i++)
+                        for (var i = 0; i < func.Return.Length; i++)
                         {
                             var ret = func.Return[i];
                             if (ret.Type.ToLower() == "table" && ret.TableProperties != null)
@@ -151,7 +168,7 @@ internal class BindingsGenerator
                     {
                         if (func.Parameters != null)
                         {
-                            for (int i = 0; i < func.Parameters.Length; i++)
+                            for (var i = 0; i < func.Parameters.Length; i++)
                             {
                                 var param = func.Parameters[i];
                                 var isNullable = param.Type.EndsWith("?") || param.Default != null;
@@ -170,7 +187,7 @@ internal class BindingsGenerator
 
                         if (func.Return != null)
                         {
-                            for (int i = 0; i < func.Return.Length; i++)
+                            for (var i = 0; i < func.Return.Length; i++)
                             {
                                 var ret = func.Return[i];
                                 if (ret.Type.ToLower() == "table" && ret.TableProperties != null)
@@ -223,11 +240,13 @@ internal class BindingsGenerator
                                         if (isVararg)
                                         {
                                             body.Add((intend ? "     " : "") + "foreach (var a in " + ISourceBuilder.MakeSafeName(param.VararglessName) + ") {");
+                                            body.Add((intend ? "     " : "") + "    pc++;");
                                             body.Add((intend ? "     " : "") + "    vm." + push.Replace("%", "a" + (NeedsValue() ? ".Value" : "")) + ";");
                                             body.Add((intend ? "     " : "") + "}");
                                         }
                                         else
                                         {
+                                            body.Add((intend ? "     " : "") + "pc++;");
                                             body.Add((intend ? "     " : "") + "vm." + push.Replace("%", ISourceBuilder.MakeSafeName(param.VararglessName) + (NeedsValue() ? ".Value" : "")) + ";");
                                         }
                                     }
@@ -237,13 +256,11 @@ internal class BindingsGenerator
                                     {
                                         body.Add("if (" + ISourceBuilder.MakeSafeName(param.VararglessName) + " != null)");
                                         body.Add("{");
-                                        body.Add("     pc++;");
                                         AddPushToBody(true, true);
                                         body.Add("}");
                                     }
                                     else
                                     {
-                                        body.Add("pc++;");
                                         AddPushToBody();
                                     }
                                 }
@@ -276,16 +293,6 @@ internal class BindingsGenerator
                         });
                     });
                 }
-            }
-            
-            if (clazz.Functions != null)
-            {
-                GenerateFunctions(clazz.Functions, false);
-            }
-            
-            if (clazz.StaticFunctions != null)
-            {
-                GenerateFunctions(clazz.StaticFunctions, true);
             }
         });
         

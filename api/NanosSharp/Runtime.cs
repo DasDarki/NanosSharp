@@ -108,6 +108,20 @@ internal static class Runtime
                     
                     LoadForVM(path);
                 }
+                
+                foreach (var file in Directory.GetFiles(Path.Combine(ModulesPath, "@autoload"), "*.ref"))
+                {
+                    Logger.Verbose("[NanosSharp] Loading module from reference file: {File}", file);
+                    
+                    var path = File.ReadAllText(file);
+                    if (!File.Exists(path))
+                    {
+                        Logger.Error("[NanosSharp] Managed DLL not found at path: {Path}", path);
+                        continue;
+                    }
+                    
+                    LoadForVM(path);
+                }
             }
             else
             {
@@ -116,8 +130,19 @@ internal static class Runtime
                 var path = Path.Combine(ModulesPath, modName, modName + ".dll");
                 if (!File.Exists(path))
                 {
-                    Logger.Error("[NanosSharp] Managed DLL not found at path: {Path}", path);
-                    return;
+                    var refPath = Path.Combine(ModulesPath, modName + ".ref");
+                    if (!File.Exists(refPath))
+                    {
+                        Logger.Error("[NanosSharp] Managed DLL not found at path: {Path}", path);
+                        return;
+                    }
+                    
+                    path = File.ReadAllText(refPath);
+                    if (!File.Exists(path))
+                    {
+                        Logger.Error("[NanosSharp] Managed DLL not found at path: {Path}", path);
+                        return;
+                    }
                 }
                 
                 LoadForVM(path);
@@ -160,7 +185,7 @@ internal static class Runtime
                     
                     var newModuleList = new List<IModule>();
             
-                    foreach (var type in assembly.GetExportedTypes())
+                    foreach (var type in assembly.GetTypes())
                     {
                         if (ModuleType.IsAssignableFrom(type) && !type.IsAbstract)
                         {

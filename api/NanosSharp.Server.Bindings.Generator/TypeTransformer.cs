@@ -30,6 +30,7 @@ internal static class TypeTransformer
         var basicType = type.ToLower() switch
         {
             "number" => "double",
+            "integer" => "long",
             "string" => "string",
             "boolean" => "bool",
             "table" => "Dictionary<string, object>",

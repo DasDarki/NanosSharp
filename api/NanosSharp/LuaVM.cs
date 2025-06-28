@@ -325,6 +325,9 @@ internal class LuaVM : ILuaVM
             case LuaRef r:
                 RawGetI(ILuaVM.RegistryIndex, r);
                 break;
+            case ILuaUnit u:
+                RawGetI(ILuaVM.RegistryIndex, u.Handle);
+                break;
             case bool b:
                 PushBoolean(b);
                 break;
@@ -336,6 +339,9 @@ internal class LuaVM : ILuaVM
                 break;
             case string s:
                 PushString(s);
+                break;
+            case ILuaVM.CFunction c:
+                PushManagedFunction(c);
                 break;
         }
     }
@@ -363,7 +369,7 @@ internal class LuaVM : ILuaVM
         switch (type)
         {
             case LuaType.Nil:
-                Pop();
+                // nothing needs to be done, nil is cleaned up from the stack automatically
                 return null;
             case LuaType.Boolean:
                 return ToBoolean(idx);
@@ -377,6 +383,8 @@ internal class LuaVM : ILuaVM
                 return ToUserData(idx);
             case LuaType.Table:
                 return ToTable(idx);
+            case LuaType.LightUserData:
+                return ToInteger(idx);
             default:
                 throw new NotSupportedException("The type " + type + " is not supported for ToObject.");
         }
