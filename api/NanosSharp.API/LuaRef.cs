@@ -1,6 +1,6 @@
 ﻿namespace NanosSharp.API;
 
-public struct LuaRef(int index)
+public record struct LuaRef(int index)
 {
     private readonly int _index = index;
 

@@ -16,10 +16,42 @@ internal class LuaVM : ILuaVM
     /// The pointer to the native luaVM.
     /// </summary>
     internal IntPtr Handle { get; }
+    
+    /// <summary>
+    /// Nanos World uses a scripting lua enviroment to identify packages. This is the pointer to that lua environment.
+    /// We need to inject it at some points to ensure that the lua environment is correctly set up for the package.
+    /// Thanks Syed for helping &lt;3
+    /// </summary>
+    internal IntPtr LuaEnv { get; set; }
 
     internal LuaVM(IntPtr handle)
     {
         Handle = handle;
+    }
+
+    public void InjectEnvironment()
+    {
+        if (LuaEnv == IntPtr.Zero)
+            return;
+        
+        // Access the registry table
+        PushString("environments"); // Push key
+        unsafe
+        {
+            Natives.Lua_RawGet(Handle, ILuaVM.RegistryIndex); // Get registry["environments"]
+        }
+
+        // Push the Lua environment pointer onto the stack
+        PushLightUserData(LuaEnv);
+
+        // Get the environment table for the Lua environment (this is the table that contains the Lua environment)
+        RawGet(-2); // environments[LuaEnv]
+
+        // The stack now looks like this:
+        // -1: Environment
+        // -2: environments table
+        // -> We can now remove the environments table from the stack
+        Remove(-2);
     }
 
     public int AbsIndex(int idx)
@@ -331,8 +363,14 @@ internal class LuaVM : ILuaVM
             case bool b:
                 PushBoolean(b);
                 break;
+            case float f:
+                PushNumber(f);
+                break;
             case double d:
                 PushNumber(d);
+                break;
+            case long i:
+                PushNumber((int)i);
                 break;
             case int i:
                 PushNumber(i);

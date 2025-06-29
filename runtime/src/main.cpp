@@ -21,7 +21,28 @@ EXTERN {
 
 int load_module_internally(lua_State *L) {
     const char *module_name = luaL_checkstring(L, 1);
-    Runtime::GetInstance().LoadModule(L, module_name);
+
+    luaL_checktype(L, 2, LUA_TTABLE);                // Arg 2: _ENV
+
+    // Get the env from the registry
+    void* env = nullptr;
+
+    // Lookup: registry["environments"][_ENV] → LuaEnvironment*
+    lua_pushstring(L, "environments");
+    lua_rawget(L, LUA_REGISTRYINDEX);     // [environments]
+    lua_pushvalue(L, 2);                  // [_ENV]
+    lua_rawget(L, -2);                    // [environments[_ENV]]
+
+    if (!lua_isuserdata(L, -1)) {
+        lua_pop(L, 2); // cleanup
+        return luaL_error(L, "No LuaEnvironment associated with given _ENV");
+    }
+
+    env = lua_touserdata(L, -1);
+    lua_pop(L, 2); // Pop env and environments
+
+
+    Runtime::GetInstance().LoadModule(L, module_name, env);
     return 0;
 }
 
@@ -51,7 +72,7 @@ EXTERN int luaopen_nanossharp_runtime (lua_State *L) {
 
     luaL_newlib(L, functions);
 
-    Runtime::GetInstance().LoadModule(L, "@autoload");
+    Runtime::GetInstance().LoadModule(L, "@autoload", nullptr);
 
     return 1;
 }

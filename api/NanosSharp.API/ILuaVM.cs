@@ -9,6 +9,12 @@ public interface ILuaVM
     const int RegistryIndex = -MaxStack - 1000;
     
     delegate int CFunction(ILuaVM state);
+
+    /// <summary>
+    /// Injects the lua scripting environment needed for nanos world to idenitfy the luaVM as a valid nanos world package
+    /// into the current lua state.
+    /// </summary>
+    void InjectEnvironment();
     
     int AbsIndex(int idx);
     int GetTop();

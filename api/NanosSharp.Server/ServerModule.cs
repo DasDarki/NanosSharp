@@ -1,4 +1,6 @@
 ﻿using NanosSharp.API;
+using NanosSharp.Server.Configuration;
+using NanosSharp.Server.Packages;
 
 namespace NanosSharp.Server;
 
@@ -33,6 +35,11 @@ internal sealed class ServerModule : IModule
     internal static bool IsMainThread => Environment.CurrentManagedThreadId == MainThreadID;
     
     /// <summary>
+    /// The package manager for the server module. It is used to manage all packages and their dependencies.
+    /// </summary>
+    internal static PackageManager PackageManager { get; } = new();
+    
+    /// <summary>
     /// A list of all actions which are enqueued to run on the main thread.
     /// </summary>
     private static readonly List<Action> EnqueuedActions = [];
@@ -49,6 +56,8 @@ internal sealed class ServerModule : IModule
         Logger = new Logger("NanosSharp", Config.Debug);
         
         RegisterOnTick();
+        
+        PackageManager.LoadAll(Config.Packages);
     }
 
     /// <summary>

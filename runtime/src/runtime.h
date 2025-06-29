@@ -45,7 +45,7 @@
 
 #define TO_WCHAR(s) std::wstring(s.begin(), s.end()).c_str()
 
-typedef void (*LoadModule_fn)(void*,void*,int32_t);
+typedef void (*LoadModule_fn)(void*,void*,int32_t,void*);
 typedef int (*CallManagedDelegate_fn)(void*,void*);
 typedef LoadModule_fn (CORECLR_DELEGATE_CALLTYPE* StartRuntime_fn)(void*, CallManagedDelegate_fn*);
 
@@ -183,10 +183,11 @@ public:
      *
      * @param L     The state for which the module should be loaded.
      * @param name  The name of the module.
+     * @param Env   The environment for the module.
      */
-    void LoadModule(void *L, const char *name) {
+    void LoadModule(void *L, const char *name, void *Env) {
         if (load_module) {
-            load_module(L, (void*) name, strlen(name));
+            load_module(L, (void*) name, strlen(name), Env);
         }
     }
 };

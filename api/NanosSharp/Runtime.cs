@@ -26,7 +26,7 @@ internal static class Runtime
     private static readonly Logger Logger = new LoggerConfiguration().WriteTo.Console().MinimumLevel.Information().CreateLogger();
 #endif
     
-    private delegate void LoadModuleDelegate(IntPtr luaStatePtr, IntPtr namePtr, int nameLength);
+    private delegate void LoadModuleDelegate(IntPtr luaStatePtr, IntPtr namePtr, int nameLength, IntPtr envPtr);
 
     /// <summary>
     /// Gets called by the native runtime to initialize the managed runtime.
@@ -47,7 +47,8 @@ internal static class Runtime
         Natives.Initialize();
         Logger.Information("[NanosSharp] NanosSharp natives found and bound.");
         
-        CreatedVMs.Add(new LuaVM(luaStatePtr));
+        var vm = new LuaVM(luaStatePtr);
+        CreatedVMs.Add(vm);
         
         *callManagedDelegatePtr = (IntPtr) (delegate* unmanaged<IntPtr, IntPtr, int>) &CallManagedDelegate;
         
@@ -79,7 +80,8 @@ internal static class Runtime
     /// <param name="luaStatePtr">The pointer to the native luaVM.</param>
     /// <param name="namePtr">The pointer to the module name.</param>
     /// <param name="nameLength">The length of the module name.</param>
-    private static unsafe void LoadModule(IntPtr luaStatePtr, IntPtr namePtr, int nameLength)
+    /// <param name="envPtr">The pointer to the environment table.</param>
+    private static unsafe void LoadModule(IntPtr luaStatePtr, IntPtr namePtr, int nameLength, IntPtr envPtr)
     {
         try
         {
@@ -126,6 +128,14 @@ internal static class Runtime
             else
             {
                 Logger.Verbose("[NanosSharp] Loading module at explicit path...");
+                if (envPtr == IntPtr.Zero)
+                {
+                    Logger.Warning("[NanosSharp] Lua Env is null, pushing C#-managed functions are not supported in this module.");
+                }
+                else
+                {
+                    vm.LuaEnv = envPtr;
+                }
                 
                 var path = Path.Combine(ModulesPath, modName, modName + ".dll");
                 if (!File.Exists(path))
@@ -177,8 +187,34 @@ internal static class Runtime
                 {
                     Logger.Verbose("[NanosSharp] Module not loaded, loading...");
                     
+                    var dirPath = Path.GetDirectoryName(path);
                     var context = new AssemblyLoadContext(null, true);
-                    context.Resolving += (_, assemblyName) => Assembly.Load(assemblyName);
+                    context.Resolving += (_, assemblyName) =>
+                    {
+                        Logger.Verbose("[NanosSharp] Resolving assembly: {AssemblyName} for path: {Path}", assemblyName, path);
+                        
+                        try
+                        {
+                            Logger.Verbose("[NanosSharp] Attempting to load assembly from context...");
+                            return Assembly.Load(assemblyName);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Verbose("[NanosSharp] Failed to load assembly from context: {Error}", ex.Message);
+                            
+                            var dllPath = Path.Combine(dirPath ?? string.Empty, assemblyName.Name + ".dll");
+                            Logger.Verbose("[NanosSharp] Attempting to load assembly from file: {DllPath}", dllPath);
+                            if (File.Exists(dllPath))
+                            {
+                                using var stream = new MemoryStream(File.ReadAllBytes(dllPath));
+                                return context.LoadFromStream(stream);
+                            }
+
+                            Logger.Error("[NanosSharp] Assembly not found in path {DllPath} nor in context.", dllPath);
+                        }
+                        
+                        return null;
+                    };
                     var assembly = LoadAssemblyInMemory(path, context);
                     
                     Logger.Verbose("[NanosSharp] Assembly loaded, searching for modules...");
@@ -219,8 +255,7 @@ internal static class Runtime
     
     private static Assembly LoadAssemblyInMemory(string path, AssemblyLoadContext context)
     {
-        using var stream = new MemoryStream(File.ReadAllBytes(path));
-        return context.LoadFromStream(stream);
+        return context.LoadFromAssemblyPath(path);
     }
 
     [UnmanagedCallersOnly]

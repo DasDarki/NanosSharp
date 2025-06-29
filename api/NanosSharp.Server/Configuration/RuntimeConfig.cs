@@ -2,7 +2,7 @@
 using Tomlet.Attributes;
 using IOFile = System.IO.File;
 
-namespace NanosSharp.Server;
+namespace NanosSharp.Server.Configuration;
 
 /// <summary>
 /// The internal runtime configuration for the server module of NanosSharp.
@@ -14,6 +14,9 @@ internal sealed class RuntimeConfig
     
     [TomlPrecedingComment("Overrides the default debug flag for each package. If true, all packages will run in debug mode.")]
     public bool DebugPackages { get; set; }
+    
+    [TomlPrecedingComment("The list of packages that are loaded by the NanosSharp server. These packages are loaded in the order they are defined here.")]
+    public List<string> Packages { get; set; } = [];
 
     /// <summary>
     /// Loads or creates a new runtime configuration.
