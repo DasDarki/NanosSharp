@@ -1,0 +1,13 @@
+.re/
+.server/
+concept.md
+
+build/
+.xmake/
+bin/
+obj/
+*.user
+.vs/
+.idea/
+.vscode/
+compile_commands.json

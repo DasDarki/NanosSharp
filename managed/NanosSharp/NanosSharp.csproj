@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>NanosSharp</RootNamespace>
+    <Description>.NET scripting API for nanos world servers.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="NanosSharp.Host" />
+  </ItemGroup>
+</Project>
