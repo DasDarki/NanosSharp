@@ -1,5 +1,6 @@
 using System.Reflection;
 using NanosSharp.Interop.Reflection;
+using NanosSharp.Packages;
 
 namespace NanosSharp.Entities.Binding;
 
@@ -44,6 +45,14 @@ internal static class EntityRegistry
         if (Entities.Remove(instance, out var entity))
         {
             entity.Invalidate();
+        }
+    }
+
+    public static void ReleaseHandlers(PackageScope scope)
+    {
+        foreach (var entity in Entities.Values)
+        {
+            entity.RemoveHandlers(scope);
         }
     }
 

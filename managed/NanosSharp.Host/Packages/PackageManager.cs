@@ -1,3 +1,8 @@
+using System.Reflection;
+using System.Runtime.Loader;
+using NanosSharp.Host.Configuration;
+using NanosSharp.Host.Packages.Building;
+using NanosSharp.Host.Packages.Loading;
 using NanosSharp.Interop;
 using NanosSharp.Interop.Callbacks;
 using NanosSharp.Logging;
@@ -9,17 +14,22 @@ namespace NanosSharp.Host.Packages;
 internal static unsafe class PackageManager
 {
     private const string ApiDumpEnvironmentVariable = "NANOSSHARP_DUMP_API";
+    private const string SettingsFileName = "config.toml";
+    private static readonly TimeSpan TransientRetryDelay = TimeSpan.FromSeconds(1);
     private static readonly Dictionary<nint, ManagedPackage> Packages = [];
-
-    public static string RuntimeDirectory { get; private set; } = string.Empty;
+    private static readonly Dictionary<string, PackageBuild> PendingBuilds = new(StringComparer.Ordinal);
+    private static readonly UnloadTracker UnloadTracker = new();
+    private static HostSettings _settings = null!;
 
     public static void Initialize(string runtimeDirectory)
     {
-        RuntimeDirectory = runtimeDirectory;
+        var settingsDirectory = Path.GetDirectoryName(Path.TrimEndingDirectorySeparator(runtimeDirectory)) ?? runtimeDirectory;
+        _settings = HostSettings.Load(Path.Combine(settingsDirectory, SettingsFileName));
         NativeCallbacks.EngineAttached += OnEngineAttached;
         NativeCallbacks.EngineDetaching += OnEngineDetaching;
         NativeCallbacks.PackageLoaded += OnPackageLoaded;
         NativeCallbacks.PackageUnloading += OnPackageUnloading;
+        NativeCallbacks.Tick += _ => UnloadTracker.Tick();
     }
 
     private static void OnEngineAttached()
@@ -33,39 +43,47 @@ internal static unsafe class PackageManager
 
     private static void OnEngineDetaching()
     {
+        PendingBuilds.Clear();
         foreach (var package in Packages.Values.ToArray())
         {
-            Stop(package);
+            Unregister(package);
         }
     }
 
     private static void OnPackageLoaded(NativePackage nativePackage)
     {
-        if (!ManagedPackage.HasManagedCode(nativePackage.Directory))
+        if (!PackageBuilder.HasManagedCode(nativePackage.Directory))
         {
             return;
         }
 
         if (Packages.TryGetValue(nativePackage.Handle, out var existing))
         {
-            Stop(existing);
+            Unregister(existing);
         }
 
-        var package = new ManagedPackage(nativePackage);
-        package.SourcesChanged += OnSourcesChanged;
+        var package = new ManagedPackage(nativePackage, PackageManifest.Read(nativePackage.Directory));
         Packages[package.Handle] = package;
-        try
+        using (PackageContext.Enter(package.Scope))
         {
-            package.Start();
-        }
-        catch (Exception exception)
-        {
-            using (PackageContext.Enter(package.Scope))
+            try
             {
-                Log.Exception(exception, "Failed to start the C# package");
+                var build = PendingBuilds.Remove(package.Name, out var pending) ? pending : BuildPackage(package);
+                package.Start(build, assemblyName => ResolveShared(package.Manifest, assemblyName));
             }
+            catch (Exception exception)
+            {
+                Log.Error(exception is PackageBuildException
+                    ? exception.Message
+                    : $"Failed to start the C# package: {exception}");
+                TrackUnload(package, package.Stop());
+            }
+        }
 
-            Stop(package);
+        if (_settings.HotReloadEnabled)
+        {
+            package.SourcesChanged += OnSourcesChanged;
+            package.WatchSources(_settings.HotReloadDelay);
         }
     }
 
@@ -73,7 +91,7 @@ internal static unsafe class PackageManager
     {
         if (Packages.TryGetValue(handle, out var package))
         {
-            Stop(package);
+            Unregister(package);
         }
     }
 
@@ -84,26 +102,113 @@ internal static unsafe class PackageManager
             return;
         }
 
-        Log.Info($"Changes detected, reloading package {package.Name}...");
-        byte* error = null;
-        var succeeded = NativeRuntime.Api.PackageReload(package.Handle, &error);
-        if (succeeded == 0)
+        using (PackageContext.Enter(package.Scope))
         {
-            Log.Error($"Reloading package {package.Name} failed: {NativeRuntime.TakeString(error)}");
+            try
+            {
+                PendingBuilds[package.Name] = BuildPackage(package);
+            }
+            catch (PackageBuildException exception) when (exception.IsTransient)
+            {
+                package.ScheduleSourcesChanged(TransientRetryDelay);
+                return;
+            }
+            catch (PackageBuildException exception)
+            {
+                Log.Error($"{exception.Message} The running version stays active.");
+                return;
+            }
+
+            Log.Info("Changes detected, reloading.");
+        }
+
+        var dependents = FindDependents(package.Name);
+        Reload(package);
+        foreach (var dependent in dependents)
+        {
+            Reload(dependent);
         }
     }
 
-    private static void Stop(ManagedPackage package)
+    private static PackageBuild BuildPackage(ManagedPackage package) =>
+        PackageBuilder.Build(package.Name, package.Scope.Directory, CollectRequiredImages(package.Manifest));
+
+    private static void Reload(ManagedPackage package)
+    {
+        byte* error = null;
+        if (NativeRuntime.Api.PackageReload(package.Handle, &error) == 0)
+        {
+            PendingBuilds.Remove(package.Name);
+            NativeRuntime.Log(LogLevel.Error, $"Reloading package {package.Name} failed: {NativeRuntime.TakeString(error)}");
+        }
+    }
+
+    private static void Unregister(ManagedPackage package)
     {
         Packages.Remove(package.Handle);
         package.SourcesChanged -= OnSourcesChanged;
+        package.StopWatching();
         try
         {
-            package.Stop();
+            TrackUnload(package, package.Stop());
         }
         catch (Exception exception)
         {
-            Log.Exception(exception, $"Failed to stop C# package {package.Name}");
+            NativeRuntime.Log(LogLevel.Error, $"Failed to stop C# package {package.Name}: {exception}");
         }
+    }
+
+    private static void TrackUnload(ManagedPackage package, AssemblyLoadContext? loadContext)
+    {
+        if (loadContext is not null && _settings.VerifyUnload)
+        {
+            UnloadTracker.Track(package.Name, loadContext);
+        }
+    }
+
+    private static ManagedPackage? FindPackage(string name) =>
+        Packages.Values.FirstOrDefault(package => package.Name == name);
+
+    private static IEnumerable<ManagedPackage> EnumerateRequired(PackageManifest manifest, HashSet<string>? visited = null)
+    {
+        visited ??= new HashSet<string>(StringComparer.Ordinal);
+        foreach (var requirement in manifest.Requirements)
+        {
+            if (!visited.Add(requirement) || FindPackage(requirement) is not { } required)
+            {
+                continue;
+            }
+
+            yield return required;
+            foreach (var transitive in EnumerateRequired(required.Manifest, visited))
+            {
+                yield return transitive;
+            }
+        }
+    }
+
+    private static IEnumerable<AssemblyImage> CollectRequiredImages(PackageManifest manifest) =>
+        EnumerateRequired(manifest).SelectMany(package => package.Build?.Assemblies.Values ?? []);
+
+    private static Assembly? ResolveShared(PackageManifest manifest, AssemblyName assemblyName) =>
+        EnumerateRequired(manifest).Select(package => package.FindAssembly(assemblyName)).FirstOrDefault(assembly => assembly is not null);
+
+    private static List<ManagedPackage> FindDependents(string packageName)
+    {
+        var dependents = new List<ManagedPackage>();
+        var pending = new Queue<string>([packageName]);
+        while (pending.TryDequeue(out var name))
+        {
+            foreach (var package in Packages.Values)
+            {
+                if (package.Manifest.Requirements.Contains(name) && !dependents.Contains(package) && package.Name != packageName)
+                {
+                    dependents.Add(package);
+                    pending.Enqueue(package.Name);
+                }
+            }
+        }
+
+        return dependents;
     }
 }

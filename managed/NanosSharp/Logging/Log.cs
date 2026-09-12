@@ -39,7 +39,7 @@ public static class Log
 
     private static bool TryWriteConsole(string function, string message)
     {
-        if (!MainThread.IsCurrent || !NativeRuntime.IsEngineAttached || PackageContext.Environment == 0)
+        if (!MainThread.IsCurrent || !NativeRuntime.IsEngineAttached || !PackageContext.CanAccessNative)
         {
             return false;
         }

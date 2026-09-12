@@ -8,7 +8,20 @@ internal static class PackageContext
 
     public static nint GlobalEnvironment { get; set; }
 
-    public static nint Environment => Current?.Environment is > 0 and var environment ? environment : GlobalEnvironment;
+    public static nint Environment => Current switch
+    {
+        { IsActive: false } scope => throw new ObjectDisposedException(scope.Name,
+            $"The package {scope.Name} was stopped, its code can no longer access nanos world."),
+        { Environment: > 0 } scope => scope.Environment,
+        _ => GlobalEnvironment,
+    };
+
+    public static bool CanAccessNative => Current switch
+    {
+        { IsActive: false } => false,
+        { Environment: > 0 } => true,
+        _ => GlobalEnvironment != 0,
+    };
 
     public static Scope Enter(PackageScope? scope)
     {

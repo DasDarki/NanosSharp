@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.Text;
+using NanosSharp.Host.Packages.Building;
 using NanosSharp.Packages;
 
 namespace NanosSharp.Host.Compilation;
@@ -27,7 +28,7 @@ internal static class ScriptCompiler
     ];
 
     public static CompilationResult Compile(string assemblyName, IReadOnlyList<string> sourceFiles,
-        IEnumerable<string> referencePaths)
+        IEnumerable<AssemblyImage> referenceImages)
     {
         var globalUsings = string.Concat(GlobalUsings.Select(name => $"global using {name};\n"));
         var syntaxTrees = sourceFiles
@@ -36,7 +37,7 @@ internal static class ScriptCompiler
             .Append(CSharpSyntaxTree.ParseText(SourceText.From(globalUsings, Encoding.UTF8), ParseOptions, "GlobalUsings.g.cs"));
 
         var references = FrameworkReferences.Value
-            .Concat(referencePaths.Select(path => MetadataReference.CreateFromFile(path)));
+            .Concat(referenceImages.Select(reference => MetadataReference.CreateFromImage(reference.Image)));
         var compilation = CSharpCompilation.Create(assemblyName, syntaxTrees, references, CompilationOptions);
 
         using var assemblyStream = new MemoryStream();

@@ -1,5 +1,8 @@
 using System.Reflection;
-using NanosSharp.Host.Compilation;
+using System.Runtime.Loader;
+using NanosSharp.Entities.Binding;
+using NanosSharp.Host.Packages.Building;
+using NanosSharp.Host.Packages.Loading;
 using NanosSharp.Interop.Callbacks;
 using NanosSharp.Logging;
 using NanosSharp.Packages;
@@ -9,40 +12,40 @@ namespace NanosSharp.Host.Packages;
 
 internal sealed class ManagedPackage
 {
-    private const string ServerDirectoryName = "Server";
-    private const string ApiAssemblyFileName = "NanosSharp.dll";
-    private static readonly TimeSpan ReloadDelay = TimeSpan.FromMilliseconds(500);
-    private static readonly string[] IgnoredDirectories = ["bin", "obj"];
-
     public string Name => Scope.Name;
 
     public nint Handle { get; }
 
     public PackageScope Scope { get; }
 
+    public PackageManifest Manifest { get; }
+
+    public PackageBuild? Build { get; private set; }
+
     public event Action<ManagedPackage>? SourcesChanged;
 
-    private readonly string _serverDirectory;
     private readonly List<Package> _entries = [];
     private PackageLoadContext? _loadContext;
     private FileSystemWatcher? _watcher;
-    private Timer? _reloadTimer;
+    private Timer? _changeTimer;
 
-    public ManagedPackage(NativePackage package)
+    public ManagedPackage(NativePackage package, PackageManifest manifest)
     {
         Handle = package.Handle;
+        Manifest = manifest;
         Scope = new PackageScope(package.Name, Path.GetFullPath(package.Directory)) { Environment = package.Environment };
-        _serverDirectory = Path.Combine(Scope.Directory, ServerDirectoryName);
     }
 
-    public void Start()
+    public void Start(PackageBuild build, Func<AssemblyName, Assembly?> resolveShared)
     {
-        _loadContext = new PackageLoadContext(Name, _serverDirectory);
+        Build = build;
+        _loadContext = new PackageLoadContext(Name, build, resolveShared);
+        Scope.LoadContext = _loadContext;
         Scope.IsActive = true;
         using var _ = PackageContext.Enter(Scope);
 
-        var assemblies = LoadAssemblies(_loadContext);
-        foreach (var type in assemblies.SelectMany(GetLoadableTypes).Where(IsEntryType))
+        var entryTypes = _loadContext.LoadBuild().SelectMany(GetLoadableTypes).Where(IsEntryType);
+        foreach (var type in entryTypes)
         {
             var entry = (Package)Activator.CreateInstance(type, nonPublic: true)!;
             entry.Scope = Scope;
@@ -54,17 +57,11 @@ internal sealed class ManagedPackage
             entry.OnStart();
         }
 
-        WatchSources();
         Log.Info($"C# package started with {_entries.Count} entry point(s).");
     }
 
-    public void Stop()
+    public AssemblyLoadContext? Stop()
     {
-        _watcher?.Dispose();
-        _watcher = null;
-        _reloadTimer?.Dispose();
-        _reloadTimer = null;
-
         using (PackageContext.Enter(Scope))
         {
             foreach (var entry in Enumerable.Reverse(_entries))
@@ -86,69 +83,52 @@ internal sealed class ManagedPackage
         }
 
         FunctionRegistry.ReleaseScope(Scope);
+        EntityRegistry.ReleaseHandlers(Scope);
         Scope.IsActive = false;
+        Scope.LoadContext = null;
         _entries.Clear();
-        _loadContext?.Unload();
+
+        var loadContext = _loadContext;
         _loadContext = null;
+        loadContext?.Unload();
+        return loadContext;
     }
 
-    private List<Assembly> LoadAssemblies(PackageLoadContext loadContext)
+    public Assembly? FindAssembly(AssemblyName assemblyName) =>
+        _loadContext?.Assemblies.FirstOrDefault(assembly => assembly.GetName().Name == assemblyName.Name);
+
+    public void WatchSources(TimeSpan delay)
     {
-        var assemblyPaths = FindAssemblies(_serverDirectory).ToArray();
-        var assemblies = assemblyPaths
-            .Select(path => loadContext.LoadFromAssemblyName(new AssemblyName(Path.GetFileNameWithoutExtension(path))))
-            .ToList();
-
-        var sources = FindSources(_serverDirectory).ToArray();
-        if (sources.Length == 0)
-        {
-            return assemblies;
-        }
-
-        var result = ScriptCompiler.Compile($"{Name}.Scripts", sources, assemblyPaths);
-        foreach (var diagnostic in result.Diagnostics)
-        {
-            Log.Warning(diagnostic);
-        }
-
-        if (!result.Succeeded)
-        {
-            throw new InvalidOperationException($"Compilation of {sources.Length} C# file(s) failed.");
-        }
-
-        assemblies.Add(loadContext.LoadFromBytes(result.Assembly!, result.Symbols));
-        return assemblies;
-    }
-
-    private void WatchSources()
-    {
-        _reloadTimer = new Timer(_ => MainThread.Post(() => SourcesChanged?.Invoke(this)));
-        _watcher = new FileSystemWatcher(_serverDirectory)
+        var serverDirectory = Path.Combine(Scope.Directory, PackageBuilder.ServerDirectoryName);
+        _changeTimer = new Timer(_ => MainThread.Post(() => SourcesChanged?.Invoke(this)));
+        _watcher = new FileSystemWatcher(serverDirectory)
         {
             IncludeSubdirectories = true,
             NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Size,
         };
-        _watcher.Changed += OnSourceChanged;
-        _watcher.Created += OnSourceChanged;
-        _watcher.Deleted += OnSourceChanged;
-        _watcher.Renamed += OnSourceChanged;
+        _watcher.Changed += (_, arguments) => OnFileChanged(arguments.FullPath, delay);
+        _watcher.Created += (_, arguments) => OnFileChanged(arguments.FullPath, delay);
+        _watcher.Deleted += (_, arguments) => OnFileChanged(arguments.FullPath, delay);
+        _watcher.Renamed += (_, arguments) => OnFileChanged(arguments.FullPath, delay);
         _watcher.EnableRaisingEvents = true;
     }
 
-    private void OnSourceChanged(object sender, FileSystemEventArgs arguments)
+    public void ScheduleSourcesChanged(TimeSpan delay) => _changeTimer?.Change(delay, Timeout.InfiniteTimeSpan);
+
+    public void StopWatching()
     {
-        var extension = Path.GetExtension(arguments.FullPath);
-        if (extension is ".cs" or ".dll" && !IsIgnored(arguments.FullPath))
-        {
-            _reloadTimer?.Change(ReloadDelay, Timeout.InfiniteTimeSpan);
-        }
+        _watcher?.Dispose();
+        _watcher = null;
+        _changeTimer?.Dispose();
+        _changeTimer = null;
     }
 
-    public static bool HasManagedCode(string packageDirectory)
+    private void OnFileChanged(string path, TimeSpan delay)
     {
-        var serverDirectory = Path.Combine(packageDirectory, ServerDirectoryName);
-        return Directory.Exists(serverDirectory) &&
-               (FindSources(serverDirectory).Any() || FindAssemblies(serverDirectory).Any());
+        if (PackageBuilder.IsRelevantFile(path))
+        {
+            ScheduleSourcesChanged(delay);
+        }
     }
 
     private static bool IsEntryType(Type type) =>
@@ -165,14 +145,4 @@ internal sealed class ManagedPackage
             return exception.Types.OfType<Type>();
         }
     }
-
-    private static IEnumerable<string> FindSources(string serverDirectory) =>
-        Directory.EnumerateFiles(serverDirectory, "*.cs", SearchOption.AllDirectories).Where(path => !IsIgnored(path));
-
-    private static IEnumerable<string> FindAssemblies(string serverDirectory) =>
-        Directory.EnumerateFiles(serverDirectory, "*.dll", SearchOption.TopDirectoryOnly)
-            .Where(path => !string.Equals(Path.GetFileName(path), ApiAssemblyFileName, StringComparison.OrdinalIgnoreCase));
-
-    private static bool IsIgnored(string path) =>
-        path.Split(Path.DirectorySeparatorChar).Any(segment => IgnoredDirectories.Contains(segment));
 }

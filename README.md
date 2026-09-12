@@ -54,6 +54,25 @@ public sealed class MyPackage : Package
 ```
 
 Compiled assemblies placed in `Server/` work as well, see `managed/examples`.
+Libraries are loaded from the same folder, so publish your project flat into `Server/` (NuGet packages with native libraries are not supported yet).
+A package listed in `packages_requirements` shares its assemblies, so dependents can use its types.
+
+## Hot reload
+
+Changing a `.cs` or `.dll` file in `Server/` rebuilds the package first. If the build fails, the running version stays active.
+Otherwise the package is reloaded through nanos world itself, followed by every C# package that requires it.
+State is not preserved, so keep it in values, databases or packages that are not reloaded.
+After a reload the previous assemblies are checked to be unloaded, a warning names packages that still hold references
+(running tasks, timers, threads or static handlers outside of nanos world).
+
+`NanosSharp/config.toml` in the server directory:
+
+```toml
+[hot_reload]
+enabled = true
+delay_milliseconds = 500
+verify_unload = true
+```
 Calls into nanos world must happen on the main thread, use `MainThread.Post` or `await` from main thread code.
 Everything without a typed wrapper yet is reachable through `ScriptApi` and `Entity.Invoke`.
 

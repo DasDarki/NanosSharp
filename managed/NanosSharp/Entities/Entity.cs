@@ -71,6 +71,17 @@ public abstract class Entity
         _instance = instance;
     }
 
+    internal void RemoveHandlers(PackageScope scope)
+    {
+        foreach (var handler in Destroyed?.GetInvocationList() ?? [])
+        {
+            if (scope.Owns(handler))
+            {
+                Destroyed -= (Action<Entity>)handler;
+            }
+        }
+    }
+
     internal nint EnsureValid() =>
         _instance != 0 ? _instance : throw new ObjectDisposedException(ClassName, "The entity was destroyed.");
 
