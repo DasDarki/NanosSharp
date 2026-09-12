@@ -5,6 +5,17 @@ namespace NanosSharp.Interop.Values;
 
 internal static class ValueConverter
 {
+    private static readonly Type[] ListDefinitions =
+    [
+        typeof(List<>), typeof(IList<>), typeof(IReadOnlyList<>), typeof(IEnumerable<>), typeof(ICollection<>),
+        typeof(IReadOnlyCollection<>),
+    ];
+
+    private static readonly Type[] DictionaryDefinitions =
+    [
+        typeof(Dictionary<,>), typeof(IDictionary<,>), typeof(IReadOnlyDictionary<,>),
+    ];
+
     public static T? Convert<T>(object? value) => (T?)Convert(value, typeof(T));
 
     public static object? Convert(object? value, Type targetType)
@@ -17,7 +28,7 @@ internal static class ValueConverter
         var underlyingType = Nullable.GetUnderlyingType(targetType);
         if (value is null)
         {
-            return targetType.IsValueType && underlyingType is null ? Activator.CreateInstance(targetType) : null;
+            return DefaultOf(targetType, underlyingType is not null);
         }
 
         targetType = underlyingType ?? targetType;
@@ -36,56 +47,54 @@ internal static class ValueConverter
             return System.Convert.ChangeType(value, targetType, CultureInfo.InvariantCulture);
         }
 
-        if (targetType.IsArray && value is object?[] array)
+        return value switch
         {
-            var elementType = targetType.GetElementType()!;
-            var result = Array.CreateInstance(elementType, array.Length);
-            for (var index = 0; index < array.Length; index++)
-            {
-                result.SetValue(Convert(array[index], elementType), index);
-            }
+            object?[] items when targetType.IsArray => ConvertArray(items, targetType.GetElementType()!),
+            object?[] items when IsGenericOf(targetType, ListDefinitions) => ConvertList(items, targetType),
+            Dictionary<object, object?> map when IsGenericOf(targetType, DictionaryDefinitions) => ConvertDictionary(map, targetType),
+            _ => throw new InvalidCastException($"Cannot convert {value.GetType()} to {targetType}."),
+        };
+    }
 
-            return result;
+    private static object? DefaultOf(Type targetType, bool isNullable) =>
+        targetType.IsValueType && !isNullable ? Activator.CreateInstance(targetType) : null;
+
+    private static bool IsGenericOf(Type type, Type[] definitions) =>
+        type.IsGenericType && definitions.Contains(type.GetGenericTypeDefinition());
+
+    private static Array ConvertArray(object?[] items, Type elementType)
+    {
+        var result = Array.CreateInstance(elementType, items.Length);
+        for (var index = 0; index < items.Length; index++)
+        {
+            result.SetValue(Convert(items[index], elementType), index);
         }
 
-        if (targetType.IsGenericType && value is object?[] items)
-        {
-            var definition = targetType.GetGenericTypeDefinition();
-            if (definition == typeof(List<>) || definition == typeof(IList<>) || definition == typeof(IReadOnlyList<>) ||
-                definition == typeof(IEnumerable<>) || definition == typeof(ICollection<>) ||
-                definition == typeof(IReadOnlyCollection<>))
-            {
-                var elementType = targetType.GetGenericArguments()[0];
-                var list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(elementType))!;
-                foreach (var item in items)
-                {
-                    list.Add(Convert(item, elementType));
-                }
+        return result;
+    }
 
-                return list;
-            }
+    private static IList ConvertList(object?[] items, Type targetType)
+    {
+        var elementType = targetType.GetGenericArguments()[0];
+        var list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(elementType))!;
+        foreach (var item in items)
+        {
+            list.Add(Convert(item, elementType));
         }
 
-        if (targetType.IsGenericType && value is Dictionary<object, object?> map)
-        {
-            var definition = targetType.GetGenericTypeDefinition();
-            if (definition == typeof(Dictionary<,>) || definition == typeof(IDictionary<,>) ||
-                definition == typeof(IReadOnlyDictionary<,>))
-            {
-                var arguments = targetType.GetGenericArguments();
-                var dictionary = (IDictionary)Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(arguments))!;
-                foreach (var (key, entry) in map)
-                {
-                    if (Convert(key, arguments[0]) is { } convertedKey)
-                    {
-                        dictionary[convertedKey] = Convert(entry, arguments[1]);
-                    }
-                }
+        return list;
+    }
 
-                return dictionary;
-            }
+    private static IDictionary ConvertDictionary(Dictionary<object, object?> map, Type targetType)
+    {
+        var arguments = targetType.GetGenericArguments();
+        var dictionary = (IDictionary)Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(arguments))!;
+        var entries = map.Select(entry => (Key: Convert(entry.Key, arguments[0]), entry.Value)).Where(entry => entry.Key is not null);
+        foreach (var (key, value) in entries)
+        {
+            dictionary[key!] = Convert(value, arguments[1]);
         }
 
-        throw new InvalidCastException($"Cannot convert {value.GetType()} to {targetType}.");
+        return dictionary;
     }
 }

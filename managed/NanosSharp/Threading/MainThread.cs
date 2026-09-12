@@ -78,21 +78,25 @@ public static class MainThread
         var budget = PendingWork.Count;
         while (budget-- > 0 && PendingWork.TryDequeue(out var work))
         {
-            try
+            Execute(work.Callback, work.State, work.Context);
+        }
+    }
+
+    private static void Execute(SendOrPostCallback callback, object? state, ExecutionContext? context)
+    {
+        try
+        {
+            if (context is null)
             {
-                if (work.Context is null)
-                {
-                    work.Callback(work.State);
-                }
-                else
-                {
-                    ExecutionContext.Run(work.Context, new ContextCallback(work.Callback), work.State);
-                }
+                callback(state);
+                return;
             }
-            catch (Exception exception)
-            {
-                Log.Exception(exception);
-            }
+
+            ExecutionContext.Run(context, new ContextCallback(callback), state);
+        }
+        catch (Exception exception)
+        {
+            Log.Exception(exception);
         }
     }
 }

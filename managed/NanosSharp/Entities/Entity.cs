@@ -106,10 +106,9 @@ public abstract class Entity
     private protected static T Spawn<T>(params ReadOnlySpan<object?> arguments) where T : Entity
     {
         var nativeClass = NativeClassRegistry.Get(EntityRegistry.GetClassName(typeof(T)));
-        var constructor = nativeClass.Constructor ??
-                          throw new ScriptException($"{nativeClass.Name} cannot be spawned.");
-        return constructor.Invoke(PackageContext.Environment, arguments) as T ??
-               throw new ScriptException($"{nativeClass.Name} did not return a valid entity.");
+        var constructor = nativeClass.Constructor ?? throw new ScriptException($"{nativeClass.Name} cannot be spawned.");
+        var entity = constructor.Invoke(PackageContext.Environment, arguments) as T;
+        return entity ?? throw new ScriptException($"{nativeClass.Name} did not return a valid entity.");
     }
 
     private protected static object? InvokeStatic(Type type, string function, params ReadOnlySpan<object?> arguments) =>

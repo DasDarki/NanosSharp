@@ -66,14 +66,7 @@ internal sealed class ManagedPackage
         {
             foreach (var entry in Enumerable.Reverse(_entries))
             {
-                try
-                {
-                    entry.OnStop();
-                }
-                catch (Exception exception)
-                {
-                    Log.Exception(exception, $"{entry.GetType().Name}.OnStop failed");
-                }
+                StopEntry(entry);
             }
         }
 
@@ -128,6 +121,18 @@ internal sealed class ManagedPackage
         if (PackageBuilder.IsRelevantFile(path))
         {
             ScheduleSourcesChanged(delay);
+        }
+    }
+
+    private static void StopEntry(Package entry)
+    {
+        try
+        {
+            entry.OnStop();
+        }
+        catch (Exception exception)
+        {
+            Log.Exception(exception, $"{entry.GetType().Name}.OnStop failed");
         }
     }
 

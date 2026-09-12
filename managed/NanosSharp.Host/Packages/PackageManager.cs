@@ -199,13 +199,12 @@ internal static unsafe class PackageManager
         var pending = new Queue<string>([packageName]);
         while (pending.TryDequeue(out var name))
         {
-            foreach (var package in Packages.Values)
+            var direct = Packages.Values.Where(package =>
+                package.Name != packageName && !dependents.Contains(package) && package.Manifest.Requirements.Contains(name));
+            foreach (var package in direct.ToArray())
             {
-                if (package.Manifest.Requirements.Contains(name) && !dependents.Contains(package) && package.Name != packageName)
-                {
-                    dependents.Add(package);
-                    pending.Enqueue(package.Name);
-                }
+                dependents.Add(package);
+                pending.Enqueue(package.Name);
             }
         }
 

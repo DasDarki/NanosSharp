@@ -39,66 +39,24 @@ internal static unsafe class ValueMarshaller
         };
     }
 
-    public static object? FromNative(nint value)
+    public static object? FromNative(nint value) => (ValueType)NativeRuntime.Api.ValueGetType(value) switch
     {
-        ref readonly var api = ref NativeRuntime.Api;
-        switch ((ValueType)api.ValueGetType(value))
-        {
-            case ValueType.Bool:
-                return api.ValueGetBool(value) != 0;
-            case ValueType.Integer:
-                return api.ValueGetInteger(value);
-            case ValueType.Double:
-                return api.ValueGetDouble(value);
-            case ValueType.String:
-                int length;
-                var text = api.ValueGetString(value, &length);
-                return text == null ? string.Empty : Encoding.UTF8.GetString(text, length);
-            case ValueType.Entity:
-                ulong classId;
-                nint instance;
-                api.ValueGetEntity(value, &classId, &instance);
-                return EntityRegistry.Resolve(classId, instance);
-            case ValueType.Array:
-            case ValueType.Tuple:
-                return ReadArray(value);
-            case ValueType.Map:
-                return ReadMap(value);
-            case ValueType.Opaque:
-            case ValueType.WeakTable:
-                return new ScriptOpaque(api.ValueClone(value));
-            case ValueType.Function:
-                return new ScriptFunction(api.ValueClone(value));
-            case ValueType.Vector:
-                {
-                    var buffer = stackalloc double[3];
-                    api.ValueGetDoubles(value, buffer);
-                    return new Vector(buffer[0], buffer[1], buffer[2]);
-                }
-            case ValueType.Rotator:
-                {
-                    var buffer = stackalloc double[3];
-                    api.ValueGetDoubles(value, buffer);
-                    return new Rotator(buffer[0], buffer[1], buffer[2]);
-                }
-            case ValueType.Color:
-                {
-                    var buffer = stackalloc float[4];
-                    api.ValueGetColor(value, buffer);
-                    return new Color(buffer[0], buffer[1], buffer[2], buffer[3]);
-                }
-            case ValueType.Vector2D:
-                {
-                    var buffer = stackalloc double[2];
-                    api.ValueGetDoubles(value, buffer);
-                    return new Vector2D(buffer[0], buffer[1]);
-                }
-            case ValueType.EntityDeferred:
-                return EntityRegistry.ResolveDeferred(api.ValueGetNetworkId(value));
-            default:
-                return null;
-        }
-    }
+        ValueType.Bool => NativeRuntime.Api.ValueGetBool(value) != 0,
+        ValueType.Integer => NativeRuntime.Api.ValueGetInteger(value),
+        ValueType.Double => NativeRuntime.Api.ValueGetDouble(value),
+        ValueType.String => ReadString(value),
+        ValueType.Entity => ReadEntity(value),
+        ValueType.Array or ValueType.Tuple => ReadArray(value),
+        ValueType.Map => ReadMap(value),
+        ValueType.Opaque or ValueType.WeakTable => new ScriptOpaque(NativeRuntime.Api.ValueClone(value)),
+        ValueType.Function => new ScriptFunction(NativeRuntime.Api.ValueClone(value)),
+        ValueType.Vector => ReadVector(value),
+        ValueType.Rotator => ReadRotator(value),
+        ValueType.Color => ReadColor(value),
+        ValueType.Vector2D => ReadVector2D(value),
+        ValueType.EntityDeferred => EntityRegistry.ResolveDeferred(NativeRuntime.Api.ValueGetNetworkId(value)),
+        _ => null,
+    };
 
     public static object? TakeFromNative(nint value)
     {
@@ -146,6 +104,49 @@ internal static unsafe class ValueMarshaller
         using var keys = new NativeValueList(entries.Select(entry => entry.Key));
         using var values = new NativeValueList(entries.Select(entry => entry.Value));
         return NativeRuntime.Api.ValueCreateMap(keys.Pointer, values.Pointer, keys.Count);
+    }
+
+    private static string ReadString(nint value)
+    {
+        int length;
+        var text = NativeRuntime.Api.ValueGetString(value, &length);
+        return text == null ? string.Empty : Encoding.UTF8.GetString(text, length);
+    }
+
+    private static Entity? ReadEntity(nint value)
+    {
+        ulong classId;
+        nint instance;
+        NativeRuntime.Api.ValueGetEntity(value, &classId, &instance);
+        return EntityRegistry.Resolve(classId, instance);
+    }
+
+    private static Vector ReadVector(nint value)
+    {
+        var buffer = stackalloc double[3];
+        NativeRuntime.Api.ValueGetDoubles(value, buffer);
+        return new Vector(buffer[0], buffer[1], buffer[2]);
+    }
+
+    private static Rotator ReadRotator(nint value)
+    {
+        var buffer = stackalloc double[3];
+        NativeRuntime.Api.ValueGetDoubles(value, buffer);
+        return new Rotator(buffer[0], buffer[1], buffer[2]);
+    }
+
+    private static Color ReadColor(nint value)
+    {
+        var buffer = stackalloc float[4];
+        NativeRuntime.Api.ValueGetColor(value, buffer);
+        return new Color(buffer[0], buffer[1], buffer[2], buffer[3]);
+    }
+
+    private static Vector2D ReadVector2D(nint value)
+    {
+        var buffer = stackalloc double[2];
+        NativeRuntime.Api.ValueGetDoubles(value, buffer);
+        return new Vector2D(buffer[0], buffer[1]);
     }
 
     private static object?[] ReadArray(nint value)
