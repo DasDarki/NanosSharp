@@ -18,6 +18,7 @@ constexpr char kEnqueueLogSymbol[] =
 constexpr char kPackageLoadSymbol[] = "_ZN2nw4core7Package4LoadEv";
 constexpr char kPackageUnloadSymbol[] = "_ZN2nw4core7Package6UnloadEbb";
 constexpr char kPackageReloadSymbol[] = "_ZN2nw4core7Package6ReloadEv";
+constexpr char kEntityFetcherSymbol[] = "_ZN2nw9scripting6Bridge13EntityFetcherE";
 constexpr char kPackagesPathSymbol[] = "_ZN2nw4core7Package12PackagesPathE";
 
 template <typename T>
@@ -41,7 +42,8 @@ bool Symbols::Resolve(std::string& error) {
          ResolveSymbol(kPackageLoadSymbol, package_load, error) &&
          ResolveSymbol(kPackageUnloadSymbol, package_unload, error) &&
          ResolveSymbol(kPackageReloadSymbol, package_reload, error) &&
-         ResolveSymbol(kPackagesPathSymbol, packages_path, error);
+         ResolveSymbol(kPackagesPathSymbol, packages_path, error) &&
+         ResolveSymbol(kEntityFetcherSymbol, entity_fetcher, error);
 }
 
 Symbols& GetSymbols() {

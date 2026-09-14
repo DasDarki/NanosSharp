@@ -1,6 +1,7 @@
 #ifndef NANOSSHARP_GAME_SYMBOLS_H_
 #define NANOSSHARP_GAME_SYMBOLS_H_
 
+#include <functional>
 #include <memory>
 #include <string>
 
@@ -15,9 +16,17 @@ enum class LogType : int32_t {
   kError = 2,
   kDebug = 3,
   kVerbose = 4,
-  kSuccess = 5,
+  kScript = 5,
+  kScriptWarning = 6,
+  kScriptError = 7,
+  kScriptDebug = 8,
+  kChat = 9,
+  kWebUI = 10,
+  kSuccess = 11,
+  kFatal = 12,
 };
 
+using EntityFetcher = std::function<ScriptValue(uint32_t)>;
 using EngineInitializeFunction = void (*)(bool, void (*)(Engine&), void (*)(),
                                           void (*)());
 using EngineReleaseFunction = void (*)();
@@ -37,6 +46,7 @@ struct Symbols {
   PackageUnloadFunction package_unload = nullptr;
   PackageReloadFunction package_reload = nullptr;
   std::string* packages_path = nullptr;
+  EntityFetcher* entity_fetcher = nullptr;
 
   bool Resolve(std::string& error);
 };

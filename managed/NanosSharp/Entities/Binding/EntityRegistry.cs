@@ -29,9 +29,6 @@ internal static class EntityRegistry
         return Entities.TryGetValue(instance, out var entity) ? entity : Register(classId, instance);
     }
 
-    public static Entity? ResolveDeferred(uint networkId) =>
-        Entities.Values.FirstOrDefault(entity => entity.IsValid && entity.Invoke<uint>("GetID") == networkId);
-
     public static void OnCreated(ulong classId, nint instance)
     {
         if (!Entities.ContainsKey(instance))

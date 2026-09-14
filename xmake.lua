@@ -112,3 +112,66 @@ task("deploy")
         }
     }
 task_end()
+
+task("test")
+    set_category("plugin")
+    on_run(function ()
+        import("core.base.option")
+        import("core.project.config")
+
+        config.load()
+        local root = os.projectdir()
+        local server_dir = path.absolute(option.get("server") or config.get("server_dir") or ".server", root)
+        local deploy_arguments = {"deploy", "-s", server_dir}
+        os.execv("xmake", deploy_arguments)
+
+        local packages = {}
+        for _, test_dir in ipairs(os.dirs(path.join(root, "tests", "*"))) do
+            local name = path.filename(test_dir)
+            local package_dir = path.join(server_dir, "Packages", name)
+            os.tryrm(package_dir)
+            os.cp(test_dir, package_dir)
+            table.insert(packages, name)
+        end
+
+        local log_file = path.join(root, "build", "test", "server.log")
+        os.mkdir(path.directory(log_file))
+        local timeout = tostring(option.get("timeout"))
+        os.execv("timeout", {"-s", "INT", timeout, path.join(server_dir, "NanosSharp.sh"),
+            "--packages", table.concat(packages, ","), "--port", "7797", "--query_port", "7798", "--announce", "0"},
+            {stdout = log_file, stderr = log_file, try = true})
+
+        local passed = 0
+        local failed = 0
+        local summary = nil
+        for line in io.readfile(log_file):gmatch("[^\n]+") do
+            if line:find("[TEST] PASS", 1, true) then
+                passed = passed + 1
+                cprint("${color.success}%s", line)
+            elseif line:find("[TEST] FAIL", 1, true) then
+                failed = failed + 1
+                cprint("${color.failure}%s", line)
+            elseif line:find("[TEST] SUMMARY", 1, true) then
+                summary = line
+            elseif line:find("FATAL", 1, true) or line:find("NanosSharp is disabled", 1, true) then
+                cprint("${color.failure}%s", line)
+            end
+        end
+
+        if summary == nil then
+            raise("tests did not finish, see %s", log_file)
+        end
+        if failed > 0 then
+            raise("%d of %d tests failed, see %s", failed, passed + failed, log_file)
+        end
+        cprint("${color.success}all %d tests passed", passed)
+    end)
+    set_menu {
+        usage = "xmake test [options]",
+        description = "Run the NanosSharp integration tests inside a nanos world server.",
+        options = {
+            {"s", "server", "kv", nil, "The nanos world server directory."},
+            {"t", "timeout", "kv", "120", "Seconds until the server is stopped."}
+        }
+    }
+task_end()

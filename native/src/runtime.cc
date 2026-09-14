@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "bridge/native_api.h"
+#include "game/validation.h"
 
 namespace nanossharp {
 
@@ -110,11 +111,17 @@ bool Runtime::StartManaged(std::string& error) {
 
 void Runtime::AttachEngine() {
   std::unique_ptr<game::Engine>* instance = game::GetSymbols().engine_instance;
-  engine_ = instance != nullptr ? instance->get() : nullptr;
-  if (engine_ == nullptr) {
-    Log(game::LogType::kError, "scripting engine instance is missing");
+  game::Engine* engine = instance != nullptr ? instance->get() : nullptr;
+  if (disabled_ || engine == nullptr) {
     return;
   }
+
+  std::string validation_error;
+  if (!game::ValidateEngine(engine, validation_error)) {
+    Disable(validation_error);
+    return;
+  }
+  engine_ = engine;
 
   void** original_vtable = *reinterpret_cast<void***>(engine_) - 2;
   std::memcpy(engine_vtable_.data(), original_vtable,
@@ -142,6 +149,27 @@ void Runtime::AttachEngine() {
   if (auto engine_attached = bridge::GetManagedCallbacks().engine_attached) {
     engine_attached();
   }
+}
+
+void Runtime::Disable(const std::string& reason) {
+  disabled_ = true;
+  engine_ = nullptr;
+  Log(game::LogType::kError,
+      "this server version is not supported, NanosSharp is disabled: " + reason);
+}
+
+bool Runtime::ValidatePackageLayout(const game::Package* package) {
+  if (packages_validated_) {
+    return true;
+  }
+
+  std::string validation_error;
+  if (!game::ValidatePackage(package, validation_error)) {
+    Disable(validation_error);
+    return false;
+  }
+  packages_validated_ = true;
+  return true;
 }
 
 void Runtime::DetachEngine() {
@@ -182,12 +210,13 @@ void Runtime::OnPackageLoad(game::Package* package) {
   Runtime& runtime = Instance();
   runtime.original_package_load_(package);
   auto package_loaded = bridge::GetManagedCallbacks().package_loaded;
-  if (runtime.engine_ != nullptr && package_loaded != nullptr &&
-      package->environment() != nullptr) {
-    std::string directory = *game::GetSymbols().packages_path + "/" + package->name();
-    package_loaded(package, package->name().c_str(), directory.c_str(),
-                   package->environment());
+  if (runtime.engine_ == nullptr || package_loaded == nullptr ||
+      package->environment() == nullptr || !runtime.ValidatePackageLayout(package)) {
+    return;
   }
+
+  std::string directory = *game::GetSymbols().packages_path + "/" + package->name();
+  package_loaded(package, package->name().c_str(), directory.c_str(), package->environment());
 }
 
 void Runtime::OnPackageUnload(game::Package* package, bool is_reload, bool is_cleanup) {

@@ -14,13 +14,16 @@ public static class Log
     public static void Info(string message) => Write("Log", LogLevel.Script, message);
 
     /// <summary>Writes a warning entry.</summary>
-    public static void Warning(string message) => Write("Warn", LogLevel.Warning, message);
+    public static void Warning(string message) => Write("Warn", LogLevel.ScriptWarning, message);
 
     /// <summary>Writes an error entry.</summary>
-    public static void Error(string message) => Write("Error", LogLevel.Error, message);
+    public static void Error(string message) => Write("Error", LogLevel.ScriptError, message);
 
     /// <summary>Writes a debug entry, only visible with debug log level.</summary>
-    public static void Debug(string message) => Write("Debug", LogLevel.Debug, message);
+    public static void Debug(string message) => Write("Debug", LogLevel.ScriptDebug, message);
+
+    /// <summary>Writes a success entry.</summary>
+    public static void Success(string message) => WriteNative(LogLevel.Success, message);
 
     /// <summary>Writes an exception including its stack trace.</summary>
     public static void Exception(Exception exception, string? context = null) =>
@@ -33,8 +36,13 @@ public static class Log
             return;
         }
 
+        WriteNative(fallbackLevel, message);
+    }
+
+    private static void WriteNative(LogLevel level, string message)
+    {
         var package = PackageContext.Current;
-        NativeRuntime.Log(fallbackLevel, package is null ? message : $"[{package.Name}] {message}");
+        NativeRuntime.Log(level, package is null ? message : $"[{package.Name}] {message}");
     }
 
     private static bool TryWriteConsole(string function, string message)

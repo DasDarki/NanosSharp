@@ -65,7 +65,7 @@ State is not preserved, so keep it in values, databases or packages that are not
 After a reload the previous assemblies are checked to be unloaded, a warning names packages that still hold references
 (running tasks, timers, threads or static handlers outside of nanos world).
 
-`NanosSharp/config.toml` in the server directory:
+`NanosSharp.toml` in the server directory (created on first start):
 
 ```toml
 [hot_reload]

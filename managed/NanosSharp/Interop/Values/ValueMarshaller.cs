@@ -54,7 +54,7 @@ internal static unsafe class ValueMarshaller
         ValueType.Rotator => ReadRotator(value),
         ValueType.Color => ReadColor(value),
         ValueType.Vector2D => ReadVector2D(value),
-        ValueType.EntityDeferred => EntityRegistry.ResolveDeferred(NativeRuntime.Api.ValueGetNetworkId(value)),
+        ValueType.EntityDeferred => TakeFromNative(NativeRuntime.Api.ValueResolveDeferred(value)),
         _ => null,
     };
 
@@ -100,7 +100,7 @@ internal static unsafe class ValueMarshaller
 
     private static nint CreateMap(IDictionary dictionary)
     {
-        var entries = dictionary.Cast<DictionaryEntry>().ToArray();
+        var entries = ReadEntries(dictionary);
         using var keys = new NativeValueList(entries.Select(entry => entry.Key));
         using var values = new NativeValueList(entries.Select(entry => entry.Value));
         return NativeRuntime.Api.ValueCreateMap(keys.Pointer, values.Pointer, keys.Count);
@@ -147,6 +147,18 @@ internal static unsafe class ValueMarshaller
         var buffer = stackalloc double[2];
         NativeRuntime.Api.ValueGetDoubles(value, buffer);
         return new Vector2D(buffer[0], buffer[1]);
+    }
+
+    private static List<DictionaryEntry> ReadEntries(IDictionary dictionary)
+    {
+        var entries = new List<DictionaryEntry>(dictionary.Count);
+        var enumerator = dictionary.GetEnumerator();
+        while (enumerator.MoveNext())
+        {
+            entries.Add(enumerator.Entry);
+        }
+
+        return entries;
     }
 
     private static object?[] ReadArray(nint value)

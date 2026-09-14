@@ -43,6 +43,8 @@ class Runtime {
   bool StartManaged(std::string& error);
   void AttachEngine();
   void DetachEngine();
+  void Disable(const std::string& reason);
+  bool ValidatePackageLayout(const game::Package* package);
 
   using EntityCreatedFunction = decltype(&OnEntityCreated);
   using EntityDestroyedFunction = decltype(&OnEntityDestroyed);
@@ -60,6 +62,8 @@ class Runtime {
   EntityDestroyedFunction original_entity_destroyed_ = nullptr;
   game::Engine* engine_ = nullptr;
   std::thread::id main_thread_;
+  bool disabled_ = false;
+  bool packages_validated_ = false;
   bool managed_started_ = false;
   bool managed_failed_ = false;
 };

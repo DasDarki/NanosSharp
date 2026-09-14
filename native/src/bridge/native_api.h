@@ -63,6 +63,7 @@ struct NativeApi {
   void (*value_get_entity)(const game::ScriptValue* value, uint64_t* class_id,
                            void** instance);
   uint32_t (*value_get_network_id)(const game::ScriptValue* value);
+  ValueHandle (*value_resolve_deferred)(const game::ScriptValue* value);
   int32_t (*value_get_length)(const game::ScriptValue* value);
   const game::ScriptValue* (*value_get_item)(const game::ScriptValue* value,
                                              int32_t index);

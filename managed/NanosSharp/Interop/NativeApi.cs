@@ -37,6 +37,7 @@ internal unsafe struct NativeApi
     public delegate* unmanaged<nint, float*, void> ValueGetColor;
     public delegate* unmanaged<nint, ulong*, nint*, void> ValueGetEntity;
     public delegate* unmanaged<nint, uint> ValueGetNetworkId;
+    public delegate* unmanaged<nint, nint> ValueResolveDeferred;
     public delegate* unmanaged<nint, int> ValueGetLength;
     public delegate* unmanaged<nint, int, nint> ValueGetItem;
     public delegate* unmanaged<nint, nint*, nint*, void> ValueGetEntries;

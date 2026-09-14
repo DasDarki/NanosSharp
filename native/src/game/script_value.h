@@ -34,9 +34,9 @@ struct Vector {
 };
 
 struct Rotator {
-  double pitch;
-  double yaw;
-  double roll;
+  float pitch;
+  float yaw;
+  float roll;
 
   bool operator==(const Rotator&) const = default;
 };
@@ -51,8 +51,8 @@ struct Color {
 };
 
 struct Vector2D {
-  double x;
-  double y;
+  float x;
+  float y;
 
   bool operator==(const Vector2D&) const = default;
 };
@@ -122,8 +122,8 @@ struct std::hash<nanossharp::game::Vector> {
 template <>
 struct std::hash<nanossharp::game::Rotator> {
   size_t operator()(const nanossharp::game::Rotator& rotator) const {
-    return std::hash<double>{}(rotator.pitch) ^
-           std::hash<double>{}(rotator.yaw) ^ std::hash<double>{}(rotator.roll);
+    return std::hash<float>{}(rotator.pitch) ^
+           std::hash<float>{}(rotator.yaw) ^ std::hash<float>{}(rotator.roll);
   }
 };
 
@@ -138,7 +138,7 @@ struct std::hash<nanossharp::game::Color> {
 template <>
 struct std::hash<nanossharp::game::Vector2D> {
   size_t operator()(const nanossharp::game::Vector2D& vector) const {
-    return std::hash<double>{}(vector.x) ^ std::hash<double>{}(vector.y);
+    return std::hash<float>{}(vector.x) ^ std::hash<float>{}(vector.y);
   }
 };
 
@@ -196,6 +196,9 @@ static_assert(sizeof(std::string) == 8,
               "nanos world uses the COW std::string ABI, compile with "
               "_GLIBCXX_USE_CXX11_ABI=0");
 static_assert(sizeof(Entity) == 24);
+static_assert(sizeof(Vector) == 24);
+static_assert(sizeof(Rotator) == 12);
+static_assert(sizeof(Vector2D) == 8);
 static_assert(sizeof(ScriptValue) == 32);
 static_assert(sizeof(ScriptArray) == 24);
 static_assert(alignof(ScriptValue) == 8);

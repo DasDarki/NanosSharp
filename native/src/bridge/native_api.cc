@@ -93,7 +93,8 @@ ValueHandle CreateVector(double x, double y, double z) {
 }
 
 ValueHandle CreateRotator(double pitch, double yaw, double roll) {
-  return NewValue(game::Rotator{pitch, yaw, roll});
+  return NewValue(game::Rotator{static_cast<float>(pitch), static_cast<float>(yaw),
+                                static_cast<float>(roll)});
 }
 
 ValueHandle CreateColor(float r, float g, float b, float a) {
@@ -101,7 +102,7 @@ ValueHandle CreateColor(float r, float g, float b, float a) {
 }
 
 ValueHandle CreateVector2D(double x, double y) {
-  return NewValue(game::Vector2D{x, y});
+  return NewValue(game::Vector2D{static_cast<float>(x), static_cast<float>(y)});
 }
 
 ValueHandle CreateEntity(uint64_t class_id, void* instance) {
@@ -219,6 +220,19 @@ const game::ScriptArray* GetSequence(const ScriptValue* value) {
     return &tuple->values;
   }
   return nullptr;
+}
+
+ValueHandle ResolveDeferred(const ScriptValue* value) {
+  const auto* entity = std::get_if<game::EntityDeferred>(&value->value);
+  game::EntityFetcher* fetcher = game::GetSymbols().entity_fetcher;
+  if (entity == nullptr || fetcher == nullptr || !*fetcher) {
+    return CreateNil();
+  }
+  try {
+    return NewValue((*fetcher)(entity->network_id).value);
+  } catch (...) {
+    return CreateNil();
+  }
 }
 
 int32_t GetLength(const ScriptValue* value) {
@@ -389,6 +403,7 @@ const NativeApi& GetNativeApi() {
       .value_get_color = &GetColor,
       .value_get_entity = &GetEntity,
       .value_get_network_id = &GetNetworkId,
+      .value_resolve_deferred = &ResolveDeferred,
       .value_get_length = &GetLength,
       .value_get_item = &GetItem,
       .value_get_entries = &GetEntries,

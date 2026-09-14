@@ -14,7 +14,7 @@ namespace NanosSharp.Host.Packages;
 internal static unsafe class PackageManager
 {
     private const string ApiDumpEnvironmentVariable = "NANOSSHARP_DUMP_API";
-    private const string SettingsFileName = "config.toml";
+    private const string SettingsFileName = "NanosSharp.toml";
     private static readonly TimeSpan TransientRetryDelay = TimeSpan.FromSeconds(1);
     private static readonly Dictionary<nint, ManagedPackage> Packages = [];
     private static readonly Dictionary<string, PackageBuild> PendingBuilds = new(StringComparer.Ordinal);
@@ -23,8 +23,8 @@ internal static unsafe class PackageManager
 
     public static void Initialize(string runtimeDirectory)
     {
-        var settingsDirectory = Path.GetDirectoryName(Path.TrimEndingDirectorySeparator(runtimeDirectory)) ?? runtimeDirectory;
-        _settings = HostSettings.Load(Path.Combine(settingsDirectory, SettingsFileName));
+        var serverDirectory = Path.GetFullPath(Path.Combine(runtimeDirectory, "..", ".."));
+        _settings = HostSettings.Load(Path.Combine(serverDirectory, SettingsFileName));
         NativeCallbacks.EngineAttached += OnEngineAttached;
         NativeCallbacks.EngineDetaching += OnEngineDetaching;
         NativeCallbacks.PackageLoaded += OnPackageLoaded;
