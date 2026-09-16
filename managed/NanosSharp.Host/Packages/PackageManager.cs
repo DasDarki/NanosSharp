@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using NanosSharp.Host.Configuration;
 using NanosSharp.Host.Packages.Building;
+using NanosSharp.Host.Packages.Dependencies;
 using NanosSharp.Host.Packages.Loading;
 using NanosSharp.Interop;
 using NanosSharp.Interop.Callbacks;
@@ -20,11 +21,14 @@ internal static unsafe class PackageManager
     private static readonly Dictionary<string, PackageBuild> PendingBuilds = new(StringComparer.Ordinal);
     private static readonly UnloadTracker UnloadTracker = new();
     private static HostSettings _settings = null!;
+    private static PackageBuildOptions _buildOptions = null!;
 
     public static void Initialize(string runtimeDirectory)
     {
         var serverDirectory = Path.GetFullPath(Path.Combine(runtimeDirectory, "..", ".."));
         _settings = HostSettings.Load(Path.Combine(serverDirectory, SettingsFileName));
+        var nugetCache = Path.Combine(serverDirectory, "NanosSharp", "cache", "nuget");
+        _buildOptions = new PackageBuildOptions(new NuGetRestorer(_settings.NuGet.Sources, nugetCache), _settings.Projects.Generate);
         NativeCallbacks.EngineAttached += OnEngineAttached;
         NativeCallbacks.EngineDetaching += OnEngineDetaching;
         NativeCallbacks.PackageLoaded += OnPackageLoaded;
@@ -80,10 +84,10 @@ internal static unsafe class PackageManager
             }
         }
 
-        if (_settings.HotReloadEnabled)
+        if (_settings.HotReload.Enabled)
         {
             package.SourcesChanged += OnSourcesChanged;
-            package.WatchSources(_settings.HotReloadDelay);
+            package.WatchSources(TimeSpan.FromMilliseconds(_settings.HotReload.DelayMilliseconds));
         }
     }
 
@@ -131,7 +135,7 @@ internal static unsafe class PackageManager
     }
 
     private static PackageBuild BuildPackage(ManagedPackage package) =>
-        PackageBuilder.Build(package.Name, package.Scope.Directory, CollectRequiredImages(package.Manifest));
+        PackageBuilder.Build(package.Name, package.Scope.Directory, CollectRequiredImages(package.Manifest), _buildOptions);
 
     private static void Reload(ManagedPackage package)
     {
@@ -160,7 +164,7 @@ internal static unsafe class PackageManager
 
     private static void TrackUnload(ManagedPackage package, AssemblyLoadContext? loadContext)
     {
-        if (loadContext is not null && _settings.VerifyUnload)
+        if (loadContext is not null && _settings.HotReload.VerifyUnload)
         {
             UnloadTracker.Track(package.Name, loadContext);
         }

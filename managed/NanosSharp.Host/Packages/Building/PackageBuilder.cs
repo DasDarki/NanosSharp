@@ -1,6 +1,7 @@
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using NanosSharp.Host.Compilation;
+using NanosSharp.Host.Packages.Dependencies;
 using NanosSharp.Logging;
 
 namespace NanosSharp.Host.Packages.Building;
@@ -10,7 +11,10 @@ internal static class PackageBuilder
     public const string ServerDirectoryName = "Server";
 
     private const string ApiAssemblyName = "NanosSharp";
+    private const string DependencyManifestExtension = ".deps.json";
     private static readonly string[] IgnoredDirectories = ["bin", "obj"];
+    private static readonly string[] RelevantExtensions = [".cs", ".dll", ".pdb", ".so", ".csproj", ".json"];
+    private static readonly string[] NativeRuntimeIdentifiers = ["linux-x64", "linux", "unix"];
 
     public static bool HasManagedCode(string packageDirectory)
     {
@@ -20,23 +24,60 @@ internal static class PackageBuilder
     }
 
     public static bool IsRelevantFile(string path) =>
-        Path.GetExtension(path) is ".cs" or ".dll" or ".pdb" && !IsIgnored(path);
+        RelevantExtensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase) && !IsIgnored(path);
 
-    public static PackageBuild Build(string packageName, string packageDirectory, IEnumerable<AssemblyImage> references)
+    public static PackageBuild Build(string packageName, string packageDirectory, IEnumerable<AssemblyImage> requiredImages,
+        PackageBuildOptions options)
     {
         var serverDirectory = Path.Combine(packageDirectory, ServerDirectoryName);
-        var assemblies = FindAssemblies(serverDirectory)
-            .Select(ReadAssembly)
-            .ToDictionary(image => image.Name, StringComparer.Ordinal);
-
+        var assemblyPaths = FindAssemblies(serverDirectory).ToArray();
+        var assemblies = assemblyPaths.Select(ReadAssembly).ToDictionary(image => image.Name, StringComparer.Ordinal);
         var sources = FindSources(serverDirectory).ToArray();
+        var dependencies = RestoreDependencies(packageName, serverDirectory, sources.Length > 0, options);
+
+        foreach (var runtimeAssembly in dependencies.RuntimeAssemblies.Select(ReadAssembly))
+        {
+            assemblies.TryAdd(runtimeAssembly.Name, runtimeAssembly);
+        }
+
         if (sources.Length > 0)
         {
-            var scripts = CompileScripts($"{packageName}.Scripts", sources, assemblies.Values.Concat(references));
+            var references = assemblyPaths.Concat(dependencies.CompileReferences).Select(ReadAssembly).Concat(requiredImages);
+            var scripts = CompileScripts($"{packageName}.Scripts", sources, references);
             assemblies[scripts.Name] = scripts;
         }
 
-        return new PackageBuild(assemblies);
+        var nativeLibraries = FindNativeLibraries(serverDirectory)
+            .Concat(dependencies.NativeLibraries)
+            .DistinctBy(entry => entry.Key)
+            .ToDictionary(StringComparer.Ordinal);
+        var manifests = assemblyPaths.Where(path => File.Exists(Path.ChangeExtension(path, DependencyManifestExtension))).ToArray();
+        return new PackageBuild(assemblies, nativeLibraries, manifests);
+    }
+
+    private static ResolvedDependencies RestoreDependencies(string packageName, string serverDirectory, bool hasSources,
+        PackageBuildOptions options)
+    {
+        var projectPath = ProjectFile.Find(serverDirectory);
+        if (projectPath is null && hasSources && options.GenerateProjectFiles)
+        {
+            projectPath = ProjectGenerator.Generate(packageName, serverDirectory);
+            Log.Info($"Generated {Path.GetFileName(projectPath)} for IDE support and NuGet references.");
+        }
+
+        if (projectPath is null)
+        {
+            return ResolvedDependencies.Empty;
+        }
+
+        try
+        {
+            return options.Restorer.Restore(ProjectFile.ReadPackageReferences(projectPath));
+        }
+        catch (Exception exception) when (exception is not PackageBuildException)
+        {
+            throw new PackageBuildException($"Restoring NuGet packages failed: {exception.Message}");
+        }
     }
 
     private static AssemblyImage CompileScripts(string assemblyName, IReadOnlyList<string> sources,
@@ -82,12 +123,23 @@ internal static class PackageBuilder
         }
     }
 
+    private static IEnumerable<KeyValuePair<string, string>> FindNativeLibraries(string serverDirectory) =>
+        NativeRuntimeIdentifiers
+            .Select(runtimeIdentifier => Path.Combine(serverDirectory, "runtimes", runtimeIdentifier, "native"))
+            .Prepend(serverDirectory)
+            .Where(Directory.Exists)
+            .SelectMany(directory => Directory.GetFiles(directory, "*.so*").Order(StringComparer.Ordinal))
+            .Select(path => KeyValuePair.Create(Path.GetFileName(path), path));
+
     private static IEnumerable<string> FindSources(string serverDirectory) =>
-        Directory.EnumerateFiles(serverDirectory, "*.cs", SearchOption.AllDirectories).Where(path => !IsIgnored(path));
+        Directory.EnumerateFiles(serverDirectory, "*.cs", SearchOption.AllDirectories)
+            .Where(path => !IsIgnored(path))
+            .Order(StringComparer.Ordinal);
 
     private static IEnumerable<string> FindAssemblies(string serverDirectory) =>
         Directory.EnumerateFiles(serverDirectory, "*.dll", SearchOption.TopDirectoryOnly)
-            .Where(path => Path.GetFileNameWithoutExtension(path) != ApiAssemblyName);
+            .Where(path => Path.GetFileNameWithoutExtension(path) != ApiAssemblyName)
+            .Order(StringComparer.Ordinal);
 
     private static bool IsIgnored(string path) =>
         path.Split(Path.DirectorySeparatorChar).Any(segment => IgnoredDirectories.Contains(segment));

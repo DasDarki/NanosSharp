@@ -67,4 +67,5 @@ internal unsafe struct NativeApi
     public delegate* unmanaged<byte*, int, nint> EnvironmentCreate;
     public delegate* unmanaged<byte*, int, void> EnvironmentDestroy;
     public delegate* unmanaged<nint, byte**, byte> PackageReload;
+    public delegate* unmanaged<byte*, byte**, nint> LibraryLoad;
 }

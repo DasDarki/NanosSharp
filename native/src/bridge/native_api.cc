@@ -10,6 +10,7 @@
 #include <utility>
 
 #include "bridge/managed_function_ref.h"
+#include "host/isolated_libraries.h"
 #include "runtime.h"
 
 namespace nanossharp::bridge {
@@ -368,6 +369,15 @@ void EnvironmentDestroy(const char* name, int32_t length) {
   }
 }
 
+void* LibraryLoad(const char* path, char** error) {
+  std::string message;
+  void* handle = host::LoadIsolatedLibrary(path, message);
+  if (handle == nullptr) {
+    *error = CopyString(message);
+  }
+  return handle;
+}
+
 uint8_t PackageReload(game::Package* package, char** error) {
   return Guard(error, [&] { game::GetSymbols().package_reload(package); });
 }
@@ -430,6 +440,7 @@ const NativeApi& GetNativeApi() {
       .environment_create = &EnvironmentCreate,
       .environment_destroy = &EnvironmentDestroy,
       .package_reload = &PackageReload,
+      .library_load = &LibraryLoad,
   };
   return api;
 }

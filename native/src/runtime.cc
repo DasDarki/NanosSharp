@@ -8,6 +8,7 @@
 
 #include "bridge/native_api.h"
 #include "game/validation.h"
+#include "host/isolated_libraries.h"
 
 namespace nanossharp {
 
@@ -87,6 +88,7 @@ bool Runtime::InstallHooks(std::string& error) {
 }
 
 bool Runtime::StartManaged(std::string& error) {
+  host::PreloadIsolatedSystemLibraries();
   host_ = std::make_unique<host::DotnetHost>(runtime_directory_);
   if (!host_->Start(error)) {
     return false;

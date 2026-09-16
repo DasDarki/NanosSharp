@@ -58,6 +58,19 @@ internal static unsafe class NativeRuntime
         }
     }
 
+    public static nint LoadIsolatedLibrary(string path)
+    {
+        var bytes = Encoding.UTF8.GetBytes(path + '\0');
+        byte* error = null;
+        nint handle;
+        fixed (byte* pointer = bytes)
+        {
+            handle = Api.LibraryLoad(pointer, &error);
+        }
+
+        return handle != 0 ? handle : throw new DllNotFoundException(TakeString(error));
+    }
+
     public static string ReadString(byte* value) => Marshal.PtrToStringUTF8((nint)value) ?? string.Empty;
 
     public static string TakeString(byte* value)

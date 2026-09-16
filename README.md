@@ -54,8 +54,23 @@ public sealed class MyPackage : Package
 ```
 
 Compiled assemblies placed in `Server/` work as well, see `managed/examples`.
-Libraries are loaded from the same folder, so publish your project flat into `Server/` (NuGet packages with native libraries are not supported yet).
+Publish such projects into `Server/`, libraries, `*.deps.json` and native libraries next to them are resolved automatically.
 A package listed in `packages_requirements` shares its assemblies, so dependents can use its types.
+
+### NuGet and IDE support
+
+A package with `.cs` files gets a generated `Server/<package>.csproj` on first load. Open it in Rider or VS Code for
+IntelliSense, it references the server's `NanosSharp.dll` and uses the same global usings as the server compiler.
+`PackageReference` items in that project are downloaded by the server itself (no .NET SDK needed on the server),
+including transitive dependencies and native libraries, and cached in `NanosSharp/cache/nuget`.
+
+```xml
+<ItemGroup>
+  <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.13" />
+</ItemGroup>
+```
+
+Every package gets its own copy of its libraries, so packages can use different versions of the same library.
 
 ## Hot reload
 
@@ -65,6 +80,8 @@ State is not preserved, so keep it in values, databases or packages that are not
 After a reload the previous assemblies are checked to be unloaded, a warning names packages that still hold references
 (running tasks, timers, threads or static handlers outside of nanos world).
 
+## Configuration
+
 `NanosSharp.toml` in the server directory (created on first start):
 
 ```toml
@@ -72,7 +89,23 @@ After a reload the previous assemblies are checked to be unloaded, a warning nam
 enabled = true
 delay_milliseconds = 500
 verify_unload = true
+
+[nuget]
+sources = ["https://api.nuget.org/v3/index.json"]
+
+[projects]
+generate = true
 ```
+
+## Debugging
+
+The server hosts a regular CoreCLR, attach a .NET debugger (Rider, VS Code with netcoredbg) to the `NanosWorldServer`
+process. Assemblies are loaded with their symbols, so breakpoints in package sources work.
+
+## Testing
+
+`xmake test` deploys everything into the server, starts it isolated on port 7797 with the packages in `tests/`
+and reports the results of the in-server test suite.
 Calls into nanos world must happen on the main thread, use `MainThread.Post` or `await` from main thread code.
 Everything without a typed wrapper yet is reachable through `ScriptApi` and `Entity.Invoke`.
 
@@ -87,3 +120,4 @@ Everything without a typed wrapper yet is reachable through `ScriptApi` and `Ent
 | `managed/NanosSharp` | Public API (`Core`, `Entities`, `Logging`, `Mathematics`, `Packages`, `Scripting`, `Threading`) and internal `Interop` |
 | `managed/NanosSharp.Host` | Package loading, Roslyn compilation, hot reload |
 | `managed/examples` | Example packages |
+| `tests` | In-server integration test packages |

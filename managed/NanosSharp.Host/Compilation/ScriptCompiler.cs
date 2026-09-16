@@ -10,6 +10,15 @@ namespace NanosSharp.Host.Compilation;
 
 internal static class ScriptCompiler
 {
+    public const string TargetFramework = "net10.0";
+
+    public static readonly string[] GlobalUsings =
+    [
+        "System", "System.Collections.Generic", "System.IO", "System.Linq", "System.Threading",
+        "System.Threading.Tasks", "NanosSharp.Core", "NanosSharp.Entities", "NanosSharp.Logging",
+        "NanosSharp.Mathematics", "NanosSharp.Packages", "NanosSharp.Scripting", "NanosSharp.Threading",
+    ];
+
     private static readonly Lazy<MetadataReference[]> FrameworkReferences = new(LoadFrameworkReferences);
 
     private static readonly CSharpParseOptions ParseOptions = new(LanguageVersion.Latest);
@@ -19,13 +28,6 @@ internal static class ScriptCompiler
         optimizationLevel: OptimizationLevel.Debug,
         allowUnsafe: true,
         nullableContextOptions: NullableContextOptions.Enable);
-
-    private static readonly string[] GlobalUsings =
-    [
-        "System", "System.Collections.Generic", "System.IO", "System.Linq", "System.Threading",
-        "System.Threading.Tasks", "NanosSharp.Core", "NanosSharp.Entities", "NanosSharp.Logging",
-        "NanosSharp.Mathematics", "NanosSharp.Packages", "NanosSharp.Scripting", "NanosSharp.Threading",
-    ];
 
     public static CompilationResult Compile(string assemblyName, IReadOnlyList<string> sourceFiles,
         IEnumerable<AssemblyImage> referenceImages)

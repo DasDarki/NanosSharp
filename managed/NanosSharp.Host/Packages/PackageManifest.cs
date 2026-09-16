@@ -16,7 +16,7 @@ internal sealed record PackageManifest(IReadOnlyList<string> Requirements)
             return new PackageManifest([]);
         }
 
-        var model = Toml.ToModel(File.ReadAllText(path), path);
+        var model = TomlSerializer.Deserialize<TomlTable>(File.ReadAllText(path)) ?? [];
         var requirements = model.Values
             .OfType<TomlTable>()
             .Where(table => table.ContainsKey(RequirementsKey))
