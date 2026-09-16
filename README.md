@@ -99,8 +99,9 @@ generate = true
 
 ## Debugging
 
-The server hosts a regular CoreCLR, attach a .NET debugger (Rider, VS Code with netcoredbg) to the `NanosWorldServer`
-process. Assemblies are loaded with their symbols, so breakpoints in package sources work.
+The server hosts a regular CoreCLR, so attaching a .NET debugger (Rider, VS Code with netcoredbg) to the
+`NanosWorldServer` process is the intended workflow. Assemblies are loaded together with their symbols.
+This has not been verified yet.
 
 ## Testing
 
