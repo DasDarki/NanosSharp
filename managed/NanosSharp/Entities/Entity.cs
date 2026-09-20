@@ -8,23 +8,13 @@ using NanosSharp.Scripting;
 namespace NanosSharp.Entities;
 
 /// <summary>Base class of every nanos world scripting entity.</summary>
-public abstract class Entity
+public abstract partial class Entity
 {
     /// <summary>Whether the entity still exists.</summary>
     public bool IsValid => _instance != 0;
 
     /// <summary>Name of the scripting class, for example Player or Character.</summary>
     public string ClassName => NativeClass.Name;
-
-    /// <summary>Network id of the entity.</summary>
-    public uint Id => Invoke<uint>("GetID");
-
-    /// <summary>Dimension the entity lives in.</summary>
-    public uint Dimension
-    {
-        get => Invoke<uint>("GetDimension");
-        set => Invoke("SetDimension", value);
-    }
 
     /// <summary>Raised on the main thread when the entity was destroyed.</summary>
     public event Action<Entity>? Destroyed;
@@ -48,19 +38,13 @@ public abstract class Entity
     public T? Invoke<T>(string method, params ReadOnlySpan<object?> arguments) =>
         ValueConverter.Convert<T>(Invoke(method, arguments));
 
-    /// <summary>Destroys the entity.</summary>
-    public void Destroy() => Invoke("Destroy");
-
-    /// <summary>Reads a value stored on the entity.</summary>
+    /// <summary>Reads a value stored on the entity and converts it.</summary>
     public T? GetValue<T>(string key, T? fallback = default) => Invoke<T>("GetValue", key, fallback);
-
-    /// <summary>Stores a value on the entity, optionally synchronized to clients.</summary>
-    public void SetValue(string key, object? value, bool synchronize = false) => Invoke("SetValue", key, value, synchronize);
 
     /// <summary>Subscribes to an event of this entity, the handler parameters are converted automatically.</summary>
     public ScriptSubscription Subscribe(string eventName, Delegate handler) =>
         ScriptSubscription.Create(handler, function => Invoke("Subscribe", eventName, function),
-            function => Invoke("Unsubscribe", eventName, function));
+            function => UnsubscribeIfValid(eventName, function));
 
     /// <inheritdoc />
     public override string ToString() => IsValid ? $"{ClassName}({_instance:X})" : $"{ClassName}(destroyed)";
@@ -103,14 +87,26 @@ public abstract class Entity
         }
     }
 
-    private protected static T Spawn<T>(params ReadOnlySpan<object?> arguments) where T : Entity
+    private void UnsubscribeIfValid(string eventName, ScriptFunction function)
     {
-        var nativeClass = NativeClassRegistry.Get(EntityRegistry.GetClassName(typeof(T)));
-        var constructor = nativeClass.Constructor ?? throw new ScriptException($"{nativeClass.Name} cannot be spawned.");
-        var entity = constructor.Invoke(PackageContext.Environment, arguments) as T;
-        return entity ?? throw new ScriptException($"{nativeClass.Name} did not return a valid entity.");
+        if (IsValid)
+        {
+            Invoke("Unsubscribe", eventName, function);
+        }
     }
 
-    private protected static object? InvokeStatic(Type type, string function, params ReadOnlySpan<object?> arguments) =>
-        ScriptApi.Invoke(EntityRegistry.GetClassName(type), function, arguments);
+    private protected void SpawnSelf(string className, ReadOnlySpan<object?> arguments)
+    {
+        var nativeClass = NativeClassRegistry.Get(className);
+        var constructor = nativeClass.Constructor ?? throw new ScriptException($"{className} cannot be spawned.");
+        using (EntityRegistry.ExpectSpawn(this))
+        {
+            constructor.Invoke(PackageContext.Environment, arguments);
+        }
+
+        if (!IsValid)
+        {
+            throw new ScriptException($"{className} did not spawn an entity.");
+        }
+    }
 }

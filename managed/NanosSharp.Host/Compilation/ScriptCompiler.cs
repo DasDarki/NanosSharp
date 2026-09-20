@@ -15,7 +15,7 @@ internal static class ScriptCompiler
     public static readonly string[] GlobalUsings =
     [
         "System", "System.Collections.Generic", "System.IO", "System.Linq", "System.Threading",
-        "System.Threading.Tasks", "NanosSharp.Core", "NanosSharp.Entities", "NanosSharp.Logging",
+        "System.Threading.Tasks", "NanosSharp.Core", "NanosSharp.Entities", "NanosSharp.Enums", "NanosSharp.Logging",
         "NanosSharp.Mathematics", "NanosSharp.Packages", "NanosSharp.Scripting", "NanosSharp.Threading",
     ];
 
@@ -27,7 +27,12 @@ internal static class ScriptCompiler
         OutputKind.DynamicallyLinkedLibrary,
         optimizationLevel: OptimizationLevel.Debug,
         allowUnsafe: true,
-        nullableContextOptions: NullableContextOptions.Enable);
+        nullableContextOptions: NullableContextOptions.Enable,
+        specificDiagnosticOptions: new Dictionary<string, ReportDiagnostic>
+        {
+            ["CS1701"] = ReportDiagnostic.Suppress,
+            ["CS1702"] = ReportDiagnostic.Suppress,
+        });
 
     public static CompilationResult Compile(string assemblyName, IReadOnlyList<string> sourceFiles,
         IEnumerable<AssemblyImage> referenceImages)

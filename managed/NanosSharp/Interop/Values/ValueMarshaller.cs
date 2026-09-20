@@ -2,6 +2,7 @@ using System.Collections;
 using System.Text;
 using NanosSharp.Entities;
 using NanosSharp.Entities.Binding;
+using NanosSharp.Interop.Callbacks;
 using NanosSharp.Mathematics;
 using NanosSharp.Scripting;
 
@@ -31,6 +32,7 @@ internal static unsafe class ValueMarshaller
             Entity entity => api.ValueCreateEntity(entity.ClassId, entity.EnsureValid()),
             ScriptFunction function => api.ValueClone(function.Handle),
             ScriptOpaque opaque => api.ValueClone(opaque.Handle),
+            ScriptCallback callback => FunctionRegistry.CreateNative(callback.Handler),
             Delegate => throw new ArgumentException(
                 "Delegates cannot be passed as plain values because Lua packages cannot call them, use a Subscribe method instead."),
             IDictionary dictionary => CreateMap(dictionary),

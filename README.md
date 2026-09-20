@@ -53,6 +53,17 @@ public sealed class MyPackage : Package
 }
 ```
 
+The API mirrors Lua and adds C# conveniences on top:
+
+```csharp
+var prop = new Prop(location, rotation, "nanos-world::SM_Cube");   // like Prop(...) in Lua
+prop.SetScale(new Vector(2, 2, 2));                                  // Lua style
+prop.Scale = new Vector(2, 2, 2);                                    // C# property, same call
+Character.OnDeath += (character, damage, bone, type, direction, instigator, causer) => { };
+character.SubscribeDeath(...);                                       // events of one entity
+class ExplosiveBarrel(Vector location) : Prop(location, Rotator.Zero, "nanos-world::SM_Cube");
+```
+
 Compiled assemblies placed in `Server/` work as well, see `managed/examples`.
 Publish such projects into `Server/`, libraries, `*.deps.json` and native libraries next to them are resolved automatically.
 A package listed in `packages_requirements` shares its assemblies, so dependents can use its types.
@@ -79,6 +90,18 @@ Otherwise the package is reloaded through nanos world itself, followed by every 
 State is not preserved, so keep it in values, databases or packages that are not reloaded.
 After a reload the previous assemblies are checked to be unloaded, a warning names packages that still hold references
 (running tasks, timers, threads or static handlers outside of nanos world).
+
+## API generation
+
+The typed API in `managed/NanosSharp/Generated` is generated, never edit it by hand.
+
+```sh
+xmake dump-api    # dump the native scripting API of the server into the generator data
+xmake generate    # combine it with github.com/nanos-world/api at the pinned revision
+```
+
+Native signatures decide types and availability, the API definitions provide names, documentation, events and enums.
+The output is deterministic, `build/generator/report.md` lists everything that could not be mapped.
 
 ## Configuration
 
@@ -120,5 +143,7 @@ Everything without a typed wrapper yet is reachable through `ScriptApi` and `Ent
 | `native/src/bridge` | C ABI between native and managed |
 | `managed/NanosSharp` | Public API (`Core`, `Entities`, `Logging`, `Mathematics`, `Packages`, `Scripting`, `Threading`) and internal `Interop` |
 | `managed/NanosSharp.Host` | Package loading, Roslyn compilation, hot reload |
+| `managed/NanosSharp/Generated` | Generated API (do not edit) |
+| `managed/tools/NanosSharp.Generator` | API generator and native API dump |
 | `managed/examples` | Example packages |
 | `tests` | In-server integration test packages |

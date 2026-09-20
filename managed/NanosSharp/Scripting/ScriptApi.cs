@@ -1,3 +1,4 @@
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using NanosSharp.Interop;
 using NanosSharp.Interop.Reflection;
@@ -34,24 +35,36 @@ public static class ScriptApi
             function => Invoke(className, "Subscribe", eventName, function),
             function => Invoke(className, "Unsubscribe", eventName, function));
 
-    /// <summary>Writes every scripting class with its functions and native signatures as JSON.</summary>
+    /// <summary>Writes every scripting class with its functions and native signatures as deterministic JSON.</summary>
     public static void DumpApi(string path)
     {
         MainThread.Ensure();
-        var classes = NativeClassRegistry.Classes.OrderBy(nativeClass => nativeClass.Name).Select(nativeClass => new
+        var classes = NativeClassRegistry.Classes.OrderBy(nativeClass => nativeClass.Name, StringComparer.Ordinal).Select(nativeClass => new
         {
             nativeClass.Name,
             Id = nativeClass.Id.ToString("x16"),
             Constructor = nativeClass.Constructor?.Signature,
             Methods = DescribeMethods(nativeClass.Methods.Values),
             StaticMethods = DescribeMethods(nativeClass.StaticMethods.Values),
-            Properties = nativeClass.Properties.Values.OrderBy(property => property.Name)
+            Properties = nativeClass.Properties.Values
+                .OrderBy(property => property.Name, StringComparer.Ordinal)
                 .Select(property => new { property.Name, property.Signature }),
         });
-        var document = new { Classes = classes, Functions = DescribeMethods(NativeClassRegistry.Functions) };
-        File.WriteAllText(path, JsonSerializer.Serialize(document, new JsonSerializerOptions { WriteIndented = true }));
+        var document = new
+        {
+            ServerVersion = Invoke<string>("Server", "GetVersion"),
+            Classes = classes,
+            Functions = DescribeMethods(NativeClassRegistry.Functions),
+        };
+        var options = new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            NewLine = "\n",
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        };
+        File.WriteAllText(path, JsonSerializer.Serialize(document, options) + "\n");
     }
 
     private static IEnumerable<object> DescribeMethods(IEnumerable<NativeMethod> methods) =>
-        methods.OrderBy(method => method.Name).Select(method => new { method.Name, method.Signature });
+        methods.OrderBy(method => method.Name, StringComparer.Ordinal).Select(method => new { method.Name, method.Signature });
 }

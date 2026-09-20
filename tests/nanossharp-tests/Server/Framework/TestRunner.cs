@@ -9,7 +9,7 @@ public sealed class TestRunner : Package
     private int _passed;
     private int _failed;
 
-    protected override void OnStart() => Server.Started += RunAll;
+    protected override void OnStart() => Server.OnStart += RunAll;
 
     private async void RunAll()
     {
@@ -46,7 +46,8 @@ public sealed class TestRunner : Package
         {
             _failed++;
             var cause = exception is TargetInvocationException { InnerException: { } inner } ? inner : exception;
-            Log.Error($"{Prefix} FAIL {name}: {cause.GetType().Name}: {cause.Message}");
+            var location = cause.StackTrace?.Split('\n').FirstOrDefault()?.Trim() ?? "unknown location";
+            Log.Error($"{Prefix} FAIL {name}: {cause.GetType().Name}: {cause.Message} ({location})");
         }
     }
 }

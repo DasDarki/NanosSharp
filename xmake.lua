@@ -175,3 +175,63 @@ task("test")
         }
     }
 task_end()
+
+local api_definitions_repository = "https://github.com/nanos-world/api.git"
+local api_definitions_revision = "47f4540c3d2bc452cb6d47979df747342c9c1fb7"
+
+task("dump-api")
+    set_category("plugin")
+    on_run(function ()
+        import("core.base.option")
+        import("core.project.config")
+
+        config.load()
+        local root = os.projectdir()
+        local server_dir = path.absolute(option.get("server") or config.get("server_dir") or ".server", root)
+        local output = path.join(root, "managed", "tools", "NanosSharp.Generator", "Data", "native-api.json")
+        os.execv("xmake", {"deploy", "-s", server_dir})
+        os.tryrm(output)
+        os.execv("timeout", {"-s", "INT", "20", path.join(server_dir, "NanosSharp.sh"),
+            "--packages", "", "--port", "7797", "--query_port", "7798", "--announce", "0"},
+            {envs = {NANOSSHARP_DUMP_API = output}, stdout = os.nuldev(), stderr = os.nuldev(), try = true})
+        if not os.isfile(output) then
+            raise("the server did not write %s", output)
+        end
+        cprint("${color.success}native API dumped to %s", output)
+    end)
+    set_menu {
+        usage = "xmake dump-api [options]",
+        description = "Dump the native scripting API of the nanos world server for the generator.",
+        options = {
+            {"s", "server", "kv", nil, "The nanos world server directory."}
+        }
+    }
+task_end()
+
+task("generate")
+    set_category("plugin")
+    on_run(function ()
+        import("core.base.option")
+
+        local root = os.projectdir()
+        local definitions_dir = path.join(root, "build", "generator", "nanos-api")
+        if not os.isdir(path.join(definitions_dir, ".git")) then
+            os.execv("git", {"clone", "--quiet", api_definitions_repository, definitions_dir})
+        end
+        os.execv("git", {"-C", definitions_dir, "fetch", "--quiet", "origin"})
+        os.execv("git", {"-C", definitions_dir, "checkout", "--quiet", "--detach", api_definitions_revision})
+
+        local generator = path.join(root, "managed", "tools", "NanosSharp.Generator")
+        os.execv("dotnet", {"run", "--project", generator, "-c", "Release", "--",
+            "--native", path.join(generator, "Data", "native-api.json"),
+            "--docs", definitions_dir,
+            "--output", path.join(root, "managed", "NanosSharp", "Generated"),
+            "--report", path.join(root, "build", "generator", "report.md"),
+            "--revision", api_definitions_revision})
+    end)
+    set_menu {
+        usage = "xmake generate",
+        description = "Generate the typed C# API from the native dump and the nanos world API definitions.",
+        options = {}
+    }
+task_end()

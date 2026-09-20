@@ -4,10 +4,12 @@ namespace NanosSharp.Tests.Tests;
 
 public static class EntityTests
 {
+    private const string CubeMesh = "nanos-world::SM_Cube";
+
     [Test]
     public static void SpawnedPropIsTracked()
     {
-        var prop = Prop.Spawn(new Vector(0, 0, 100), Rotator.Zero);
+        var prop = new Prop(new Vector(0, 0, 100), Rotator.Zero, CubeMesh);
         try
         {
             Assert.True(prop.IsValid, "Prop is not valid after spawn");
@@ -23,7 +25,7 @@ public static class EntityTests
     [Test]
     public static void PropertiesWriteThrough()
     {
-        var prop = Prop.Spawn(Vector.Zero, Rotator.Zero);
+        var prop = new Prop(Vector.Zero, Rotator.Zero, CubeMesh);
         try
         {
             prop.Location = new Vector(10, 20, 30);
@@ -41,7 +43,7 @@ public static class EntityTests
     [Test]
     public static void DestroyInvalidatesEntity()
     {
-        var prop = Prop.Spawn(Vector.Zero, Rotator.Zero);
+        var prop = new Prop(Vector.Zero, Rotator.Zero, CubeMesh);
         var destroyed = false;
         prop.Destroyed += _ => destroyed = true;
         prop.Destroy();
@@ -54,11 +56,45 @@ public static class EntityTests
     [Test]
     public static void EntityIsResolvedById()
     {
-        var prop = Prop.Spawn(Vector.Zero, Rotator.Zero);
+        var prop = new Prop(Vector.Zero, Rotator.Zero, CubeMesh);
         try
         {
-            var resolved = ScriptApi.Invoke<Entity>("Server", "GetEntityByID", prop.Id);
+            var resolved = ScriptApi.Invoke<Entity>("Server", "GetEntityByID", prop.ID);
             Assert.True(ReferenceEquals(prop, resolved), "GetEntityByID returned a different wrapper");
+        }
+        finally
+        {
+            prop.Destroy();
+        }
+    }
+
+    [Test]
+    public static void SubclassIsBoundOnSpawn()
+    {
+        var prop = new MarkerProp(Vector.Zero);
+        try
+        {
+            Assert.True(prop.IsValid, "Subclass instance is not bound to the spawned entity");
+            var resolved = ScriptApi.Invoke<Entity>("Server", "GetEntityByID", prop.ID);
+            Assert.True(ReferenceEquals(prop, resolved), "The registry does not return the subclass instance");
+        }
+        finally
+        {
+            prop.Destroy();
+        }
+    }
+
+    [Test]
+    public static void GeneratedPropertiesDelegateToMethods()
+    {
+        var prop = new Prop(Vector.Zero, Rotator.Zero, CubeMesh, gravityEnabled: false);
+        try
+        {
+            prop.Scale = new Vector(2, 2, 2);
+            Assert.Equal(new Vector(2, 2, 2), prop.GetScale());
+            Assert.Equal(CubeMesh, prop.Mesh);
+            Assert.True(!prop.IsGravityEnabled(), "Optional constructor argument was not applied");
+            Assert.True(!prop.GravityEnabled, "Boolean property does not delegate to IsGravityEnabled");
         }
         finally
         {
@@ -69,7 +105,7 @@ public static class EntityTests
     [Test]
     public static void InvalidArgumentsThrowScriptException()
     {
-        var prop = Prop.Spawn(Vector.Zero, Rotator.Zero);
+        var prop = new Prop(Vector.Zero, Rotator.Zero, CubeMesh);
         try
         {
             Assert.Throws<ScriptException>(() => prop.Invoke("SetLocation", "not a vector"));
@@ -81,3 +117,5 @@ public static class EntityTests
         }
     }
 }
+
+public sealed class MarkerProp(Vector location) : Prop(location, Rotator.Zero, "nanos-world::SM_Cube");
