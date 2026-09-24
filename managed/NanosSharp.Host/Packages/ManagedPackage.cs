@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Runtime.Loader;
 using NanosSharp.Entities.Binding;
+using NanosSharp.Eventing;
 using NanosSharp.Host.Packages.Building;
 using NanosSharp.Host.Packages.Loading;
 using NanosSharp.Interop.Callbacks;
@@ -54,6 +55,11 @@ internal sealed class ManagedPackage
 
         foreach (var entry in _entries)
         {
+            EventBus.Register(entry);
+        }
+
+        foreach (var entry in _entries)
+        {
             entry.OnStart();
         }
 
@@ -75,6 +81,7 @@ internal sealed class ManagedPackage
             subscription.Dispose();
         }
 
+        Scope.Events.Clear();
         FunctionRegistry.ReleaseScope(Scope);
         EntityRegistry.ReleaseHandlers(Scope);
         Scope.IsActive = false;

@@ -24,6 +24,7 @@
     <Using Include="NanosSharp.Core" />
     <Using Include="NanosSharp.Entities" />
     <Using Include="NanosSharp.Enums" />
+    <Using Include="NanosSharp.Eventing" />
     <Using Include="NanosSharp.Logging" />
     <Using Include="NanosSharp.Mathematics" />
     <Using Include="NanosSharp.Packages" />

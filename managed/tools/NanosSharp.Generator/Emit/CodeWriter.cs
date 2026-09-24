@@ -35,11 +35,11 @@ internal sealed class CodeWriter
         _pendingBlankLine = false;
     }
 
-    public void CloseBlock()
+    public void CloseBlock(string suffix = "")
     {
         _depth--;
         _pendingBlankLine = false;
-        Line("}");
+        Line("}" + suffix);
     }
 
     public override string ToString() => _builder.ToString();

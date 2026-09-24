@@ -15,6 +15,14 @@ internal static class OutputWriter
             files[Path.Combine(folder, type.Name + GeneratedExtension)] = TypeEmitter.Emit(type);
         }
 
+        foreach (var (owner, eventModel) in EventClassEmitter.Collect(model))
+        {
+            files[Path.Combine("Eventing", EventClassEmitter.ClassName(owner, eventModel) + GeneratedExtension)] =
+                EventClassEmitter.EmitEvent(owner, eventModel);
+        }
+
+        files[Path.Combine("Eventing", "ScriptEventCatalog" + GeneratedExtension)] = EventClassEmitter.EmitCatalog(model);
+
         foreach (var enumModel in model.Enums)
         {
             files[Path.Combine("Enums", enumModel.Name + GeneratedExtension)] = EnumEmitter.Emit(enumModel);
