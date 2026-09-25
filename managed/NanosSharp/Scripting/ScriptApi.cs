@@ -1,5 +1,6 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using NanosSharp.Entities;
 using NanosSharp.Interop;
 using NanosSharp.Interop.Reflection;
 using NanosSharp.Interop.Values;
@@ -24,6 +25,15 @@ public static class ScriptApi
     /// <summary>Calls a static function of a scripting class and converts its result.</summary>
     public static T? Invoke<T>(string className, string function, params ReadOnlySpan<object?> arguments) =>
         ValueConverter.Convert<T>(Invoke(className, function, arguments));
+
+    /// <summary>Spawns an entity of a scripting class, like calling the class in Lua.</summary>
+    public static Entity Spawn(string className, params ReadOnlySpan<object?> arguments)
+    {
+        var constructor = NativeClassRegistry.Get(className).Constructor ??
+                          throw new ScriptException($"{className} cannot be spawned.");
+        return constructor.Invoke(PackageContext.Environment, arguments) as Entity ??
+               throw new ScriptException($"{className} did not spawn an entity.");
+    }
 
     /// <summary>Calls a global scripting function.</summary>
     public static object? InvokeGlobal(string function, params ReadOnlySpan<object?> arguments) =>
@@ -62,7 +72,7 @@ public static class ScriptApi
             NewLine = "\n",
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
         };
-        File.WriteAllText(path, JsonSerializer.Serialize(document, options) + "\n");
+        System.IO.File.WriteAllText(path, JsonSerializer.Serialize(document, options) + "\n");
     }
 
     private static IEnumerable<object> DescribeMethods(IEnumerable<NativeMethod> methods) =>

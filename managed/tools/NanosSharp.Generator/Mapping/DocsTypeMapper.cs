@@ -2,7 +2,10 @@ using NanosSharp.Generator.Model;
 
 namespace NanosSharp.Generator.Mapping;
 
-internal sealed class DocsTypeMapper(IReadOnlySet<string> generatedTypes, IReadOnlySet<string> enumNames)
+internal sealed class DocsTypeMapper(
+    IReadOnlySet<string> generatedTypes,
+    IReadOnlySet<string> enumNames,
+    IReadOnlyDictionary<string, string> renamedTypes)
 {
     private static readonly Dictionary<string, string> PrimitiveTypes = new(StringComparer.Ordinal)
     {
@@ -45,13 +48,13 @@ internal sealed class DocsTypeMapper(IReadOnlySet<string> generatedTypes, IReadO
 
         if (enumNames.Contains(type) || generatedTypes.Contains(type))
         {
-            return new CSharpType(type);
+            return new CSharpType(renamedTypes.GetValueOrDefault(type, type));
         }
 
         return new CSharpType("Entity");
     }
 
-    public bool IsEntityType(string name) => generatedTypes.Contains(name);
+    public bool IsEntityType(string name) => generatedTypes.Contains(name) || renamedTypes.Values.Contains(name);
 
     public string? FindEnum(string docsType)
     {

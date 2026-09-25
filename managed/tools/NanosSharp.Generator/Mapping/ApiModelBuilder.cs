@@ -13,6 +13,11 @@ internal sealed class ApiModelBuilder
 
     private static readonly HashSet<string> SkippedClasses = ["Console", "Events", "Package", "Timer"];
 
+    private static readonly Dictionary<string, string> RenamedClasses = new(StringComparer.Ordinal)
+    {
+        ["File"] = "ScriptFile",
+    };
+
     private static readonly HashSet<string> ExcludedFunctions =
     [
         "Equals", "GetHashCode", "GetType", "IsValid", "Subscribe", "SubscribeRemote", "ToString", "Unsubscribe",
@@ -48,8 +53,8 @@ internal sealed class ApiModelBuilder
         var enumNames = docs.Enums.Keys.ToHashSet(StringComparer.Ordinal);
         _enumNames = enumNames;
 
-        _nativeTypes = new NativeTypeMapper(entityClasses.ToDictionary(name => $"nw::entities::S{name}"), enumNames);
-        _docsTypes = new DocsTypeMapper(entityClasses.Append(ActorBaseName).ToHashSet(StringComparer.Ordinal), enumNames);
+        _nativeTypes = new NativeTypeMapper(entityClasses.ToDictionary(name => $"nw::entities::S{name}", CSharpName), enumNames);
+        _docsTypes = new DocsTypeMapper(entityClasses.Append(ActorBaseName).ToHashSet(StringComparer.Ordinal), enumNames, RenamedClasses);
     }
 
     public ApiModel Build()
@@ -127,7 +132,7 @@ internal sealed class ApiModelBuilder
         var mixins = docs.Inheritance.Where(parent => parent is not EntityBaseName and not ActorBaseName).Order(StringComparer.Ordinal).ToArray();
         var type = new TypeModel
         {
-            Name = name,
+            Name = CSharpName(name),
             Kind = TypeKind.Entity,
             Namespace = EntitiesNamespace,
             ScriptClassName = nativeClass.Name,
@@ -135,7 +140,7 @@ internal sealed class ApiModelBuilder
             Interfaces = mixins.Select(mixin => $"I{mixin}").ToArray(),
             Description = docs.Description,
         };
-        _types[name] = type;
+        _types[type.Name] = type;
 
         var owners = CollectOwners(name, docs);
         foreach (var nativeMethod in GenerableMethods(nativeClass.Methods))
@@ -149,7 +154,7 @@ internal sealed class ApiModelBuilder
             var method = BuildMethod(name, nativeMethod, owner.Function, false);
             if (method is not null)
             {
-                Assign(type, owner.Owner, method);
+                Assign(type, owner.Owner == name ? type.Name : owner.Owner, method);
             }
         }
 
@@ -157,14 +162,16 @@ internal sealed class ApiModelBuilder
         ReportMissing(name, ownFunctions, nativeClass.Methods);
 
         var inheritedEvents = docs.Inheritance.Select(parent => _docs.FindClass(parent)).OfType<DocsClass>().SelectMany(parent => parent.Events);
-        type.Events.AddRange(BuildEvents(name, docs.Events.Concat(inheritedEvents)));
+        type.Events.AddRange(BuildEvents(type.Name, docs.Events.Concat(inheritedEvents)));
 
         var constructor = docs.Constructors.FirstOrDefault();
         if (nativeClass.Constructor is not null && constructor is not null)
         {
-            type.Constructor = BuildConstructor(constructor, name);
+            type.Constructor = BuildConstructor(constructor, type.Name);
         }
     }
+
+    private static string CSharpName(string scriptName) => RenamedClasses.GetValueOrDefault(scriptName, scriptName);
 
     private Dictionary<string, (DocsFunction Function, string Owner)> CollectOwners(string name, DocsClass docs)
     {

@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Runtime.Loader;
+using NanosSharp.Entities;
 using NanosSharp.Entities.Binding;
 using NanosSharp.Eventing;
 using NanosSharp.Host.Packages.Building;
@@ -45,12 +46,17 @@ internal sealed class ManagedPackage
         Scope.IsActive = true;
         using var _ = PackageContext.Enter(Scope);
 
-        var entryTypes = _loadContext.LoadBuild().SelectMany(GetLoadableTypes).Where(IsEntryType);
-        foreach (var type in entryTypes)
+        var loadedTypes = _loadContext.LoadBuild().SelectMany(GetLoadableTypes).ToArray();
+        foreach (var type in loadedTypes.Where(IsEntryType))
         {
             var entry = (Package)Activator.CreateInstance(type, nonPublic: true)!;
             entry.Scope = Scope;
             _entries.Add(entry);
+        }
+
+        foreach (var factoryType in loadedTypes.Where(IsEntityFactory))
+        {
+            EntityFactory.Register(factoryType);
         }
 
         foreach (var entry in _entries)
@@ -83,7 +89,7 @@ internal sealed class ManagedPackage
 
         Scope.Events.Clear();
         FunctionRegistry.ReleaseScope(Scope);
-        EntityRegistry.ReleaseHandlers(Scope);
+        EntityRegistry.ReleaseScope(Scope);
         Scope.IsActive = false;
         Scope.LoadContext = null;
         _entries.Clear();
@@ -142,6 +148,8 @@ internal sealed class ManagedPackage
             Log.Exception(exception, $"{entry.GetType().Name}.OnStop failed");
         }
     }
+
+    private static bool IsEntityFactory(Type type) => type.GetCustomAttribute<EntityFactoryAttribute>() is not null;
 
     private static bool IsEntryType(Type type) =>
         type is { IsClass: true, IsAbstract: false } && type.IsSubclassOf(typeof(Package));

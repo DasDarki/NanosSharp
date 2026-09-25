@@ -66,6 +66,8 @@ public abstract partial class Entity
         }
     }
 
+    internal void Unbind() => _instance = 0;
+
     internal nint EnsureValid() =>
         _instance != 0 ? _instance : throw new ObjectDisposedException(ClassName, "The entity was destroyed.");
 

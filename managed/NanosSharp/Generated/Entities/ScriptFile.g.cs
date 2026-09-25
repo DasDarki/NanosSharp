@@ -9,7 +9,7 @@ namespace NanosSharp.Entities;
 
 /// <summary>A File represents an entry to a system file.</summary>
 [ScriptClass("File")]
-public partial class File : Entity
+public partial class ScriptFile : Entity
 {
     /// <summary>Checks if the file status is Bad</summary>
     public bool Bad => IsBad();
@@ -20,13 +20,13 @@ public partial class File : Entity
     /// <summary>Checks if the file status is Good</summary>
     public bool Good => IsGood();
 
-    /// <summary>Spawns a new File.</summary>
-    public File(string filePath, bool? truncate = null)
+    /// <summary>Spawns a new ScriptFile.</summary>
+    public ScriptFile(string filePath, bool? truncate = null)
     {
         SpawnSelf("File", ScriptArguments.Trim([filePath, truncate], 1));
     }
 
-    protected File()
+    protected ScriptFile()
     {
     }
 

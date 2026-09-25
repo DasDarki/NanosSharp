@@ -64,6 +64,37 @@ character.SubscribeDeath(...);                                       // events o
 class ExplosiveBarrel(Vector location) : Prop(location, Rotator.Zero, "nanos-world::SM_Cube");
 ```
 
+Typed event classes with automatic registration, in the style of Bukkit:
+
+```csharp
+public sealed class Gameplay : Package
+{
+    [ServerEvent]
+    private void OnDeath(CharacterDeathEvent e) => Log.Info($"{e.Character} was killed by {e.Instigator}");
+
+    [ServerEvent(Priority = -10)]
+    private void OnChat(ChatPlayerSubmitEvent e)
+    {
+        if (e.Message?.Contains("spam") == true)
+        {
+            e.Cancel();
+        }
+    }
+}
+```
+
+Handlers on package entry classes are registered automatically, other objects through `EventBus.Register(listener)`.
+
+Own entity classes, every entity of that scripting class is wrapped with them (also existing ones):
+
+```csharp
+[EntityFactory]
+public class RoleplayPlayer : Player
+{
+    public int Money { get; set; }
+}
+```
+
 Compiled assemblies placed in `Server/` work as well, see `managed/examples`.
 Publish such projects into `Server/`, libraries, `*.deps.json` and native libraries next to them are resolved automatically.
 A package listed in `packages_requirements` shares its assemblies, so dependents can use its types.
