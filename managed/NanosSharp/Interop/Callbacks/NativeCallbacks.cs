@@ -87,6 +87,7 @@ internal static unsafe class NativeCallbacks
     {
         NativeHandleCollector.Collect();
         MainThread.Drain();
+        TimerScheduler.Tick();
         Tick?.Invoke(deltaTime);
     });
 

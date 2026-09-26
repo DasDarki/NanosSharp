@@ -94,7 +94,7 @@ public static class MainThread
 
             ExecutionContext.Run(context, new ContextCallback(callback), state);
         }
-        catch (Exception exception)
+        catch (Exception exception) when (exception is not OperationCanceledException)
         {
             Log.Exception(exception);
         }

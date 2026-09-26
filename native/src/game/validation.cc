@@ -64,6 +64,11 @@ bool ValidatePackage(const Package* package, std::string& error) {
     return false;
   }
 
+  if (package->scripting_entity() == nullptr) {
+    error = "the package has no scripting entity";
+    return false;
+  }
+
   const std::string& name = package->name();
   if (name.c_str() == nullptr || name.empty() || name.size() > kMaximumPackageNameLength) {
     error = "the package name has an unexpected layout";

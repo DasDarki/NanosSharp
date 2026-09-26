@@ -11,10 +11,11 @@ internal sealed class ApiModelBuilder
     private const string EntityBaseName = "Entity";
     private const string ActorBaseName = "Actor";
 
-    private static readonly HashSet<string> SkippedClasses = ["Console", "Events", "Package", "Timer"];
+    private static readonly HashSet<string> SkippedClasses = ["Events", "Package", "Timer"];
 
     private static readonly Dictionary<string, string> RenamedClasses = new(StringComparer.Ordinal)
     {
+        ["Console"] = "ScriptConsole",
         ["File"] = "ScriptFile",
     };
 
@@ -103,13 +104,13 @@ internal sealed class ApiModelBuilder
     {
         var type = new TypeModel
         {
-            Name = name,
+            Name = CSharpName(name),
             Kind = TypeKind.StaticClass,
             Namespace = CoreNamespace,
             ScriptClassName = nativeClass.Name,
             Description = docs.Description,
         };
-        _types[name] = type;
+        _types[type.Name] = type;
 
         var functions = docs.StaticFunctions.ToDictionary(function => function.Name, StringComparer.Ordinal);
         foreach (var nativeMethod in GenerableMethods(nativeClass.StaticMethods))
@@ -124,7 +125,7 @@ internal sealed class ApiModelBuilder
         }
 
         ReportMissing(name, functions.Values.Where(function => function.IsServerSide).Select(function => function.Name), nativeClass.StaticMethods);
-        type.Events.AddRange(BuildEvents(name, docs.Events));
+        type.Events.AddRange(BuildEvents(type.Name, docs.Events));
     }
 
     private void BuildEntityClass(NativeClassDump nativeClass, string name, DocsClass docs)

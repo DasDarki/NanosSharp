@@ -378,6 +378,8 @@ void* LibraryLoad(const char* path, char** error) {
   return handle;
 }
 
+void* PackageGetEntity(game::Package* package) { return package->scripting_entity(); }
+
 uint8_t PackageReload(game::Package* package, char** error) {
   return Guard(error, [&] { game::GetSymbols().package_reload(package); });
 }
@@ -441,6 +443,7 @@ const NativeApi& GetNativeApi() {
       .environment_destroy = &EnvironmentDestroy,
       .package_reload = &PackageReload,
       .library_load = &LibraryLoad,
+      .package_get_entity = &PackageGetEntity,
   };
   return api;
 }

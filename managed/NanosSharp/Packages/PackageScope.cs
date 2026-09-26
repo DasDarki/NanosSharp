@@ -13,6 +13,8 @@ internal sealed class PackageScope(string name, string directory)
 
     public nint Environment { get; set; }
 
+    public nint Handle { get; set; }
+
     public bool IsActive { get; set; }
 
     public AssemblyLoadContext? LoadContext { get; set; }

@@ -103,6 +103,7 @@ struct NativeApi {
   void (*environment_destroy)(const char* name, int32_t length);
   uint8_t (*package_reload)(game::Package* package, char** error);
   void* (*library_load)(const char* path, char** error);
+  void* (*package_get_entity)(game::Package* package);
 };
 
 const NativeApi& GetNativeApi();

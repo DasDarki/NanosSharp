@@ -6,10 +6,16 @@ public sealed class TestRunner : Package
 {
     private const string Prefix = "[TEST]";
 
+    public static TestRunner Instance { get; private set; } = null!;
+
     private int _passed;
     private int _failed;
 
-    protected override void OnStart() => Server.OnStart += RunAll;
+    protected override void OnStart()
+    {
+        Instance = this;
+        Server.OnStart += RunAll;
+    }
 
     private async void RunAll()
     {

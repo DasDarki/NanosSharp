@@ -745,6 +745,15 @@ internal static partial class ScriptEventCatalog
             Key = ScriptEventArguments.Get<string?>(arguments, 1),
             Value = ScriptEventArguments.Get<object?>(arguments, 2),
         }),
+        [typeof(ScriptConsoleLogEntryEvent)] = new("Console_I", "LogEntry", arguments => new ScriptConsoleLogEntryEvent
+        {
+            Text = ScriptEventArguments.Get<string?>(arguments, 0),
+            Type = ScriptEventArguments.Get<LogType>(arguments, 1)!,
+        }),
+        [typeof(ScriptConsolePlayerSubmitEvent)] = new("Console_I", "PlayerSubmit", arguments => new ScriptConsolePlayerSubmitEvent
+        {
+            Text = ScriptEventArguments.Get<string?>(arguments, 0),
+        }),
         [typeof(ServerChangeMapEvent)] = new("Server", "ChangeMap", arguments => new ServerChangeMapEvent
         {
             OldMap = ScriptEventArguments.Get<string?>(arguments, 0),

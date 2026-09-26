@@ -35,7 +35,11 @@ internal sealed class ManagedPackage
     {
         Handle = package.Handle;
         Manifest = manifest;
-        Scope = new PackageScope(package.Name, Path.GetFullPath(package.Directory)) { Environment = package.Environment };
+        Scope = new PackageScope(package.Name, Path.GetFullPath(package.Directory))
+        {
+            Environment = package.Environment,
+            Handle = package.Handle,
+        };
     }
 
     public void Start(PackageBuild build, Func<AssemblyName, Assembly?> resolveShared)
@@ -88,6 +92,7 @@ internal sealed class ManagedPackage
         }
 
         Scope.Events.Clear();
+        TimerScheduler.ReleaseScope(Scope);
         FunctionRegistry.ReleaseScope(Scope);
         EntityRegistry.ReleaseScope(Scope);
         Scope.IsActive = false;
