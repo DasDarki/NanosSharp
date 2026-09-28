@@ -3,6 +3,7 @@
 
 #include <cstdint>
 
+#include "bridge/native_argument.h"
 #include "game/package.h"
 #include "game/scripting.h"
 
@@ -22,8 +23,7 @@ struct ManagedCallbacks {
   void (*tick)(float delta_time);
   void (*entity_created)(uint64_t class_id, void* instance);
   void (*entity_destroyed)(uint64_t class_id, void* instance);
-  ValueHandle (*invoke_function)(int64_t function_id, const game::ScriptValue* args,
-                                 int32_t count);
+  ValueHandle (*invoke_function)(int64_t function_id, const NativeArgument* args, int32_t count);
   void (*release_function)(int64_t function_id);
   void (*package_loaded)(game::Package* package, const char* name, const char* directory,
                          EnvironmentHandle environment);
@@ -104,6 +104,8 @@ struct NativeApi {
   uint8_t (*package_reload)(game::Package* package, char** error);
   void* (*library_load)(const char* path, char** error);
   void* (*package_get_entity)(game::Package* package);
+  uint8_t (*function_call)(FunctionHandle handle, EnvironmentHandle environment, const NativeArgument* args,
+                           int32_t count, NativeArgument* result, char** error);
 };
 
 const NativeApi& GetNativeApi();

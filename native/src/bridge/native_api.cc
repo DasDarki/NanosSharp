@@ -380,6 +380,18 @@ void* LibraryLoad(const char* path, char** error) {
 
 void* PackageGetEntity(game::Package* package) { return package->scripting_entity(); }
 
+uint8_t FunctionCall(FunctionHandle handle, EnvironmentHandle environment, const NativeArgument* args,
+                     int32_t count, NativeArgument* result, char** error) {
+  return Guard(error, [&] {
+    std::vector<ScriptValue> arguments;
+    arguments.reserve(count);
+    for (int32_t i = 0; i < count; ++i) {
+      arguments.push_back(FromArgument(args[i]));
+    }
+    ToArgument(handle->Call(arguments, environment), *result);
+  });
+}
+
 uint8_t PackageReload(game::Package* package, char** error) {
   return Guard(error, [&] { game::GetSymbols().package_reload(package); });
 }
@@ -444,6 +456,7 @@ const NativeApi& GetNativeApi() {
       .package_reload = &PackageReload,
       .library_load = &LibraryLoad,
       .package_get_entity = &PackageGetEntity,
+      .function_call = &FunctionCall,
   };
   return api;
 }

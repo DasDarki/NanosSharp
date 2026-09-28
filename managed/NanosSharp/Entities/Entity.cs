@@ -26,17 +26,12 @@ public abstract partial class Entity
     private nint _instance;
 
     /// <summary>Calls a scripting method of this entity by name.</summary>
-    public object? Invoke(string method, params ReadOnlySpan<object?> arguments)
-    {
-        var values = new object?[arguments.Length + 1];
-        values[0] = this;
-        arguments.CopyTo(values.AsSpan(1));
-        return NativeClass.GetMethod(method).Invoke(PackageContext.Environment, values);
-    }
+    public object? Invoke(string method, params ReadOnlySpan<object?> arguments) =>
+        NativeClass.GetMethod(method).InvokeMember(PackageContext.Environment, this, arguments);
 
     /// <summary>Calls a scripting method of this entity by name and converts its result.</summary>
     public T? Invoke<T>(string method, params ReadOnlySpan<object?> arguments) =>
-        ValueConverter.Convert<T>(Invoke(method, arguments));
+        NativeClass.GetMethod(method).InvokeMember<T>(PackageContext.Environment, this, arguments);
 
     /// <summary>Reads a value stored on the entity and converts it.</summary>
     public T? GetValue<T>(string key, T? fallback = default) => Invoke<T>("GetValue", key, fallback);

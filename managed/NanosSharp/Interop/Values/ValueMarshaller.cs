@@ -10,8 +10,6 @@ namespace NanosSharp.Interop.Values;
 
 internal static unsafe class ValueMarshaller
 {
-    public const int NativeValueSize = 32;
-
     public static nint ToNative(object? value)
     {
         ref readonly var api = ref NativeRuntime.Api;
@@ -70,17 +68,6 @@ internal static unsafe class ValueMarshaller
         {
             NativeRuntime.Api.ValueFree(value);
         }
-    }
-
-    public static object?[] ReadArguments(nint arguments, int count)
-    {
-        var values = new object?[count];
-        for (var index = 0; index < count; index++)
-        {
-            values[index] = FromNative(arguments + index * NativeValueSize);
-        }
-
-        return values;
     }
 
     private static nint CreateString(string text)

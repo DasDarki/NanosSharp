@@ -24,7 +24,7 @@ public static class ScriptApi
 
     /// <summary>Calls a static function of a scripting class and converts its result.</summary>
     public static T? Invoke<T>(string className, string function, params ReadOnlySpan<object?> arguments) =>
-        ValueConverter.Convert<T>(Invoke(className, function, arguments));
+        NativeClassRegistry.Get(className).GetStaticMethod(function).Invoke<T>(PackageContext.Environment, arguments);
 
     /// <summary>Spawns an entity of a scripting class, like calling the class in Lua.</summary>
     public static Entity Spawn(string className, params ReadOnlySpan<object?> arguments)

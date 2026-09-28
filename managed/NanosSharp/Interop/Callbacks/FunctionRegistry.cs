@@ -1,4 +1,4 @@
-using System.Reflection;
+using NanosSharp.Interop.Arguments;
 using NanosSharp.Interop.Values;
 using NanosSharp.Logging;
 using NanosSharp.Packages;
@@ -18,12 +18,12 @@ internal static unsafe class FunctionRegistry
         MainThread.Ensure();
         var scope = PackageContext.Current;
         var id = ++_nextId;
-        Registrations[id] = new Registration(callback, scope, callback.Method.GetParameters());
+        Registrations[id] = new Registration(callback, scope);
         scope?.Functions.Add(id);
         return NativeRuntime.Api.ValueCreateFunction(id, PackageContext.Environment);
     }
 
-    public static nint Invoke(long id, nint arguments, int count)
+    public static nint Invoke(long id, NativeArgument* arguments, int count)
     {
         if (!Registrations.TryGetValue(id, out var registration) || registration.Scope is { IsActive: false })
         {
@@ -33,13 +33,9 @@ internal static unsafe class FunctionRegistry
         using var _ = PackageContext.Enter(registration.Scope);
         try
         {
-            var values = ValueMarshaller.ReadArguments(arguments, count);
-            var result = registration.Callback.DynamicInvoke(registration.Bind(values));
+            var values = ResultReader.ReadAll(arguments, count);
+            var result = CallbackInvoker.Invoke(registration.Callback, values);
             return result is null ? 0 : ValueMarshaller.ToNative(result);
-        }
-        catch (TargetInvocationException exception) when (exception.InnerException is not null)
-        {
-            Log.Exception(exception.InnerException, "Unhandled exception in script callback");
         }
         catch (Exception exception)
         {
@@ -67,27 +63,5 @@ internal static unsafe class FunctionRegistry
         scope.Functions.Clear();
     }
 
-    private sealed record Registration(Delegate Callback, PackageScope? Scope, ParameterInfo[] Parameters)
-    {
-        public object?[] Bind(object?[] values)
-        {
-            if (Parameters is [{ ParameterType: var type }] && type == typeof(object?[]))
-            {
-                return [values];
-            }
-
-            var arguments = new object?[Parameters.Length];
-            for (var index = 0; index < Parameters.Length; index++)
-            {
-                var parameter = Parameters[index];
-                arguments[index] = index < values.Length
-                    ? ValueConverter.Convert(values[index], parameter.ParameterType)
-                    : parameter.HasDefaultValue
-                        ? parameter.DefaultValue
-                        : ValueConverter.Convert(null, parameter.ParameterType);
-            }
-
-            return arguments;
-        }
-    }
+    private sealed record Registration(Delegate Callback, PackageScope? Scope);
 }

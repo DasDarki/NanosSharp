@@ -134,6 +134,19 @@ xmake generate    # combine it with github.com/nanos-world/api at the pinned rev
 Native signatures decide types and availability, the API definitions provide names, documentation, events and enums.
 The output is deterministic, `build/generator/report.md` lists everything that could not be mapped.
 
+## Performance
+
+`xmake test -d benchmarks` runs the same operations from C# and Lua inside the server (20 000 calls each):
+
+| Operation | Lua | C# |
+|---|---|---|
+| Static getter (`Server.GetTickRate`) | ~50 ns | ~150 ns |
+| Entity getter (`GetLocation`) | ~260 ns | ~290 ns |
+| Entity setter (`SetLocation`) | ~250 ns | ~340 ns |
+| Event roundtrip (`Events.Call` with one handler) | ~270 ns | ~820 ns |
+
+Arguments are passed as blittable structs without native allocations, callbacks use compiled invokers.
+
 ## Configuration
 
 `NanosSharp.toml` in the server directory (created on first start):

@@ -26,12 +26,23 @@ internal static class PackageContext
     public static Scope Enter(PackageScope? scope)
     {
         var previous = CurrentScope.Value;
+        if (ReferenceEquals(previous, scope))
+        {
+            return default;
+        }
+
         CurrentScope.Value = scope;
-        return new Scope(previous);
+        return new Scope(previous, true);
     }
 
-    public readonly struct Scope(PackageScope? previous) : IDisposable
+    public readonly struct Scope(PackageScope? previous, bool changed) : IDisposable
     {
-        public void Dispose() => CurrentScope.Value = previous;
+        public void Dispose()
+        {
+            if (changed)
+            {
+                CurrentScope.Value = previous;
+            }
+        }
     }
 }

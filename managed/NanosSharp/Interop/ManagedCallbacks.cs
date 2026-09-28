@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using NanosSharp.Interop.Arguments;
 
 namespace NanosSharp.Interop;
 
@@ -10,7 +11,7 @@ internal unsafe struct ManagedCallbacks
     public delegate* unmanaged<float, void> Tick;
     public delegate* unmanaged<ulong, nint, void> EntityCreated;
     public delegate* unmanaged<ulong, nint, void> EntityDestroyed;
-    public delegate* unmanaged<long, nint, int, nint> InvokeFunction;
+    public delegate* unmanaged<long, NativeArgument*, int, nint> InvokeFunction;
     public delegate* unmanaged<long, void> ReleaseFunction;
     public delegate* unmanaged<nint, byte*, byte*, nint, void> PackageLoaded;
     public delegate* unmanaged<nint, void> PackageUnloading;

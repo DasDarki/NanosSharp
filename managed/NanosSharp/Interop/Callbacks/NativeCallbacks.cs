@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using NanosSharp.Interop.Arguments;
 using NanosSharp.Entities.Binding;
 using NanosSharp.Interop.Reflection;
 using NanosSharp.Logging;
@@ -100,7 +101,7 @@ internal static unsafe class NativeCallbacks
         Guard(() => EntityRegistry.OnDestroyed(instance));
 
     [UnmanagedCallersOnly]
-    private static nint OnInvokeFunction(long id, nint arguments, int count)
+    private static nint OnInvokeFunction(long id, NativeArgument* arguments, int count)
     {
         try
         {

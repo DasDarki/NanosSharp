@@ -126,7 +126,7 @@ task("test")
         os.execv("xmake", deploy_arguments)
 
         local packages = {}
-        for _, test_dir in ipairs(os.dirs(path.join(root, "tests", "*"))) do
+        for _, test_dir in ipairs(os.dirs(path.join(root, option.get("directory"), "*"))) do
             local name = path.filename(test_dir)
             local package_dir = path.join(server_dir, "Packages", name)
             os.tryrm(package_dir)
@@ -153,6 +153,8 @@ task("test")
                 cprint("${color.failure}%s", line)
             elseif line:find("[TEST] SUMMARY", 1, true) then
                 summary = line
+            elseif line:find("[BENCH]", 1, true) then
+                print(line)
             elseif line:find("FATAL", 1, true) or line:find("NanosSharp is disabled", 1, true) then
                 cprint("${color.failure}%s", line)
             end
@@ -171,7 +173,8 @@ task("test")
         description = "Run the NanosSharp integration tests inside a nanos world server.",
         options = {
             {"s", "server", "kv", nil, "The nanos world server directory."},
-            {"t", "timeout", "kv", "120", "Seconds until the server is stopped."}
+            {"t", "timeout", "kv", "120", "Seconds until the server is stopped."},
+            {"d", "directory", "kv", "tests", "Directory with the packages to run, for example benchmarks."}
         }
     }
 task_end()

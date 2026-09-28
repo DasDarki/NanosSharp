@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using NanosSharp.Interop.Arguments;
 
 namespace NanosSharp.Interop;
 
@@ -69,4 +70,5 @@ internal unsafe struct NativeApi
     public delegate* unmanaged<nint, byte**, byte> PackageReload;
     public delegate* unmanaged<byte*, byte**, nint> LibraryLoad;
     public delegate* unmanaged<nint, nint> PackageGetEntity;
+    public delegate* unmanaged<nint, nint, NativeArgument*, int, NativeArgument*, byte**, byte> FunctionCall;
 }
