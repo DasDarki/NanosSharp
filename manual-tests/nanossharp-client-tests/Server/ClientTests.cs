@@ -17,9 +17,10 @@ public sealed class ClientTests : Package
         Player.OnSpawn += player => Check("PlayerSpawn", player is TestPlayer, player.GetType().Name);
         Player.OnReady += OnReady;
         Player.OnDestroy += OnPlayerDestroy;
-        Events.SubscribeRemote("nanossharp:client-ready", (Player player, long number, string text, Vector vector) =>
+        Events.SubscribeRemote("nanossharp:client-ready", (Player player, string text, long number, Vector vector) =>
             Check("ClientRemoteEvent", number == 42 && text == "hello from lua" && vector == new Vector(1, 2, 3), $"{number} {text} {vector}"));
-        Events.SubscribeRemote("nanossharp:client-pong", (Player player, long value) => Check("ServerRemoteEvent", value == 7, $"pong {value}"));
+        Events.SubscribeRemote("nanossharp:client-pong", (Player player, string marker, long value) =>
+            Check("ServerRemoteEvent", marker == "pong" && value == 7, $"{marker} {value}"));
         Log.Info($"{Prefix} waiting for a player to join");
     }
 

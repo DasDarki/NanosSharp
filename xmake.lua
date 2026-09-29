@@ -158,7 +158,7 @@ task("test")
                 cprint("${color.failure}%s", line)
             elseif line:find("[TEST] SUMMARY", 1, true) then
                 summary = line
-            elseif line:find("[BENCH]", 1, true) then
+            elseif line:find("[BENCH]", 1, true) or line:find("[PROBE]", 1, true) then
                 print(line)
             elseif line:find("FATAL", 1, true) or line:find("NanosSharp is disabled", 1, true) then
                 cprint("${color.failure}%s", line)
