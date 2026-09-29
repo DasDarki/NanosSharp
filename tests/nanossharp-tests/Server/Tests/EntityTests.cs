@@ -103,6 +103,23 @@ public static class EntityTests
     }
 
     [Test]
+    public static void EntityArgumentsCarryNetworkId()
+    {
+        var parent = new Prop(Vector.Zero, Rotator.Zero, CubeMesh);
+        var child = new Prop(new Vector(0, 0, 200), Rotator.Zero, CubeMesh);
+        try
+        {
+            Assert.True(child.AttachTo(parent), "AttachTo rejected the entity argument");
+            Assert.True(ReferenceEquals(parent, child.GetAttachedTo()), "Child is not attached to the parent");
+        }
+        finally
+        {
+            child.Destroy();
+            parent.Destroy();
+        }
+    }
+
+    [Test]
     public static void InvalidArgumentsThrowScriptException()
     {
         var prop = new Prop(Vector.Zero, Rotator.Zero, CubeMesh);

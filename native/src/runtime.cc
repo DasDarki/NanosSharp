@@ -235,7 +235,7 @@ void Runtime::OnEntityCreated(game::Engine* engine, const game::Entity& entity,
   Runtime& runtime = Instance();
   runtime.original_entity_created_(engine, entity, ref, class_id);
   if (auto entity_created = bridge::GetManagedCallbacks().entity_created) {
-    entity_created(entity.class_id, entity.instance);
+    entity_created(entity.class_id, entity.instance, entity.network_id);
   }
 }
 

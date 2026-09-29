@@ -31,23 +31,19 @@ internal static class EntityRegistry
         return new PendingSpawn(previous);
     }
 
-    public static Entity? Resolve(ulong classId, nint instance)
+    public static Entity? Resolve(ulong classId, nint instance, uint networkId = 0)
     {
         if (instance == 0)
         {
             return null;
         }
 
-        return Entities.TryGetValue(instance, out var entity) ? entity : Register(classId, instance);
+        var entity = Entities.TryGetValue(instance, out var existing) ? existing : Register(classId, instance);
+        entity?.RememberNetworkId(networkId);
+        return entity;
     }
 
-    public static void OnCreated(ulong classId, nint instance)
-    {
-        if (!Entities.ContainsKey(instance))
-        {
-            Register(classId, instance);
-        }
-    }
+    public static void OnCreated(ulong classId, nint instance, uint networkId) => Resolve(classId, instance, networkId);
 
     public static void OnDestroyed(nint instance)
     {
@@ -167,6 +163,7 @@ internal static class EntityRegistry
         {
             var replacement = CreateWrapper(className);
             replacement.Attach(previous.NativeClass, instance);
+            replacement.RememberNetworkId(previous.NetworkId);
             previous.Unbind();
             Entities[instance] = replacement;
         }

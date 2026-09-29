@@ -6,7 +6,7 @@ namespace NanosSharp.Interop;
 [StructLayout(LayoutKind.Sequential)]
 internal unsafe struct NativeApi
 {
-    public const int SupportedVersion = 1;
+    public const int SupportedVersion = 2;
 
     public int Version;
 
@@ -22,7 +22,7 @@ internal unsafe struct NativeApi
     public delegate* unmanaged<double, double, double, nint> ValueCreateRotator;
     public delegate* unmanaged<float, float, float, float, nint> ValueCreateColor;
     public delegate* unmanaged<double, double, nint> ValueCreateVector2D;
-    public delegate* unmanaged<ulong, nint, nint> ValueCreateEntity;
+    public delegate* unmanaged<ulong, nint, uint, nint> ValueCreateEntity;
     public delegate* unmanaged<nint*, int, nint> ValueCreateArray;
     public delegate* unmanaged<nint*, nint*, int, nint> ValueCreateMap;
     public delegate* unmanaged<long, nint, nint> ValueCreateFunction;
@@ -36,7 +36,7 @@ internal unsafe struct NativeApi
     public delegate* unmanaged<nint, int*, byte*> ValueGetString;
     public delegate* unmanaged<nint, double*, void> ValueGetDoubles;
     public delegate* unmanaged<nint, float*, void> ValueGetColor;
-    public delegate* unmanaged<nint, ulong*, nint*, void> ValueGetEntity;
+    public delegate* unmanaged<nint, ulong*, nint*, uint*, void> ValueGetEntity;
     public delegate* unmanaged<nint, uint> ValueGetNetworkId;
     public delegate* unmanaged<nint, nint> ValueResolveDeferred;
     public delegate* unmanaged<nint, int> ValueGetLength;

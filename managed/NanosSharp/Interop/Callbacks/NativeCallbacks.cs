@@ -93,8 +93,8 @@ internal static unsafe class NativeCallbacks
     });
 
     [UnmanagedCallersOnly]
-    private static void OnEntityCreated(ulong classId, nint instance) =>
-        Guard(() => EntityRegistry.OnCreated(classId, instance));
+    private static void OnEntityCreated(ulong classId, nint instance, uint networkId) =>
+        Guard(() => EntityRegistry.OnCreated(classId, instance, networkId));
 
     [UnmanagedCallersOnly]
     private static void OnEntityDestroyed(ulong classId, nint instance) =>

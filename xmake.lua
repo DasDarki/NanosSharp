@@ -134,15 +134,16 @@ task("test")
             table.insert(packages, name)
         end
 
-        local log_file = path.join(root, "build", "test", "server.log")
+        local log_file = path.join(root, "build", "test", option.get("directory") .. "-" .. option.get("port") .. ".log")
         os.mkdir(path.directory(log_file))
         local timeout = tostring(option.get("timeout"))
+        local port = tonumber(option.get("port"))
         local server_arguments = {"-s", "INT", timeout, path.join(server_dir, "NanosSharp.sh"),
-            "--packages", table.concat(packages, ","), "--port", "7797", "--query_port", "7798", "--announce", "0"}
+            "--packages", table.concat(packages, ","), "--port", tostring(port), "--query_port", tostring(port + 1), "--announce", "0"}
         for _, argument in ipairs((option.get("arguments") or ""):split(" ")) do
             table.insert(server_arguments, argument)
         end
-        cprint("${color.success}server is running on port 7797 (timeout %ss), follow the output with: tail -f %s", timeout, log_file)
+        cprint("${color.success}server is running on port %d (timeout %ss), follow the output with: tail -f %s", port, timeout, log_file)
         os.execv("timeout", server_arguments, {stdin = os.nuldev(), stdout = log_file, stderr = log_file, try = true})
 
         local passed = 0
@@ -179,7 +180,8 @@ task("test")
             {"s", "server", "kv", nil, "The nanos world server directory."},
             {"t", "timeout", "kv", "120", "Seconds until the server is stopped."},
             {"d", "directory", "kv", "tests", "Directory with the packages to run, for example benchmarks."},
-            {"a", "arguments", "kv", nil, "Additional server arguments, for example '--steam_app game'."}
+            {"a", "arguments", "kv", nil, "Additional server arguments, for example '--steam_app game'."},
+            {"p", "port", "kv", "7797", "Game port of the test server, the query port is the next one."}
         }
     }
 task_end()

@@ -17,7 +17,7 @@ internal static unsafe class ResultReader
         ValueType.Integer => result.Integer,
         ValueType.Double => result.Number,
         ValueType.String => ReadString(ref result),
-        ValueType.Entity => EntityRegistry.Resolve(result.ClassId, result.Instance),
+        ValueType.Entity => EntityRegistry.Resolve(result.ClassId, result.Instance, result.NetworkId),
         ValueType.Vector => new Vector(result.X, result.Y, result.Z),
         ValueType.Rotator => new Rotator(result.X, result.Y, result.Z),
         ValueType.Color => new Color(result.R, result.G, result.B, result.A),

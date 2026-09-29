@@ -26,6 +26,7 @@ struct NativeArgument {
     struct {
       uint64_t class_id;
       void* instance;
+      uint32_t network_id;
     } entity;
     game::ScriptValue* handle;
   };

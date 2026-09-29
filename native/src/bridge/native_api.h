@@ -15,13 +15,13 @@ using FunctionHandle = game::IFunction*;
 using PropertyHandle = game::IProperty*;
 using EnvironmentHandle = game::Environment*;
 
-inline constexpr int32_t kNativeApiVersion = 1;
+inline constexpr int32_t kNativeApiVersion = 2;
 
 struct ManagedCallbacks {
   void (*engine_attached)();
   void (*engine_detaching)();
   void (*tick)(float delta_time);
-  void (*entity_created)(uint64_t class_id, void* instance);
+  void (*entity_created)(uint64_t class_id, void* instance, uint32_t network_id);
   void (*entity_destroyed)(uint64_t class_id, void* instance);
   ValueHandle (*invoke_function)(int64_t function_id, const NativeArgument* args, int32_t count);
   void (*release_function)(int64_t function_id);
@@ -45,7 +45,7 @@ struct NativeApi {
   ValueHandle (*value_create_rotator)(double pitch, double yaw, double roll);
   ValueHandle (*value_create_color)(float r, float g, float b, float a);
   ValueHandle (*value_create_vector2d)(double x, double y);
-  ValueHandle (*value_create_entity)(uint64_t class_id, void* instance);
+  ValueHandle (*value_create_entity)(uint64_t class_id, void* instance, uint32_t network_id);
   ValueHandle (*value_create_array)(const ValueHandle* items, int32_t count);
   ValueHandle (*value_create_map)(const ValueHandle* keys, const ValueHandle* values,
                                   int32_t count);
@@ -61,7 +61,7 @@ struct NativeApi {
   void (*value_get_doubles)(const game::ScriptValue* value, double* output);
   void (*value_get_color)(const game::ScriptValue* value, float* output);
   void (*value_get_entity)(const game::ScriptValue* value, uint64_t* class_id,
-                           void** instance);
+                           void** instance, uint32_t* network_id);
   uint32_t (*value_get_network_id)(const game::ScriptValue* value);
   ValueHandle (*value_resolve_deferred)(const game::ScriptValue* value);
   int32_t (*value_get_length)(const game::ScriptValue* value);

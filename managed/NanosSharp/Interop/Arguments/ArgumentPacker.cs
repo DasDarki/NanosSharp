@@ -69,9 +69,7 @@ internal unsafe ref struct ArgumentPacker
                 AddString(ref argument, text);
                 break;
             case Entity entity:
-                argument.Type = (byte)ValueType.Entity;
-                argument.Instance = entity.EnsureValid();
-                argument.ClassId = entity.ClassId;
+                WriteEntity(ref argument, entity, entity.ResolveNetworkId());
                 break;
             case Vector vector:
                 argument.Type = (byte)ValueType.Vector;
@@ -95,6 +93,13 @@ internal unsafe ref struct ArgumentPacker
         }
     }
 
+    public void AddSelf(Entity entity)
+    {
+        ref var argument = ref _arguments[_count++];
+        argument = default;
+        WriteEntity(ref argument, entity, entity.NetworkId);
+    }
+
     public void Dispose()
     {
         if (_rentedStrings is not null)
@@ -110,6 +115,14 @@ internal unsafe ref struct ArgumentPacker
         }
 
         _handles = null;
+    }
+
+    private static void WriteEntity(ref NativeArgument argument, Entity entity, uint networkId)
+    {
+        argument.Type = (byte)ValueType.Entity;
+        argument.Instance = entity.EnsureValid();
+        argument.ClassId = entity.ClassId;
+        argument.NetworkId = networkId;
     }
 
     private void AddString(ref NativeArgument argument, string text)

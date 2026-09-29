@@ -27,7 +27,7 @@ internal static unsafe class ValueMarshaller
             Rotator rotator => api.ValueCreateRotator(rotator.Pitch, rotator.Yaw, rotator.Roll),
             Color color => api.ValueCreateColor(color.R, color.G, color.B, color.A),
             Vector2D vector => api.ValueCreateVector2D(vector.X, vector.Y),
-            Entity entity => api.ValueCreateEntity(entity.ClassId, entity.EnsureValid()),
+            Entity entity => api.ValueCreateEntity(entity.ClassId, entity.EnsureValid(), entity.ResolveNetworkId()),
             ScriptFunction function => api.ValueClone(function.Handle),
             ScriptOpaque opaque => api.ValueClone(opaque.Handle),
             ScriptCallback callback => FunctionRegistry.CreateNative(callback.Handler),
@@ -106,8 +106,9 @@ internal static unsafe class ValueMarshaller
     {
         ulong classId;
         nint instance;
-        NativeRuntime.Api.ValueGetEntity(value, &classId, &instance);
-        return EntityRegistry.Resolve(classId, instance);
+        uint networkId;
+        NativeRuntime.Api.ValueGetEntity(value, &classId, &instance, &networkId);
+        return EntityRegistry.Resolve(classId, instance, networkId);
     }
 
     private static Vector ReadVector(nint value)

@@ -23,5 +23,6 @@ internal struct NativeArgument
     [FieldOffset(20)] public float A;
     [FieldOffset(8)] public ulong ClassId;
     [FieldOffset(16)] public nint Instance;
+    [FieldOffset(24)] public uint NetworkId;
     [FieldOffset(8)] public nint Handle;
 }

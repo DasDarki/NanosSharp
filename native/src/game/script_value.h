@@ -18,7 +18,7 @@ struct ScriptValue;
 struct Entity {
   uint64_t class_id;
   void* instance;
-  uint32_t flags;
+  uint32_t network_id;
 
   bool operator==(const Entity& other) const {
     return class_id == other.class_id && instance == other.instance;

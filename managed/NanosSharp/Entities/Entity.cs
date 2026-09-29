@@ -10,6 +10,8 @@ namespace NanosSharp.Entities;
 /// <summary>Base class of every nanos world scripting entity.</summary>
 public abstract partial class Entity
 {
+    private const string NetworkIdMethod = "GetID";
+
     /// <summary>Whether the entity still exists.</summary>
     public bool IsValid => _instance != 0;
 
@@ -22,6 +24,8 @@ public abstract partial class Entity
     internal ulong ClassId => NativeClass.Id;
 
     internal NativeClass NativeClass { get; private set; } = null!;
+
+    internal uint NetworkId { get; private set; }
 
     private nint _instance;
 
@@ -62,6 +66,24 @@ public abstract partial class Entity
     }
 
     internal void Unbind() => _instance = 0;
+
+    internal void RememberNetworkId(uint networkId)
+    {
+        if (networkId != 0)
+        {
+            NetworkId = networkId;
+        }
+    }
+
+    internal uint ResolveNetworkId()
+    {
+        if (NetworkId == 0 && NativeClass.Methods.ContainsKey(NetworkIdMethod))
+        {
+            NetworkId = Invoke<uint>(NetworkIdMethod);
+        }
+
+        return NetworkId;
+    }
 
     internal nint EnsureValid() =>
         _instance != 0 ? _instance : throw new ObjectDisposedException(ClassName, "The entity was destroyed.");

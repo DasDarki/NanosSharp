@@ -106,8 +106,8 @@ ValueHandle CreateVector2D(double x, double y) {
   return NewValue(game::Vector2D{static_cast<float>(x), static_cast<float>(y)});
 }
 
-ValueHandle CreateEntity(uint64_t class_id, void* instance) {
-  return NewValue(game::Entity{class_id, instance, 0});
+ValueHandle CreateEntity(uint64_t class_id, void* instance, uint32_t network_id) {
+  return NewValue(game::Entity{class_id, instance, network_id});
 }
 
 ValueHandle CreateArray(const ValueHandle* items, int32_t count) {
@@ -202,10 +202,11 @@ void GetColor(const ScriptValue* value, float* output) {
   }
 }
 
-void GetEntity(const ScriptValue* value, uint64_t* class_id, void** instance) {
+void GetEntity(const ScriptValue* value, uint64_t* class_id, void** instance, uint32_t* network_id) {
   const auto* entity = std::get_if<game::Entity>(&value->value);
   *class_id = entity != nullptr ? entity->class_id : 0;
   *instance = entity != nullptr ? entity->instance : nullptr;
+  *network_id = entity != nullptr ? entity->network_id : 0;
 }
 
 uint32_t GetNetworkId(const ScriptValue* value) {

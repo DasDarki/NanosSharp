@@ -25,7 +25,7 @@ ScriptValue FromArgument(const NativeArgument& argument) {
     case ValueType::kString:
       return {std::string(argument.string.data, argument.string.length)};
     case ValueType::kEntity:
-      return {game::Entity{argument.entity.class_id, argument.entity.instance, 0}};
+      return {game::Entity{argument.entity.class_id, argument.entity.instance, argument.entity.network_id}};
     case ValueType::kVector:
       return {game::Vector{argument.components[0], argument.components[1], argument.components[2]}};
     case ValueType::kRotator:
@@ -72,6 +72,7 @@ void ToArgument(ScriptValue&& value, NativeArgument& argument) {
       const auto& entity = std::get<game::Entity>(value.value);
       argument.entity.class_id = entity.class_id;
       argument.entity.instance = entity.instance;
+      argument.entity.network_id = entity.network_id;
       return;
     }
     case ValueType::kVector: {

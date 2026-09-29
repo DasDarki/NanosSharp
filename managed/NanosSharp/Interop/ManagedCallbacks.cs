@@ -9,7 +9,7 @@ internal unsafe struct ManagedCallbacks
     public delegate* unmanaged<void> EngineAttached;
     public delegate* unmanaged<void> EngineDetaching;
     public delegate* unmanaged<float, void> Tick;
-    public delegate* unmanaged<ulong, nint, void> EntityCreated;
+    public delegate* unmanaged<ulong, nint, uint, void> EntityCreated;
     public delegate* unmanaged<ulong, nint, void> EntityDestroyed;
     public delegate* unmanaged<long, NativeArgument*, int, nint> InvokeFunction;
     public delegate* unmanaged<long, void> ReleaseFunction;

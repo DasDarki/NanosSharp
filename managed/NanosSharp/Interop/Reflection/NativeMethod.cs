@@ -48,7 +48,7 @@ internal sealed unsafe class NativeMethod(nint handle)
         {
             if (self is not null)
             {
-                packer.Add(self);
+                packer.AddSelf(self);
             }
 
             foreach (var argument in arguments)
