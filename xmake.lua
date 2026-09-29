@@ -137,9 +137,12 @@ task("test")
         local log_file = path.join(root, "build", "test", "server.log")
         os.mkdir(path.directory(log_file))
         local timeout = tostring(option.get("timeout"))
-        os.execv("timeout", {"-s", "INT", timeout, path.join(server_dir, "NanosSharp.sh"),
-            "--packages", table.concat(packages, ","), "--port", "7797", "--query_port", "7798", "--announce", "0"},
-            {stdout = log_file, stderr = log_file, try = true})
+        local server_arguments = {"-s", "INT", timeout, path.join(server_dir, "NanosSharp.sh"),
+            "--packages", table.concat(packages, ","), "--port", "7797", "--query_port", "7798", "--announce", "0"}
+        for _, argument in ipairs((option.get("arguments") or ""):split(" ")) do
+            table.insert(server_arguments, argument)
+        end
+        os.execv("timeout", server_arguments, {stdout = log_file, stderr = log_file, try = true})
 
         local passed = 0
         local failed = 0
@@ -174,7 +177,8 @@ task("test")
         options = {
             {"s", "server", "kv", nil, "The nanos world server directory."},
             {"t", "timeout", "kv", "120", "Seconds until the server is stopped."},
-            {"d", "directory", "kv", "tests", "Directory with the packages to run, for example benchmarks."}
+            {"d", "directory", "kv", "tests", "Directory with the packages to run, for example benchmarks."},
+            {"a", "arguments", "kv", nil, "Additional server arguments, for example '--steam_app game'."}
         }
     }
 task_end()
