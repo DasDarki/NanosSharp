@@ -142,7 +142,8 @@ task("test")
         for _, argument in ipairs((option.get("arguments") or ""):split(" ")) do
             table.insert(server_arguments, argument)
         end
-        os.execv("timeout", server_arguments, {stdout = log_file, stderr = log_file, try = true})
+        cprint("${color.success}server is running on port 7797 (timeout %ss), follow the output with: tail -f %s", timeout, log_file)
+        os.execv("timeout", server_arguments, {stdin = os.nuldev(), stdout = log_file, stderr = log_file, try = true})
 
         local passed = 0
         local failed = 0
