@@ -31,11 +31,11 @@ public abstract partial class Entity
 
     /// <summary>Calls a scripting method of this entity by name.</summary>
     public object? Invoke(string method, params ReadOnlySpan<object?> arguments) =>
-        NativeClass.GetMethod(method).InvokeMember(PackageContext.Environment, this, arguments);
+        NativeClass.GetMethod(method).Invoke(PackageContext.Environment, this, arguments);
 
     /// <summary>Calls a scripting method of this entity by name and converts its result.</summary>
     public T? Invoke<T>(string method, params ReadOnlySpan<object?> arguments) =>
-        NativeClass.GetMethod(method).InvokeMember<T>(PackageContext.Environment, this, arguments);
+        NativeClass.GetMethod(method).Invoke<T>(PackageContext.Environment, this, arguments);
 
     /// <summary>Reads a value stored on the entity and converts it.</summary>
     public T? GetValue<T>(string key, T? fallback = default) => Invoke<T>("GetValue", key, fallback);
@@ -106,6 +106,18 @@ public abstract partial class Entity
         }
     }
 
+    private protected void Invoke(MethodSlot method, params ReadOnlySpan<object?> arguments) =>
+        NativeClass.GetMethod(method).Invoke(PackageContext.Environment, this, arguments);
+
+    private protected T? Invoke<T>(MethodSlot method, params ReadOnlySpan<object?> arguments) =>
+        NativeClass.GetMethod(method).Invoke<T>(PackageContext.Environment, this, arguments);
+
+    private protected void InvokeVariadic(MethodSlot method, ReadOnlySpan<object?> arguments, ReadOnlySpan<object?> variadic) =>
+        NativeClass.GetMethod(method).Invoke(PackageContext.Environment, this, arguments, variadic);
+
+    private protected T? InvokeVariadic<T>(MethodSlot method, ReadOnlySpan<object?> arguments, ReadOnlySpan<object?> variadic) =>
+        NativeClass.GetMethod(method).Invoke<T>(PackageContext.Environment, this, arguments, variadic);
+
     private void UnsubscribeIfValid(string eventName, ScriptFunction function)
     {
         if (IsValid)
@@ -120,7 +132,7 @@ public abstract partial class Entity
         var constructor = nativeClass.Constructor ?? throw new ScriptException($"{className} cannot be spawned.");
         using (EntityRegistry.ExpectSpawn(this))
         {
-            constructor.Invoke(PackageContext.Environment, arguments);
+            constructor.Invoke(PackageContext.Environment, null, arguments);
         }
 
         if (!IsValid)

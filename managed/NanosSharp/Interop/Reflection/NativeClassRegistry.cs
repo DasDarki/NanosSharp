@@ -8,6 +8,8 @@ internal static unsafe class NativeClassRegistry
     private static readonly Dictionary<ulong, NativeClass> ClassesById = [];
     private static readonly Dictionary<string, NativeMethod> GlobalFunctions = new(StringComparer.Ordinal);
 
+    public static int Generation { get; private set; }
+
     public static IEnumerable<NativeClass> Classes => ClassesByName.Values;
 
     public static IEnumerable<NativeMethod> Functions => GlobalFunctions.Values;
@@ -34,6 +36,7 @@ internal static unsafe class NativeClassRegistry
 
     public static void Clear()
     {
+        Generation++;
         ClassesByName.Clear();
         ClassesById.Clear();
         GlobalFunctions.Clear();

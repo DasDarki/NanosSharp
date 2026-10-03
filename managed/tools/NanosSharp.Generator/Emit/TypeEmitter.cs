@@ -8,8 +8,8 @@ internal static class TypeEmitter
 
     private static readonly string[] Usings =
     [
-        "NanosSharp.Entities", "NanosSharp.Entities.Binding", "NanosSharp.Enums", "NanosSharp.Mathematics",
-        "NanosSharp.Scripting",
+        "NanosSharp.Entities", "NanosSharp.Entities.Binding", "NanosSharp.Enums", "NanosSharp.Interop.Reflection",
+        "NanosSharp.Mathematics", "NanosSharp.Scripting",
     ];
 
     public static string Emit(TypeModel type)
@@ -63,6 +63,8 @@ internal static class TypeEmitter
             WriteClassEvents(writer, type);
         }
 
+        WritePrivateStaticFields(writer, type, hasEvents);
+
         foreach (var property in type.Properties)
         {
             WriteProperty(writer, type, property);
@@ -111,14 +113,29 @@ internal static class TypeEmitter
             writer.BlankLine();
         }
 
-        foreach (var eventModel in type.Events)
+    }
+
+    private static void WritePrivateStaticFields(CodeWriter writer, TypeModel type, bool hasEvents)
+    {
+        var events = hasEvents ? type.Events : [];
+        foreach (var eventModel in events)
         {
             writer.Line($"private static readonly ClassEvent<{eventModel.HandlerName}> {eventModel.Name}Event = " +
                         $"new(\"{type.ScriptClassName}\", \"{eventModel.Name}\");");
         }
 
+        var methods = type.Kind == TypeKind.Mixin ? [] : type.Methods;
+        foreach (var method in methods)
+        {
+            writer.Line(type.Kind == TypeKind.StaticClass
+                ? $"private static readonly StaticMethodSlot {SlotName(method)} = new(\"{type.ScriptClassName}\", \"{method.Name}\");"
+                : $"private static readonly MethodSlot {SlotName(method)} = new(\"{method.Name}\");");
+        }
+
         writer.BlankLine();
     }
+
+    private static string SlotName(MethodModel method) => $"{method.Name}Slot";
 
     private static void WriteInstanceSubscriptions(CodeWriter writer, TypeModel type)
     {
@@ -216,17 +233,16 @@ internal static class TypeEmitter
 
     private static string FormatInvocation(TypeModel type, MethodModel method)
     {
-        var target = type.Kind == TypeKind.StaticClass ? $"ScriptApi.Invoke{{0}}(\"{type.ScriptClassName}\", " : "Invoke{0}(";
-        var arguments = FormatArguments(method.Parameters, method.RequiredParameterCount);
+        var owner = type.Kind == TypeKind.StaticClass ? "ScriptApi." : string.Empty;
+        var variadic = method.Parameters.FirstOrDefault(parameter => parameter.Type.Kind == CSharpTypeKind.Variadic);
+        var name = variadic is null ? "Invoke" : "InvokeVariadic";
+        var generic = method.ReturnType.Kind == CSharpTypeKind.Void ? string.Empty : $"<{method.ReturnType}>";
+        var arguments = variadic is null
+            ? FormatArguments(method.Parameters, method.RequiredParameterCount)
+            : $"[{string.Join(", ", method.Parameters.Where(parameter => parameter != variadic).Select(FormatArgument))}], {variadic.Name}";
         var separator = arguments.Length == 0 ? string.Empty : ", ";
-        var nameArgument = $"\"{method.Name}\"{separator}{arguments})";
-        if (method.ReturnType.Kind == CSharpTypeKind.Void)
-        {
-            return string.Format(target, string.Empty) + nameArgument;
-        }
-
-        var nullForgiving = method.ReturnType.IsNullable ? string.Empty : "!";
-        return string.Format(target, $"<{method.ReturnType}>") + nameArgument + nullForgiving;
+        var nullForgiving = method.ReturnType.Kind == CSharpTypeKind.Void || method.ReturnType.IsNullable ? string.Empty : "!";
+        return $"{owner}{name}{generic}({SlotName(method)}{separator}{arguments}){nullForgiving}";
     }
 
     private static string FormatParameters(IEnumerable<ParameterModel> parameters) =>
@@ -245,11 +261,6 @@ internal static class TypeEmitter
     private static string FormatArguments(IReadOnlyList<ParameterModel> parameters, int requiredCount)
     {
         var values = parameters.Select(FormatArgument).ToArray();
-        if (parameters.Any(parameter => parameter.Type.Kind == CSharpTypeKind.Variadic))
-        {
-            return $"[{string.Join(", ", values)}]";
-        }
-
         if (parameters.Any(parameter => parameter.IsOptional))
         {
             return $"ScriptArguments.Trim([{string.Join(", ", values)}], {requiredCount})";
@@ -261,7 +272,6 @@ internal static class TypeEmitter
     private static string FormatArgument(ParameterModel parameter) => parameter.Type.Kind switch
     {
         CSharpTypeKind.Callback => $"ScriptCallback.From({parameter.Name})",
-        CSharpTypeKind.Variadic => $".. {parameter.Name}",
         _ => parameter.Name,
     };
 

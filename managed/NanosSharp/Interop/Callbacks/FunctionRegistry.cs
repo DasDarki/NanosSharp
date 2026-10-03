@@ -33,8 +33,7 @@ internal static unsafe class FunctionRegistry
         using var _ = PackageContext.Enter(registration.Scope);
         try
         {
-            var values = ResultReader.ReadAll(arguments, count);
-            var result = CallbackInvoker.Invoke(registration.Callback, values);
+            var result = CallbackInvoker.Invoke(registration.Callback, (nint)arguments, count);
             return result is null ? 0 : ValueMarshaller.ToNative(result);
         }
         catch (Exception exception)

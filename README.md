@@ -141,11 +141,13 @@ The output is deterministic, `build/generator/report.md` lists everything that c
 | Operation | Lua | C# |
 |---|---|---|
 | Static getter (`Server.GetTickRate`) | ~50 ns | ~150 ns |
-| Entity getter (`GetLocation`) | ~260 ns | ~290 ns |
-| Entity setter (`SetLocation`) | ~250 ns | ~340 ns |
-| Event roundtrip (`Events.Call` with one handler) | ~270 ns | ~820 ns |
+| Entity getter (`GetLocation`) | ~250 ns | ~220 ns |
+| Entity setter (`SetLocation`) | ~255 ns | ~290 ns |
+| Event roundtrip (`Events.Call` with one handler) | ~265 ns | ~710 ns |
 
-Arguments are passed as blittable structs without native allocations, callbacks use compiled invokers.
+Arguments are passed as blittable structs, methods are cached per class in slots, callbacks read their parameters
+directly from the native arguments through compiled invokers. Profile with
+`NANOSSHARP_BENCH_ONLY`, `NANOSSHARP_BENCH_ITERATIONS`, `DOTNET_PerfMapEnabled=1` and a `releasedbg` build.
 
 ## Configuration
 

@@ -2,6 +2,7 @@
 
 using NanosSharp.Entities.Binding;
 using NanosSharp.Enums;
+using NanosSharp.Interop.Reflection;
 using NanosSharp.Mathematics;
 using NanosSharp.Scripting;
 
@@ -171,6 +172,72 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
     private static readonly ClassEvent<SpawnHandler> SpawnEvent = new("VehicleWheeled", "Spawn");
     private static readonly ClassEvent<TakeDamageHandler> TakeDamageEvent = new("VehicleWheeled", "TakeDamage");
     private static readonly ClassEvent<ValueChangeHandler> ValueChangeEvent = new("VehicleWheeled", "ValueChange");
+    private static readonly MethodSlot AddSkeletalMeshAttachedSlot = new("AddSkeletalMeshAttached");
+    private static readonly MethodSlot AddStaticMeshAttachedSlot = new("AddStaticMeshAttached");
+    private static readonly MethodSlot ApplyDamageSlot = new("ApplyDamage");
+    private static readonly MethodSlot BindAnimationBlueprintEventDispatcherSlot = new("BindAnimationBlueprintEventDispatcher");
+    private static readonly MethodSlot CallAnimationBlueprintEventSlot = new("CallAnimationBlueprintEvent");
+    private static readonly MethodSlot GetAllSkeletalMeshAttachedSlot = new("GetAllSkeletalMeshAttached");
+    private static readonly MethodSlot GetAllStaticMeshAttachedSlot = new("GetAllStaticMeshAttached");
+    private static readonly MethodSlot GetAnimationBlueprintPropertyValueSlot = new("GetAnimationBlueprintPropertyValue");
+    private static readonly MethodSlot GetDamageMultiplierSlot = new("GetDamageMultiplier");
+    private static readonly MethodSlot GetDoorsSlot = new("GetDoors");
+    private static readonly MethodSlot GetHealthSlot = new("GetHealth");
+    private static readonly MethodSlot GetMaterialColorParameterSlot = new("GetMaterialColorParameter");
+    private static readonly MethodSlot GetMaterialScalarParameterSlot = new("GetMaterialScalarParameter");
+    private static readonly MethodSlot GetMaterialTextureParameterSlot = new("GetMaterialTextureParameter");
+    private static readonly MethodSlot GetMaterialVectorParameterSlot = new("GetMaterialVectorParameter");
+    private static readonly MethodSlot GetMaxHealthSlot = new("GetMaxHealth");
+    private static readonly MethodSlot GetMeshSlot = new("GetMesh");
+    private static readonly MethodSlot GetPassengerSlot = new("GetPassenger");
+    private static readonly MethodSlot GetPassengersSlot = new("GetPassengers");
+    private static readonly MethodSlot HideBoneSlot = new("HideBone");
+    private static readonly MethodSlot HornSlot = new("Horn");
+    private static readonly MethodSlot IsBoneHiddenSlot = new("IsBoneHidden");
+    private static readonly MethodSlot IsDeadSlot = new("IsDead");
+    private static readonly MethodSlot IsEngineStartedSlot = new("IsEngineStarted");
+    private static readonly MethodSlot PlayAnimationSlot = new("PlayAnimation");
+    private static readonly MethodSlot RemoveAllSkeletalMeshesAttachedSlot = new("RemoveAllSkeletalMeshesAttached");
+    private static readonly MethodSlot RemoveAllStaticMeshesAttachedSlot = new("RemoveAllStaticMeshesAttached");
+    private static readonly MethodSlot RemoveSkeletalMeshAttachedSlot = new("RemoveSkeletalMeshAttached");
+    private static readonly MethodSlot RemoveStaticMeshAttachedSlot = new("RemoveStaticMeshAttached");
+    private static readonly MethodSlot ResetMaterialSlot = new("ResetMaterial");
+    private static readonly MethodSlot RespawnSlot = new("Respawn");
+    private static readonly MethodSlot SetAerodynamicsSetupSlot = new("SetAerodynamicsSetup");
+    private static readonly MethodSlot SetAnimationBlueprintPropertyValueSlot = new("SetAnimationBlueprintPropertyValue");
+    private static readonly MethodSlot SetAutoStartEngineSlot = new("SetAutoStartEngine");
+    private static readonly MethodSlot SetBuoyancyPontoonsSlot = new("SetBuoyancyPontoons");
+    private static readonly MethodSlot SetBuoyancySettingsSlot = new("SetBuoyancySettings");
+    private static readonly MethodSlot SetCameraArmLengthSlot = new("SetCameraArmLength");
+    private static readonly MethodSlot SetCameraOffsetSlot = new("SetCameraOffset");
+    private static readonly MethodSlot SetDamageMultiplierSlot = new("SetDamageMultiplier");
+    private static readonly MethodSlot SetDifferentialSetupSlot = new("SetDifferentialSetup");
+    private static readonly MethodSlot SetDoorSlot = new("SetDoor");
+    private static readonly MethodSlot SetEngineSetupSlot = new("SetEngineSetup");
+    private static readonly MethodSlot SetEngineStartedSlot = new("SetEngineStarted");
+    private static readonly MethodSlot SetExplosionSettingsSlot = new("SetExplosionSettings");
+    private static readonly MethodSlot SetHeadlightsEnabledSlot = new("SetHeadlightsEnabled");
+    private static readonly MethodSlot SetHeadlightsSetupSlot = new("SetHeadlightsSetup");
+    private static readonly MethodSlot SetHealthSlot = new("SetHealth");
+    private static readonly MethodSlot SetHornSoundSlot = new("SetHornSound");
+    private static readonly MethodSlot SetMaterialSlot = new("SetMaterial");
+    private static readonly MethodSlot SetMaterialColorParameterSlot = new("SetMaterialColorParameter");
+    private static readonly MethodSlot SetMaterialScalarParameterSlot = new("SetMaterialScalarParameter");
+    private static readonly MethodSlot SetMaterialTextureParameterSlot = new("SetMaterialTextureParameter");
+    private static readonly MethodSlot SetMaterialVectorParameterSlot = new("SetMaterialVectorParameter");
+    private static readonly MethodSlot SetMaxHealthSlot = new("SetMaxHealth");
+    private static readonly MethodSlot SetPhysicalMaterialSlot = new("SetPhysicalMaterial");
+    private static readonly MethodSlot SetStaticMeshAttachedTransformSlot = new("SetStaticMeshAttachedTransform");
+    private static readonly MethodSlot SetSteeringSetupSlot = new("SetSteeringSetup");
+    private static readonly MethodSlot SetSteeringWheelSetupSlot = new("SetSteeringWheelSetup");
+    private static readonly MethodSlot SetTaillightsEnabledSlot = new("SetTaillightsEnabled");
+    private static readonly MethodSlot SetTaillightsSetupSlot = new("SetTaillightsSetup");
+    private static readonly MethodSlot SetTireFlatSlot = new("SetTireFlat");
+    private static readonly MethodSlot SetTransmissionSetupSlot = new("SetTransmissionSetup");
+    private static readonly MethodSlot SetWheelSlot = new("SetWheel");
+    private static readonly MethodSlot StopAnimationSlot = new("StopAnimation");
+    private static readonly MethodSlot UnHideBoneSlot = new("UnHideBone");
+    private static readonly MethodSlot UnbindAnimationBlueprintEventDispatcherSlot = new("UnbindAnimationBlueprintEventDispatcher");
 
     /// <summary>Gets all Skeletal Meshes attached to this entity</summary>
     public IReadOnlyDictionary<string, string> AllSkeletalMeshAttached => GetAllSkeletalMeshAttached();
@@ -246,7 +313,7 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
         bool? useBaseLeaderPoseComponent = null,
         string? animationPath = null,
         string? attachableId = null) =>
-        Invoke("AddSkeletalMeshAttached", ScriptArguments.Trim([id, skeletalMeshPath, socket, relativeLocation, relativeRotation, useParentBounds, useBaseLeaderPoseComponent, animationPath, attachableId], 2));
+        Invoke(AddSkeletalMeshAttachedSlot, ScriptArguments.Trim([id, skeletalMeshPath, socket, relativeLocation, relativeRotation, useParentBounds, useBaseLeaderPoseComponent, animationPath, attachableId], 2));
 
     /// <summary>Attaches a Static Mesh to this entity</summary>
     public void AddStaticMeshAttached(
@@ -257,7 +324,7 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
         Rotator? relativeRotation = null,
         bool? useParentBounds = null,
         string? attachableId = null) =>
-        Invoke("AddStaticMeshAttached", ScriptArguments.Trim([id, staticMeshPath, socket, relativeLocation, relativeRotation, useParentBounds, attachableId], 2));
+        Invoke(AddStaticMeshAttachedSlot, ScriptArguments.Trim([id, staticMeshPath, socket, relativeLocation, relativeRotation, useParentBounds, attachableId], 2));
 
     /// <summary>Do damage to this entity</summary>
     public uint ApplyDamage(
@@ -267,80 +334,80 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
         Vector? fromDirection = null,
         Player? instigator = null,
         Entity? causer = null) =>
-        Invoke<uint>("ApplyDamage", ScriptArguments.Trim([damage, boneName, damageType, fromDirection, instigator, causer], 1))!;
+        Invoke<uint>(ApplyDamageSlot, ScriptArguments.Trim([damage, boneName, damageType, fromDirection, instigator, causer], 1))!;
 
     /// <summary>Assigns and Binds an Animation Blueprint Event Dispatcher</summary>
     public ScriptFunction BindAnimationBlueprintEventDispatcher(string dispatcherName, Delegate callback) =>
-        Invoke<ScriptFunction>("BindAnimationBlueprintEventDispatcher", dispatcherName, ScriptCallback.From(callback))!;
+        Invoke<ScriptFunction>(BindAnimationBlueprintEventDispatcherSlot, dispatcherName, ScriptCallback.From(callback))!;
 
     /// <summary>Calls an Animation Blueprint Event or Function</summary>
     public object?[] CallAnimationBlueprintEvent(string eventName, params object?[] arguments) =>
-        Invoke<object?[]>("CallAnimationBlueprintEvent", [eventName, .. arguments])!;
+        InvokeVariadic<object?[]>(CallAnimationBlueprintEventSlot, [eventName], arguments)!;
 
     /// <summary>Gets all Skeletal Meshes attached to this entity</summary>
     public IReadOnlyDictionary<string, string> GetAllSkeletalMeshAttached() =>
-        Invoke<IReadOnlyDictionary<string, string>>("GetAllSkeletalMeshAttached")!;
+        Invoke<IReadOnlyDictionary<string, string>>(GetAllSkeletalMeshAttachedSlot)!;
 
     /// <summary>Gets all Static Meshes attached to this entity</summary>
     public IReadOnlyDictionary<string, string> GetAllStaticMeshAttached() =>
-        Invoke<IReadOnlyDictionary<string, string>>("GetAllStaticMeshAttached")!;
+        Invoke<IReadOnlyDictionary<string, string>>(GetAllStaticMeshAttachedSlot)!;
 
     /// <summary>Gets an Animation Blueprint Property/Variable value directly</summary>
     public object? GetAnimationBlueprintPropertyValue(string propertyName) =>
-        Invoke<object?>("GetAnimationBlueprintPropertyValue", propertyName);
+        Invoke<object?>(GetAnimationBlueprintPropertyValueSlot, propertyName);
 
     /// <summary>Gets the Damage Multiplier of a bone</summary>
-    public float GetDamageMultiplier(string boneName) => Invoke<float>("GetDamageMultiplier", boneName)!;
+    public float GetDamageMultiplier(string boneName) => Invoke<float>(GetDamageMultiplierSlot, boneName)!;
 
     /// <summary>Gets all configured Doors</summary>
     public IReadOnlyList<IReadOnlyDictionary<string, object?>> GetDoors() =>
-        Invoke<IReadOnlyList<IReadOnlyDictionary<string, object?>>>("GetDoors")!;
+        Invoke<IReadOnlyList<IReadOnlyDictionary<string, object?>>>(GetDoorsSlot)!;
 
     /// <summary>Gets the current health</summary>
-    public uint GetHealth() => Invoke<uint>("GetHealth")!;
+    public uint GetHealth() => Invoke<uint>(GetHealthSlot)!;
 
     /// <summary>Gets a Color parameter from this Actor's material</summary>
     public Color? GetMaterialColorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Color?>("GetMaterialColorParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<Color?>(GetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets a Scalar parameter from this Actor's material</summary>
     public float? GetMaterialScalarParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<float?>("GetMaterialScalarParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<float?>(GetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets a Texture parameter from this Actor's material</summary>
     public string? GetMaterialTextureParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<string?>("GetMaterialTextureParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<string?>(GetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets a Vector parameter from this Actor's material</summary>
     public Vector? GetMaterialVectorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Vector?>("GetMaterialVectorParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<Vector?>(GetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets the Max Health</summary>
-    public uint GetMaxHealth() => Invoke<uint>("GetMaxHealth")!;
+    public uint GetMaxHealth() => Invoke<uint>(GetMaxHealthSlot)!;
 
     /// <summary>Gets the Asset name</summary>
-    public string GetMesh() => Invoke<string>("GetMesh")!;
+    public string GetMesh() => Invoke<string>(GetMeshSlot)!;
 
     /// <summary>Gets a passenger from a seat</summary>
-    public Character? GetPassenger(int seat) => Invoke<Character?>("GetPassenger", seat);
+    public Character? GetPassenger(int seat) => Invoke<Character?>(GetPassengerSlot, seat);
 
     /// <summary>Gets all passengers</summary>
-    public IReadOnlyList<object?> GetPassengers() => Invoke<IReadOnlyList<object?>>("GetPassengers")!;
+    public IReadOnlyList<object?> GetPassengers() => Invoke<IReadOnlyList<object?>>(GetPassengersSlot)!;
 
     /// <summary>Hides a bone of this Vehicle</summary>
-    public void HideBone(string boneName) => Invoke("HideBone", boneName);
+    public void HideBone(string boneName) => Invoke(HideBoneSlot, boneName);
 
     /// <summary>Starts or stops the vehicle horn</summary>
-    public void Horn(bool enableHorn) => Invoke("Horn", enableHorn);
+    public void Horn(bool enableHorn) => Invoke(HornSlot, enableHorn);
 
     /// <summary>Gets if a bone is hidden</summary>
-    public bool IsBoneHidden(string boneName) => Invoke<bool>("IsBoneHidden", boneName)!;
+    public bool IsBoneHidden(string boneName) => Invoke<bool>(IsBoneHiddenSlot, boneName)!;
 
     /// <summary>Returns if the entity is dead</summary>
-    public bool IsDead() => Invoke<bool>("IsDead")!;
+    public bool IsDead() => Invoke<bool>(IsDeadSlot)!;
 
     /// <summary>Checks if the engine is started</summary>
-    public bool IsEngineStarted() => Invoke<bool>("IsEngineStarted")!;
+    public bool IsEngineStarted() => Invoke<bool>(IsEngineStartedSlot)!;
 
     /// <summary>Plays an Animation on this Vehicle</summary>
     public void PlayAnimation(
@@ -351,27 +418,27 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
         float? blendOutTime = null,
         float? playRate = null,
         bool? stopAllMontages = null) =>
-        Invoke("PlayAnimation", ScriptArguments.Trim([animationPath, slotName, loopIndefinitely, blendInTime, blendOutTime, playRate, stopAllMontages], 1));
+        Invoke(PlayAnimationSlot, ScriptArguments.Trim([animationPath, slotName, loopIndefinitely, blendInTime, blendOutTime, playRate, stopAllMontages], 1));
 
     /// <summary>Removes all SkeletalMeshes attached</summary>
-    public void RemoveAllSkeletalMeshesAttached() => Invoke("RemoveAllSkeletalMeshesAttached");
+    public void RemoveAllSkeletalMeshesAttached() => Invoke(RemoveAllSkeletalMeshesAttachedSlot);
 
     /// <summary>Removes all StaticMeshes attached</summary>
-    public void RemoveAllStaticMeshesAttached() => Invoke("RemoveAllStaticMeshesAttached");
+    public void RemoveAllStaticMeshesAttached() => Invoke(RemoveAllStaticMeshesAttachedSlot);
 
     /// <summary>Removes, if it exists, a SkeletalMesh from this Vehicle given its custom ID</summary>
-    public void RemoveSkeletalMeshAttached(string id) => Invoke("RemoveSkeletalMeshAttached", id);
+    public void RemoveSkeletalMeshAttached(string id) => Invoke(RemoveSkeletalMeshAttachedSlot, id);
 
     /// <summary>Removes, if it exists, a StaticMesh from this Vehicle given its custom ID</summary>
-    public void RemoveStaticMeshAttached(string id) => Invoke("RemoveStaticMeshAttached", id);
+    public void RemoveStaticMeshAttached(string id) => Invoke(RemoveStaticMeshAttachedSlot, id);
 
     /// <summary>Resets the material from the specified index to the original one</summary>
     public void ResetMaterial(int? index = null, string? attachableId = null) =>
-        Invoke("ResetMaterial", ScriptArguments.Trim([index, attachableId], 0));
+        Invoke(ResetMaterialSlot, ScriptArguments.Trim([index, attachableId], 0));
 
     /// <summary>Respawns the Entity, filling its Health and moving it to its Initial Location</summary>
     public void Respawn(Vector? location = null, Rotator? rotation = null) =>
-        Invoke("Respawn", ScriptArguments.Trim([location, rotation], 0));
+        Invoke(RespawnSlot, ScriptArguments.Trim([location, rotation], 0));
 
     /// <summary>Configures the Vehicle Aerodynamics Settings</summary>
     public void SetAerodynamicsSetup(
@@ -381,18 +448,18 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
         ushort? vehicleChassisHeight = null,
         float? vehicleDownforceCoefficient = null,
         Vector? centerOfMassOverride = null) =>
-        Invoke("SetAerodynamicsSetup", ScriptArguments.Trim([mass, dragCoefficient, vehicleChassisWidth, vehicleChassisHeight, vehicleDownforceCoefficient, centerOfMassOverride], 0));
+        Invoke(SetAerodynamicsSetupSlot, ScriptArguments.Trim([mass, dragCoefficient, vehicleChassisWidth, vehicleChassisHeight, vehicleDownforceCoefficient, centerOfMassOverride], 0));
 
     /// <summary>Sets an Animation Blueprint Property/Variable value directly</summary>
     public void SetAnimationBlueprintPropertyValue(string propertyName, object? value) =>
-        Invoke("SetAnimationBlueprintPropertyValue", propertyName, value);
+        Invoke(SetAnimationBlueprintPropertyValueSlot, propertyName, value);
 
     /// <summary>Sets if the Engine auto starts when the driver enters the Vehicle</summary>
-    public void SetAutoStartEngine(bool autoStart) => Invoke("SetAutoStartEngine", autoStart);
+    public void SetAutoStartEngine(bool autoStart) => Invoke(SetAutoStartEngineSlot, autoStart);
 
     /// <summary>Sets the Buoyancy Pontoons used by the Water simulation</summary>
     public void SetBuoyancyPontoons(IEnumerable<IDictionary<string, object?>>? pontoons = null) =>
-        Invoke("SetBuoyancyPontoons", ScriptArguments.Trim([pontoons], 0));
+        Invoke(SetBuoyancyPontoonsSlot, ScriptArguments.Trim([pontoons], 0));
 
     /// <summary>Sets how this entity behaves on Water</summary>
     public void SetBuoyancySettings(
@@ -400,21 +467,21 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
         float? buoyancyCoefficient = null,
         float? buoyancyDamp = null,
         float? maxBuoyantForce = null) =>
-        Invoke("SetBuoyancySettings", ScriptArguments.Trim([enabled, buoyancyCoefficient, buoyancyDamp, maxBuoyantForce], 0));
+        Invoke(SetBuoyancySettingsSlot, ScriptArguments.Trim([enabled, buoyancyCoefficient, buoyancyDamp, maxBuoyantForce], 0));
 
     /// <summary>Sets how far the camera stays from this Vehicle while driving it</summary>
-    public void SetCameraArmLength(ushort armLength) => Invoke("SetCameraArmLength", armLength);
+    public void SetCameraArmLength(ushort armLength) => Invoke(SetCameraArmLengthSlot, armLength);
 
     /// <summary>Sets the Vehicle Camera Offset</summary>
-    public void SetCameraOffset(Vector offset) => Invoke("SetCameraOffset", offset);
+    public void SetCameraOffset(Vector offset) => Invoke(SetCameraOffsetSlot, offset);
 
     /// <summary>Changes how much damage this entity takes on specific bones</summary>
     public void SetDamageMultiplier(string boneName, float multiplier) =>
-        Invoke("SetDamageMultiplier", boneName, multiplier);
+        Invoke(SetDamageMultiplierSlot, boneName, multiplier);
 
     /// <summary>Configures the type of Differential</summary>
     public void SetDifferentialSetup(DifferentialType differentialType, float? frontRearSplit = null) =>
-        Invoke("SetDifferentialSetup", ScriptArguments.Trim([differentialType, frontRearSplit], 1));
+        Invoke(SetDifferentialSetupSlot, ScriptArguments.Trim([differentialType, frontRearSplit], 1));
 
     /// <summary>Adds a Door to the Vehicle</summary>
     public void SetDoor(
@@ -424,7 +491,7 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
         Rotator seatRotation,
         ushort triggerRadius,
         ushort leaveLateralOffset) =>
-        Invoke("SetDoor", seatIndex, offsetLocation, seatLocation, seatRotation, triggerRadius, leaveLateralOffset);
+        Invoke(SetDoorSlot, seatIndex, offsetLocation, seatLocation, seatRotation, triggerRadius, leaveLateralOffset);
 
     /// <summary>Configures the Vehicle Engine (Torque, RPM, Braking)</summary>
     public void SetEngineSetup(
@@ -435,34 +502,34 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
         ushort? revUpMoi = null,
         ushort? revDownRate = null,
         IDictionary<float, float>? torqueCurve = null) =>
-        Invoke("SetEngineSetup", ScriptArguments.Trim([maxTorque, maxRpm, idleRpm, brakeEffect, revUpMoi, revDownRate, torqueCurve], 0));
+        Invoke(SetEngineSetupSlot, ScriptArguments.Trim([maxTorque, maxRpm, idleRpm, brakeEffect, revUpMoi, revDownRate, torqueCurve], 0));
 
     /// <summary>Sets if the Engine is turned off/on</summary>
-    public void SetEngineStarted(bool started) => Invoke("SetEngineStarted", started);
+    public void SetEngineStarted(bool started) => Invoke(SetEngineStartedSlot, started);
 
     /// <summary>Configures the Explosion Settings when health reaches zero</summary>
     public void SetExplosionSettings(
         Vector engineRelativeLocation,
         IEnumerable<byte> materialsIndexBurntOverride,
         IEnumerable<byte> materialsIndexBurntInvisible) =>
-        Invoke("SetExplosionSettings", engineRelativeLocation, materialsIndexBurntOverride, materialsIndexBurntInvisible);
+        Invoke(SetExplosionSettingsSlot, engineRelativeLocation, materialsIndexBurntOverride, materialsIndexBurntInvisible);
 
     /// <summary>Enables or disables the headlights</summary>
-    public void SetHeadlightsEnabled(bool isEnabled) => Invoke("SetHeadlightsEnabled", isEnabled);
+    public void SetHeadlightsEnabled(bool isEnabled) => Invoke(SetHeadlightsEnabledSlot, isEnabled);
 
     /// <summary>Configures the Headlights offset and color</summary>
     public void SetHeadlightsSetup(Vector location, Color? color = null) =>
-        Invoke("SetHeadlightsSetup", ScriptArguments.Trim([location, color], 1));
+        Invoke(SetHeadlightsSetupSlot, ScriptArguments.Trim([location, color], 1));
 
     /// <summary>Sets the Health of this Entity</summary>
-    public void SetHealth(uint newHealth) => Invoke("SetHealth", newHealth);
+    public void SetHealth(uint newHealth) => Invoke(SetHealthSlot, newHealth);
 
     /// <summary>Sets the sound asset used by the vehicle horn</summary>
-    public void SetHornSound(string soundAsset) => Invoke("SetHornSound", soundAsset);
+    public void SetHornSound(string soundAsset) => Invoke(SetHornSoundSlot, soundAsset);
 
     /// <summary>Sets the material at the specified index of this Actor</summary>
     public void SetMaterial(string materialPath, int? index = null, string? attachableId = null) =>
-        Invoke("SetMaterial", ScriptArguments.Trim([materialPath, index, attachableId], 1));
+        Invoke(SetMaterialSlot, ScriptArguments.Trim([materialPath, index, attachableId], 1));
 
     /// <summary>Sets a Color parameter in this Actor's material</summary>
     public void SetMaterialColorParameter(
@@ -470,7 +537,7 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
         Color color,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialColorParameter", ScriptArguments.Trim([parameterName, color, index, attachableId], 2));
+        Invoke(SetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, color, index, attachableId], 2));
 
     /// <summary>Sets a Scalar parameter in this Actor's material</summary>
     public void SetMaterialScalarParameter(
@@ -478,7 +545,7 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
         float scalar,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialScalarParameter", ScriptArguments.Trim([parameterName, scalar, index, attachableId], 2));
+        Invoke(SetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, scalar, index, attachableId], 2));
 
     /// <summary>Sets a texture parameter in this Actor's material to an image</summary>
     public void SetMaterialTextureParameter(
@@ -486,7 +553,7 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
         string texturePath,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialTextureParameter", ScriptArguments.Trim([parameterName, texturePath, index, attachableId], 2));
+        Invoke(SetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, texturePath, index, attachableId], 2));
 
     /// <summary>Sets a Vector parameter in this Actor's material</summary>
     public void SetMaterialVectorParameter(
@@ -494,37 +561,38 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
         Vector vector,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialVectorParameter", ScriptArguments.Trim([parameterName, vector, index, attachableId], 2));
+        Invoke(SetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, vector, index, attachableId], 2));
 
     /// <summary>Sets the MaxHealth of this Entity</summary>
-    public void SetMaxHealth(uint maxHealth) => Invoke("SetMaxHealth", maxHealth);
+    public void SetMaxHealth(uint maxHealth) => Invoke(SetMaxHealthSlot, maxHealth);
 
     /// <summary>Overrides this Actor's Physical Material with a new one</summary>
-    public void SetPhysicalMaterial(string physicalMaterialPath) => Invoke("SetPhysicalMaterial", physicalMaterialPath);
+    public void SetPhysicalMaterial(string physicalMaterialPath) =>
+        Invoke(SetPhysicalMaterialSlot, physicalMaterialPath);
 
     /// <summary>Sets a Static Mesh Attached location and rotation</summary>
     public void SetStaticMeshAttachedTransform(string id, Vector relativeLocation, Rotator relativeRotation) =>
-        Invoke("SetStaticMeshAttachedTransform", id, relativeLocation, relativeRotation);
+        Invoke(SetStaticMeshAttachedTransformSlot, id, relativeLocation, relativeRotation);
 
     /// <summary>Configures the Vehicle Steering</summary>
     public void SetSteeringSetup(
         SteeringType steeringType,
         float? angleRatio = null,
         IDictionary<float, float>? steeringCurve = null) =>
-        Invoke("SetSteeringSetup", ScriptArguments.Trim([steeringType, angleRatio, steeringCurve], 1));
+        Invoke(SetSteeringSetupSlot, ScriptArguments.Trim([steeringType, angleRatio, steeringCurve], 1));
 
     /// <summary>Configures where the Steering Wheel is located</summary>
     public void SetSteeringWheelSetup(Vector relativeLocation, byte radius, Rotator? rotation = null) =>
-        Invoke("SetSteeringWheelSetup", ScriptArguments.Trim([relativeLocation, radius, rotation], 2));
+        Invoke(SetSteeringWheelSetupSlot, ScriptArguments.Trim([relativeLocation, radius, rotation], 2));
 
     /// <summary>Enables or disables the taillights</summary>
-    public void SetTaillightsEnabled(bool isEnabled) => Invoke("SetTaillightsEnabled", isEnabled);
+    public void SetTaillightsEnabled(bool isEnabled) => Invoke(SetTaillightsEnabledSlot, isEnabled);
 
     /// <summary>Configures the Taillights offset</summary>
-    public void SetTaillightsSetup(Vector location) => Invoke("SetTaillightsSetup", location);
+    public void SetTaillightsSetup(Vector location) => Invoke(SetTaillightsSetupSlot, location);
 
     /// <summary>Sets a Tire as Flat or not</summary>
-    public void SetTireFlat(int wheelIndex, bool isFlat) => Invoke("SetTireFlat", wheelIndex, isFlat);
+    public void SetTireFlat(int wheelIndex, bool isFlat) => Invoke(SetTireFlatSlot, wheelIndex, isFlat);
 
     /// <summary>Configures the Vehicle Transmission</summary>
     public void SetTransmissionSetup(
@@ -535,7 +603,7 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
         float? transmissionEfficiency = null,
         IEnumerable<float>? forwardGearRatios = null,
         IEnumerable<float>? reverseGearRatios = null) =>
-        Invoke("SetTransmissionSetup", ScriptArguments.Trim([transmissionFinalRatio, transmissionChangeUpRpm, transmissionChangeDownRpm, transmissionGearChangeTime, transmissionEfficiency, forwardGearRatios, reverseGearRatios], 0));
+        Invoke(SetTransmissionSetupSlot, ScriptArguments.Trim([transmissionFinalRatio, transmissionChangeUpRpm, transmissionChangeDownRpm, transmissionGearChangeTime, transmissionEfficiency, forwardGearRatios, reverseGearRatios], 0));
 
     /// <summary>Configures a Vehicle Wheel</summary>
     public void SetWheel(
@@ -567,18 +635,18 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
         Vector? suspensionAxis = null,
         Vector? suspensionForceOffset = null,
         SuspensionSweepShape? suspensionSweepShape = null) =>
-        Invoke("SetWheel", ScriptArguments.Trim([index, boneName, radius, width, maxSteerAngle, offset, isAffectedByEngine, isAffectedByBrake, isAffectedByHandbrake, hasAbsEnabled, hasTractionControlEnabled, maxBrakeTorque, maxHandbrakeTorque, corneringStiffness, sideSlipModifier, frictionForceMultiplier, slipThreshold, skidThreshold, suspensionSpringRate, suspensionSpringPreload, suspensionMaxRaise, suspensionMaxDrop, suspensionSmoothing, suspensionDampingRatio, suspensionWheelLoadRatio, suspensionAxis, suspensionForceOffset, suspensionSweepShape], 2));
+        Invoke(SetWheelSlot, ScriptArguments.Trim([index, boneName, radius, width, maxSteerAngle, offset, isAffectedByEngine, isAffectedByBrake, isAffectedByHandbrake, hasAbsEnabled, hasTractionControlEnabled, maxBrakeTorque, maxHandbrakeTorque, corneringStiffness, sideSlipModifier, frictionForceMultiplier, slipThreshold, skidThreshold, suspensionSpringRate, suspensionSpringPreload, suspensionMaxRaise, suspensionMaxDrop, suspensionSmoothing, suspensionDampingRatio, suspensionWheelLoadRatio, suspensionAxis, suspensionForceOffset, suspensionSweepShape], 2));
 
     /// <summary>Stops an Animation Montage on this Vehicle</summary>
     public void StopAnimation(string? animationAsset = null) =>
-        Invoke("StopAnimation", ScriptArguments.Trim([animationAsset], 0));
+        Invoke(StopAnimationSlot, ScriptArguments.Trim([animationAsset], 0));
 
     /// <summary>UnHide a bone of this Vehicle</summary>
-    public void UnHideBone(string boneName) => Invoke("UnHideBone", boneName);
+    public void UnHideBone(string boneName) => Invoke(UnHideBoneSlot, boneName);
 
     /// <summary>Unbinds an Animation Blueprint Event Dispatcher</summary>
     public void UnbindAnimationBlueprintEventDispatcher(string dispatcherName, Delegate? callback = null) =>
-        Invoke("UnbindAnimationBlueprintEventDispatcher", ScriptArguments.Trim([dispatcherName, ScriptCallback.From(callback)], 1));
+        Invoke(UnbindAnimationBlueprintEventDispatcherSlot, ScriptArguments.Trim([dispatcherName, ScriptCallback.From(callback)], 1));
 
     /// <summary>Subscribes to the CharacterAttemptEnter event of this entity only.</summary>
     public ScriptSubscription SubscribeCharacterAttemptEnter(CharacterAttemptEnterHandler handler) => Subscribe("CharacterAttemptEnter", handler);

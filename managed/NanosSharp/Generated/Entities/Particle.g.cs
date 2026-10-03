@@ -2,6 +2,7 @@
 
 using NanosSharp.Entities.Binding;
 using NanosSharp.Enums;
+using NanosSharp.Interop.Reflection;
 using NanosSharp.Mathematics;
 using NanosSharp.Scripting;
 
@@ -75,6 +76,16 @@ public partial class Particle : Actor
     private static readonly ClassEvent<NetworkAuthorityChangeHandler> NetworkAuthorityChangeEvent = new("Particle", "NetworkAuthorityChange");
     private static readonly ClassEvent<SpawnHandler> SpawnEvent = new("Particle", "Spawn");
     private static readonly ClassEvent<ValueChangeHandler> ValueChangeEvent = new("Particle", "ValueChange");
+    private static readonly MethodSlot ActivateSlot = new("Activate");
+    private static readonly MethodSlot DeactivateSlot = new("Deactivate");
+    private static readonly MethodSlot IsActiveSlot = new("IsActive");
+    private static readonly MethodSlot SetParameterBoolSlot = new("SetParameterBool");
+    private static readonly MethodSlot SetParameterColorSlot = new("SetParameterColor");
+    private static readonly MethodSlot SetParameterFloatSlot = new("SetParameterFloat");
+    private static readonly MethodSlot SetParameterIntSlot = new("SetParameterInt");
+    private static readonly MethodSlot SetParameterMaterialSlot = new("SetParameterMaterial");
+    private static readonly MethodSlot SetParameterMaterialFromTextureSlot = new("SetParameterMaterialFromTexture");
+    private static readonly MethodSlot SetParameterVectorSlot = new("SetParameterVector");
 
     /// <summary>Returns if this Particle is active</summary>
     public bool Active => IsActive();
@@ -96,36 +107,36 @@ public partial class Particle : Actor
     }
 
     /// <summary>Activates the Emitter</summary>
-    public void Activate(bool? shouldReset = null) => Invoke("Activate", ScriptArguments.Trim([shouldReset], 0));
+    public void Activate(bool? shouldReset = null) => Invoke(ActivateSlot, ScriptArguments.Trim([shouldReset], 0));
 
     /// <summary>Deactivate the Emitter</summary>
-    public void Deactivate() => Invoke("Deactivate");
+    public void Deactivate() => Invoke(DeactivateSlot);
 
     /// <summary>Returns if this Particle is active</summary>
-    public bool IsActive() => Invoke<bool>("IsActive")!;
+    public bool IsActive() => Invoke<bool>(IsActiveSlot)!;
 
     /// <summary>Sets a boolean parameter in this Particle System</summary>
-    public void SetParameterBool(string parameter, bool value) => Invoke("SetParameterBool", parameter, value);
+    public void SetParameterBool(string parameter, bool value) => Invoke(SetParameterBoolSlot, parameter, value);
 
     /// <summary>Sets a Color parameter in this Particle System</summary>
-    public void SetParameterColor(string parameter, Color value) => Invoke("SetParameterColor", parameter, value);
+    public void SetParameterColor(string parameter, Color value) => Invoke(SetParameterColorSlot, parameter, value);
 
     /// <summary>Sets a float parameter in this Particle System</summary>
-    public void SetParameterFloat(string parameter, float value) => Invoke("SetParameterFloat", parameter, value);
+    public void SetParameterFloat(string parameter, float value) => Invoke(SetParameterFloatSlot, parameter, value);
 
     /// <summary>Sets an integer parameter in this Particle System</summary>
-    public void SetParameterInt(string parameter, int value) => Invoke("SetParameterInt", parameter, value);
+    public void SetParameterInt(string parameter, int value) => Invoke(SetParameterIntSlot, parameter, value);
 
     /// <summary>Sets a Material parameter in this Particle System</summary>
     public void SetParameterMaterial(string parameter, string value) =>
-        Invoke("SetParameterMaterial", parameter, value);
+        Invoke(SetParameterMaterialSlot, parameter, value);
 
     /// <summary>Sets a Material from a Texture parameter in this Particle System</summary>
     public void SetParameterMaterialFromTexture(string parameter, string value) =>
-        Invoke("SetParameterMaterialFromTexture", parameter, value);
+        Invoke(SetParameterMaterialFromTextureSlot, parameter, value);
 
     /// <summary>Sets a Vector parameter in this Particle System</summary>
-    public void SetParameterVector(string parameter, Vector value) => Invoke("SetParameterVector", parameter, value);
+    public void SetParameterVector(string parameter, Vector value) => Invoke(SetParameterVectorSlot, parameter, value);
 
     /// <summary>Subscribes to the ClassRegister event of this entity only.</summary>
     public ScriptSubscription SubscribeClassRegister(ClassRegisterHandler handler) => Subscribe("ClassRegister", handler);

@@ -2,6 +2,7 @@
 
 using NanosSharp.Entities.Binding;
 using NanosSharp.Enums;
+using NanosSharp.Interop.Reflection;
 using NanosSharp.Mathematics;
 using NanosSharp.Scripting;
 
@@ -75,6 +76,18 @@ public partial class Blueprint : Actor, IPaintable
     private static readonly ClassEvent<NetworkAuthorityChangeHandler> NetworkAuthorityChangeEvent = new("Blueprint", "NetworkAuthorityChange");
     private static readonly ClassEvent<SpawnHandler> SpawnEvent = new("Blueprint", "Spawn");
     private static readonly ClassEvent<ValueChangeHandler> ValueChangeEvent = new("Blueprint", "ValueChange");
+    private static readonly MethodSlot CallBlueprintEventSlot = new("CallBlueprintEvent");
+    private static readonly MethodSlot GetMaterialColorParameterSlot = new("GetMaterialColorParameter");
+    private static readonly MethodSlot GetMaterialScalarParameterSlot = new("GetMaterialScalarParameter");
+    private static readonly MethodSlot GetMaterialTextureParameterSlot = new("GetMaterialTextureParameter");
+    private static readonly MethodSlot GetMaterialVectorParameterSlot = new("GetMaterialVectorParameter");
+    private static readonly MethodSlot ResetMaterialSlot = new("ResetMaterial");
+    private static readonly MethodSlot SetMaterialSlot = new("SetMaterial");
+    private static readonly MethodSlot SetMaterialColorParameterSlot = new("SetMaterialColorParameter");
+    private static readonly MethodSlot SetMaterialScalarParameterSlot = new("SetMaterialScalarParameter");
+    private static readonly MethodSlot SetMaterialTextureParameterSlot = new("SetMaterialTextureParameter");
+    private static readonly MethodSlot SetMaterialVectorParameterSlot = new("SetMaterialVectorParameter");
+    private static readonly MethodSlot SetPhysicalMaterialSlot = new("SetPhysicalMaterial");
 
     /// <summary>Spawns a new Blueprint.</summary>
     public Blueprint(Vector location, Rotator rotation, string blueprintAsset, CollisionType? collisionType = null)
@@ -88,31 +101,31 @@ public partial class Blueprint : Actor, IPaintable
 
     /// <summary>Calls a Blueprint Event or Function</summary>
     public object?[] CallBlueprintEvent(string eventName, params object?[] arguments) =>
-        Invoke<object?[]>("CallBlueprintEvent", [eventName, .. arguments])!;
+        InvokeVariadic<object?[]>(CallBlueprintEventSlot, [eventName], arguments)!;
 
     /// <summary>Gets a Color parameter from this Actor's material</summary>
     public Color? GetMaterialColorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Color?>("GetMaterialColorParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<Color?>(GetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets a Scalar parameter from this Actor's material</summary>
     public float? GetMaterialScalarParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<float?>("GetMaterialScalarParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<float?>(GetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets a Texture parameter from this Actor's material</summary>
     public string? GetMaterialTextureParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<string?>("GetMaterialTextureParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<string?>(GetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets a Vector parameter from this Actor's material</summary>
     public Vector? GetMaterialVectorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Vector?>("GetMaterialVectorParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<Vector?>(GetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Resets the material from the specified index to the original one</summary>
     public void ResetMaterial(int? index = null, string? attachableId = null) =>
-        Invoke("ResetMaterial", ScriptArguments.Trim([index, attachableId], 0));
+        Invoke(ResetMaterialSlot, ScriptArguments.Trim([index, attachableId], 0));
 
     /// <summary>Sets the material at the specified index of this Actor</summary>
     public void SetMaterial(string materialPath, int? index = null, string? attachableId = null) =>
-        Invoke("SetMaterial", ScriptArguments.Trim([materialPath, index, attachableId], 1));
+        Invoke(SetMaterialSlot, ScriptArguments.Trim([materialPath, index, attachableId], 1));
 
     /// <summary>Sets a Color parameter in this Actor's material</summary>
     public void SetMaterialColorParameter(
@@ -120,7 +133,7 @@ public partial class Blueprint : Actor, IPaintable
         Color color,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialColorParameter", ScriptArguments.Trim([parameterName, color, index, attachableId], 2));
+        Invoke(SetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, color, index, attachableId], 2));
 
     /// <summary>Sets a Scalar parameter in this Actor's material</summary>
     public void SetMaterialScalarParameter(
@@ -128,7 +141,7 @@ public partial class Blueprint : Actor, IPaintable
         float scalar,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialScalarParameter", ScriptArguments.Trim([parameterName, scalar, index, attachableId], 2));
+        Invoke(SetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, scalar, index, attachableId], 2));
 
     /// <summary>Sets a texture parameter in this Actor's material to an image</summary>
     public void SetMaterialTextureParameter(
@@ -136,7 +149,7 @@ public partial class Blueprint : Actor, IPaintable
         string texturePath,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialTextureParameter", ScriptArguments.Trim([parameterName, texturePath, index, attachableId], 2));
+        Invoke(SetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, texturePath, index, attachableId], 2));
 
     /// <summary>Sets a Vector parameter in this Actor's material</summary>
     public void SetMaterialVectorParameter(
@@ -144,10 +157,11 @@ public partial class Blueprint : Actor, IPaintable
         Vector vector,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialVectorParameter", ScriptArguments.Trim([parameterName, vector, index, attachableId], 2));
+        Invoke(SetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, vector, index, attachableId], 2));
 
     /// <summary>Overrides this Actor's Physical Material with a new one</summary>
-    public void SetPhysicalMaterial(string physicalMaterialPath) => Invoke("SetPhysicalMaterial", physicalMaterialPath);
+    public void SetPhysicalMaterial(string physicalMaterialPath) =>
+        Invoke(SetPhysicalMaterialSlot, physicalMaterialPath);
 
     /// <summary>Subscribes to the ClassRegister event of this entity only.</summary>
     public ScriptSubscription SubscribeClassRegister(ClassRegisterHandler handler) => Subscribe("ClassRegister", handler);

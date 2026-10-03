@@ -14,6 +14,8 @@ internal sealed unsafe class NativeClass
 
     public IReadOnlyDictionary<string, NativeProperty> Properties { get; }
 
+    private NativeMethod?[] _slots = [];
+
     public NativeClass(nint handle)
     {
         ref readonly var api = ref NativeRuntime.Api;
@@ -34,6 +36,16 @@ internal sealed unsafe class NativeClass
         }
 
         Properties = properties;
+    }
+
+    public NativeMethod GetMethod(MethodSlot slot)
+    {
+        if (slot.Id >= _slots.Length)
+        {
+            Array.Resize(ref _slots, Math.Max(MethodSlot.Count, slot.Id + 1));
+        }
+
+        return _slots[slot.Id] ??= GetMethod(slot.Name);
     }
 
     public NativeMethod GetMethod(string name) =>

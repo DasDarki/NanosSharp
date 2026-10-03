@@ -2,6 +2,7 @@
 
 using NanosSharp.Entities.Binding;
 using NanosSharp.Enums;
+using NanosSharp.Interop.Reflection;
 using NanosSharp.Mathematics;
 using NanosSharp.Scripting;
 
@@ -75,6 +76,15 @@ public partial class TextRender : Actor
     private static readonly ClassEvent<NetworkAuthorityChangeHandler> NetworkAuthorityChangeEvent = new("TextRender", "NetworkAuthorityChange");
     private static readonly ClassEvent<SpawnHandler> SpawnEvent = new("TextRender", "Spawn");
     private static readonly ClassEvent<ValueChangeHandler> ValueChangeEvent = new("TextRender", "ValueChange");
+    private static readonly MethodSlot GetColorSlot = new("GetColor");
+    private static readonly MethodSlot GetTextSlot = new("GetText");
+    private static readonly MethodSlot GetWordSizeSlot = new("GetWordSize");
+    private static readonly MethodSlot SetAlignmentSlot = new("SetAlignment");
+    private static readonly MethodSlot SetColorSlot = new("SetColor");
+    private static readonly MethodSlot SetFontSlot = new("SetFont");
+    private static readonly MethodSlot SetSpacingAdjustSlot = new("SetSpacingAdjust");
+    private static readonly MethodSlot SetTextSlot = new("SetText");
+    private static readonly MethodSlot SetWordSizeSlot = new("SetWordSize");
 
     /// <summary>Gets the current Text Color</summary>
     public Color Color
@@ -118,35 +128,35 @@ public partial class TextRender : Actor
     }
 
     /// <summary>Gets the current Text Color</summary>
-    public Color GetColor() => Invoke<Color>("GetColor")!;
+    public Color GetColor() => Invoke<Color>(GetColorSlot)!;
 
     /// <summary>Gets the current Text</summary>
-    public string GetText() => Invoke<string>("GetText")!;
+    public string GetText() => Invoke<string>(GetTextSlot)!;
 
     /// <summary>Gets the current Word Size</summary>
-    public float GetWordSize() => Invoke<float>("GetWordSize")!;
+    public float GetWordSize() => Invoke<float>(GetWordSizeSlot)!;
 
     /// <summary>Sets the Text alignment</summary>
     public void SetAlignment(
         TextRenderHorizontalAlignment horizontalAlignment,
         TextRenderVerticalAlignment verticalAlignment) =>
-        Invoke("SetAlignment", horizontalAlignment, verticalAlignment);
+        Invoke(SetAlignmentSlot, horizontalAlignment, verticalAlignment);
 
     /// <summary>Sets the Text Color</summary>
-    public void SetColor(Color color) => Invoke("SetColor", color);
+    public void SetColor(Color color) => Invoke(SetColorSlot, color);
 
     /// <summary>Sets the Font. The font must be pre-cooked as an offline cached, distance field font.</summary>
-    public void SetFont(string fontAsset) => Invoke("SetFont", fontAsset);
+    public void SetFont(string fontAsset) => Invoke(SetFontSlot, fontAsset);
 
     /// <summary>Sets the horizontal and vertical spacing adjust values</summary>
     public void SetSpacingAdjust(float horizontalSpacing, float verticalSpacing) =>
-        Invoke("SetSpacingAdjust", horizontalSpacing, verticalSpacing);
+        Invoke(SetSpacingAdjustSlot, horizontalSpacing, verticalSpacing);
 
     /// <summary>Sets the Text</summary>
-    public void SetText(string text) => Invoke("SetText", text);
+    public void SetText(string text) => Invoke(SetTextSlot, text);
 
     /// <summary>Sets the Word Size</summary>
-    public void SetWordSize(float wordSize) => Invoke("SetWordSize", wordSize);
+    public void SetWordSize(float wordSize) => Invoke(SetWordSizeSlot, wordSize);
 
     /// <summary>Subscribes to the ClassRegister event of this entity only.</summary>
     public ScriptSubscription SubscribeClassRegister(ClassRegisterHandler handler) => Subscribe("ClassRegister", handler);

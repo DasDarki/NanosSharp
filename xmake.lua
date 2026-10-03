@@ -5,7 +5,7 @@ set_xmakever("3.0.0")
 set_allowedplats("linux")
 set_allowedarchs("x86_64")
 
-add_rules("mode.debug", "mode.release")
+add_rules("mode.debug", "mode.release", "mode.releasedbg")
 set_defaultmode("release")
 
 add_requires("funchook", {configs = {disasm = "distorm"}})

@@ -2,6 +2,7 @@
 
 using NanosSharp.Entities.Binding;
 using NanosSharp.Enums;
+using NanosSharp.Interop.Reflection;
 using NanosSharp.Mathematics;
 using NanosSharp.Scripting;
 
@@ -75,6 +76,15 @@ public partial class Light : Actor
     private static readonly ClassEvent<NetworkAuthorityChangeHandler> NetworkAuthorityChangeEvent = new("Light", "NetworkAuthorityChange");
     private static readonly ClassEvent<SpawnHandler> SpawnEvent = new("Light", "Spawn");
     private static readonly ClassEvent<ValueChangeHandler> ValueChangeEvent = new("Light", "ValueChange");
+    private static readonly MethodSlot GetAttenuationRadiusSlot = new("GetAttenuationRadius");
+    private static readonly MethodSlot GetCastShadowsSlot = new("GetCastShadows");
+    private static readonly MethodSlot GetColorSlot = new("GetColor");
+    private static readonly MethodSlot GetIntensitySlot = new("GetIntensity");
+    private static readonly MethodSlot SetAttenuationRadiusSlot = new("SetAttenuationRadius");
+    private static readonly MethodSlot SetCastShadowsSlot = new("SetCastShadows");
+    private static readonly MethodSlot SetColorSlot = new("SetColor");
+    private static readonly MethodSlot SetIntensitySlot = new("SetIntensity");
+    private static readonly MethodSlot SetTextureLightProfileSlot = new("SetTextureLightProfile");
 
     /// <summary>Gets the distance this Light reaches</summary>
     public float AttenuationRadius
@@ -129,31 +139,31 @@ public partial class Light : Actor
     }
 
     /// <summary>Gets the distance this Light reaches</summary>
-    public float GetAttenuationRadius() => Invoke<float>("GetAttenuationRadius")!;
+    public float GetAttenuationRadius() => Invoke<float>(GetAttenuationRadiusSlot)!;
 
     /// <summary>Gets if this Light casts shadows</summary>
-    public bool GetCastShadows() => Invoke<bool>("GetCastShadows")!;
+    public bool GetCastShadows() => Invoke<bool>(GetCastShadowsSlot)!;
 
     /// <summary>Gets the color of this Light</summary>
-    public Color GetColor() => Invoke<Color>("GetColor")!;
+    public Color GetColor() => Invoke<Color>(GetColorSlot)!;
 
     /// <summary>Gets the brightness of this Light</summary>
-    public float GetIntensity() => Invoke<float>("GetIntensity")!;
+    public float GetIntensity() => Invoke<float>(GetIntensitySlot)!;
 
     /// <summary>Sets the distance this Light reaches</summary>
-    public void SetAttenuationRadius(float attenuationRadius) => Invoke("SetAttenuationRadius", attenuationRadius);
+    public void SetAttenuationRadius(float attenuationRadius) => Invoke(SetAttenuationRadiusSlot, attenuationRadius);
 
     /// <summary>Sets if this Light casts shadows</summary>
-    public void SetCastShadows(bool isShadowsEnabled) => Invoke("SetCastShadows", isShadowsEnabled);
+    public void SetCastShadows(bool isShadowsEnabled) => Invoke(SetCastShadowsSlot, isShadowsEnabled);
 
     /// <summary>Sets the light color</summary>
-    public void SetColor(Color color) => Invoke("SetColor", color);
+    public void SetColor(Color color) => Invoke(SetColorSlot, color);
 
     /// <summary>Sets the brightness of this Light</summary>
-    public void SetIntensity(float intensity) => Invoke("SetIntensity", intensity);
+    public void SetIntensity(float intensity) => Invoke(SetIntensitySlot, intensity);
 
     /// <summary>Sets the light Texture Profile</summary>
-    public void SetTextureLightProfile(LightProfile lightProfile) => Invoke("SetTextureLightProfile", lightProfile);
+    public void SetTextureLightProfile(LightProfile lightProfile) => Invoke(SetTextureLightProfileSlot, lightProfile);
 
     /// <summary>Subscribes to the ClassRegister event of this entity only.</summary>
     public ScriptSubscription SubscribeClassRegister(ClassRegisterHandler handler) => Subscribe("ClassRegister", handler);

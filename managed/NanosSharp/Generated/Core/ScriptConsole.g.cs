@@ -3,6 +3,7 @@
 using NanosSharp.Entities;
 using NanosSharp.Entities.Binding;
 using NanosSharp.Enums;
+using NanosSharp.Interop.Reflection;
 using NanosSharp.Mathematics;
 using NanosSharp.Scripting;
 
@@ -27,15 +28,21 @@ public static partial class ScriptConsole
 
     private static readonly ClassEvent<LogEntryHandler> LogEntryEvent = new("Console_I", "LogEntry");
     private static readonly ClassEvent<PlayerSubmitHandler> PlayerSubmitEvent = new("Console_I", "PlayerSubmit");
+    private static readonly StaticMethodSlot DebugSlot = new("Console_I", "Debug");
+    private static readonly StaticMethodSlot ErrorSlot = new("Console_I", "Error");
+    private static readonly StaticMethodSlot LogSlot = new("Console_I", "Log");
+    private static readonly StaticMethodSlot RegisterCommandSlot = new("Console_I", "RegisterCommand");
+    private static readonly StaticMethodSlot RunCommandSlot = new("Console_I", "RunCommand");
+    private static readonly StaticMethodSlot WarnSlot = new("Console_I", "Warn");
 
     /// <summary>Logs a debug message in the console, with formatted arguments. Outputted only when the current log level is Debug or Verbose</summary>
-    public static void Debug(string message) => ScriptApi.Invoke("Console_I", "Debug", message);
+    public static void Debug(string message) => ScriptApi.Invoke(DebugSlot, message);
 
     /// <summary>Logs a red error in the console with stack information</summary>
-    public static void Error(string message) => ScriptApi.Invoke("Console_I", "Error", message);
+    public static void Error(string message) => ScriptApi.Invoke(ErrorSlot, message);
 
     /// <summary>Logs and formats a message in the console</summary>
-    public static void Log(string message) => ScriptApi.Invoke("Console_I", "Log", message);
+    public static void Log(string message) => ScriptApi.Invoke(LogSlot, message);
 
     /// <summary>Registers a new Console Command</summary>
     public static void RegisterCommand(
@@ -43,13 +50,13 @@ public static partial class ScriptConsole
         Delegate callback,
         string? description = null,
         IEnumerable<string>? parameters = null) =>
-        ScriptApi.Invoke("Console_I", "RegisterCommand", ScriptArguments.Trim([command, ScriptCallback.From(callback), description, parameters], 2));
+        ScriptApi.Invoke(RegisterCommandSlot, ScriptArguments.Trim([command, ScriptCallback.From(callback), description, parameters], 2));
 
     /// <summary>Runs a Console Command programmatically (only scripting-registered commands can be triggered)</summary>
-    public static void RunCommand(string command) => ScriptApi.Invoke("Console_I", "RunCommand", command);
+    public static void RunCommand(string command) => ScriptApi.Invoke(RunCommandSlot, command);
 
     /// <summary>Logs an orange warning in the console with stack information</summary>
-    public static void Warn(string message) => ScriptApi.Invoke("Console_I", "Warn", message);
+    public static void Warn(string message) => ScriptApi.Invoke(WarnSlot, message);
 
     /// <summary>Called when a log is received</summary>
     public delegate void LogEntryHandler(string? text, LogType type);

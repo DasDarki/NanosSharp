@@ -22,14 +22,11 @@ internal unsafe ref struct ArgumentPacker
     private List<nint>? _handles;
     private int _count;
 
-    public ArgumentPacker(Span<NativeArgument> arguments, ReadOnlySpan<object?> values, Span<byte> stackStrings)
+    public ArgumentPacker(Span<NativeArgument> arguments, ReadOnlySpan<object?> head, ReadOnlySpan<object?> tail,
+        Span<byte> stackStrings)
     {
         _arguments = arguments;
-        var stringBytes = 0;
-        foreach (var value in values)
-        {
-            stringBytes += value is string text ? Encoding.UTF8.GetMaxByteCount(text.Length) : 0;
-        }
+        var stringBytes = CountStringBytes(head) + CountStringBytes(tail);
 
         if (stringBytes <= stackStrings.Length)
         {
@@ -109,12 +106,31 @@ internal unsafe ref struct ArgumentPacker
             _rentedStrings = null;
         }
 
-        foreach (var handle in _handles ?? [])
+        if (_handles is null)
+        {
+            return;
+        }
+
+        foreach (var handle in _handles)
         {
             NativeRuntime.Api.ValueFree(handle);
         }
 
         _handles = null;
+    }
+
+    private static int CountStringBytes(ReadOnlySpan<object?> values)
+    {
+        var bytes = 0;
+        foreach (var value in values)
+        {
+            if (value is string text)
+            {
+                bytes += Encoding.UTF8.GetMaxByteCount(text.Length);
+            }
+        }
+
+        return bytes;
     }
 
     private static void WriteEntity(ref NativeArgument argument, Entity entity, uint networkId)

@@ -10,7 +10,7 @@ namespace {
 using game::ScriptValue;
 using game::ValueType;
 
-thread_local ScriptValue result_storage;
+ScriptValue result_storage;
 
 }
 
@@ -111,24 +111,60 @@ void ToArgument(ScriptValue&& value, NativeArgument& argument) {
 }
 
 void ToArgumentView(const ScriptValue& value, NativeArgument& argument) {
+  argument.type = static_cast<uint8_t>(value.value.index());
   switch (value.type()) {
     case ValueType::kBool:
+      argument.boolean = std::get<bool>(value.value) ? 1 : 0;
+      return;
     case ValueType::kInteger:
+      argument.integer = std::get<int64_t>(value.value);
+      return;
     case ValueType::kDouble:
+      argument.number = std::get<double>(value.value);
+      return;
     case ValueType::kNil:
     case ValueType::kVoid:
-    case ValueType::kEntity:
-    case ValueType::kVector:
-    case ValueType::kRotator:
-    case ValueType::kColor:
-    case ValueType::kVector2D:
-      ToArgument(ScriptValue(value), argument);
+      argument.type = static_cast<uint8_t>(ValueType::kNil);
       return;
     case ValueType::kString: {
       const auto& text = std::get<std::string>(value.value);
-      argument.type = static_cast<uint8_t>(ValueType::kString);
       argument.string.data = text.data();
       argument.string.length = static_cast<int64_t>(text.size());
+      return;
+    }
+    case ValueType::kEntity: {
+      const auto& entity = std::get<game::Entity>(value.value);
+      argument.entity.class_id = entity.class_id;
+      argument.entity.instance = entity.instance;
+      argument.entity.network_id = entity.network_id;
+      return;
+    }
+    case ValueType::kVector: {
+      const auto& vector = std::get<game::Vector>(value.value);
+      argument.components[0] = vector.x;
+      argument.components[1] = vector.y;
+      argument.components[2] = vector.z;
+      return;
+    }
+    case ValueType::kRotator: {
+      const auto& rotator = std::get<game::Rotator>(value.value);
+      argument.components[0] = rotator.pitch;
+      argument.components[1] = rotator.yaw;
+      argument.components[2] = rotator.roll;
+      return;
+    }
+    case ValueType::kColor: {
+      const auto& color = std::get<game::Color>(value.value);
+      argument.color[0] = color.r;
+      argument.color[1] = color.g;
+      argument.color[2] = color.b;
+      argument.color[3] = color.a;
+      return;
+    }
+    case ValueType::kVector2D: {
+      const auto& vector = std::get<game::Vector2D>(value.value);
+      argument.components[0] = vector.x;
+      argument.components[1] = vector.y;
       return;
     }
     default:

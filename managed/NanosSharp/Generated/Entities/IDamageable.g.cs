@@ -2,6 +2,7 @@
 
 using NanosSharp.Entities.Binding;
 using NanosSharp.Enums;
+using NanosSharp.Interop.Reflection;
 using NanosSharp.Mathematics;
 using NanosSharp.Scripting;
 
@@ -10,6 +11,7 @@ namespace NanosSharp.Entities;
 /// <summary>Base class for all Damageable entities. It provides Health and Damage related methods and events.</summary>
 public partial interface IDamageable
 {
+
     /// <summary>Gets the current health</summary>
     uint Health { get; set; }
 

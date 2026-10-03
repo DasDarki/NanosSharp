@@ -2,6 +2,7 @@
 
 using NanosSharp.Entities.Binding;
 using NanosSharp.Enums;
+using NanosSharp.Interop.Reflection;
 using NanosSharp.Mathematics;
 using NanosSharp.Scripting;
 
@@ -10,6 +11,7 @@ namespace NanosSharp.Entities;
 /// <summary>Base class for all Pawn entities (Character and CharacterSimple).</summary>
 public partial interface IPawn
 {
+
     /// <summary>Gets all Skeletal Meshes attached to this entity</summary>
     IReadOnlyDictionary<string, string> AllSkeletalMeshAttached { get; }
 

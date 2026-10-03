@@ -2,6 +2,7 @@
 
 using NanosSharp.Entities.Binding;
 using NanosSharp.Enums;
+using NanosSharp.Interop.Reflection;
 using NanosSharp.Mathematics;
 using NanosSharp.Scripting;
 
@@ -267,6 +268,151 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
     private static readonly ClassEvent<UnGrabPropHandler> UnGrabPropEvent = new("Character", "UnGrabProp");
     private static readonly ClassEvent<UnPossessHandler> UnPossessEvent = new("Character", "UnPossess");
     private static readonly ClassEvent<ValueChangeHandler> ValueChangeEvent = new("Character", "ValueChange");
+    private static readonly MethodSlot AddSkeletalMeshAttachedSlot = new("AddSkeletalMeshAttached");
+    private static readonly MethodSlot AddStaticMeshAttachedSlot = new("AddStaticMeshAttached");
+    private static readonly MethodSlot ApplyDamageSlot = new("ApplyDamage");
+    private static readonly MethodSlot ClearMorphTargetsSlot = new("ClearMorphTargets");
+    private static readonly MethodSlot DropSlot = new("Drop");
+    private static readonly MethodSlot EnterVehicleSlot = new("EnterVehicle");
+    private static readonly MethodSlot FollowSlot = new("Follow");
+    private static readonly MethodSlot GetAllSkeletalMeshAttachedSlot = new("GetAllSkeletalMeshAttached");
+    private static readonly MethodSlot GetAllStaticMeshAttachedSlot = new("GetAllStaticMeshAttached");
+    private static readonly MethodSlot GetCameraModeSlot = new("GetCameraMode");
+    private static readonly MethodSlot GetCanAimSlot = new("GetCanAim");
+    private static readonly MethodSlot GetCanCrouchSlot = new("GetCanCrouch");
+    private static readonly MethodSlot GetCanDeployParachuteSlot = new("GetCanDeployParachute");
+    private static readonly MethodSlot GetCanDiveSlot = new("GetCanDive");
+    private static readonly MethodSlot GetCanDropSlot = new("GetCanDrop");
+    private static readonly MethodSlot GetCanGrabPropsSlot = new("GetCanGrabProps");
+    private static readonly MethodSlot GetCanJumpSlot = new("GetCanJump");
+    private static readonly MethodSlot GetCanPickupPickablesSlot = new("GetCanPickupPickables");
+    private static readonly MethodSlot GetCanPunchSlot = new("GetCanPunch");
+    private static readonly MethodSlot GetCanSprintSlot = new("GetCanSprint");
+    private static readonly MethodSlot GetCanUsePickablesSlot = new("GetCanUsePickables");
+    private static readonly MethodSlot GetCapsuleSizeSlot = new("GetCapsuleSize");
+    private static readonly MethodSlot GetControlRotationSlot = new("GetControlRotation");
+    private static readonly MethodSlot GetDamageMultiplierSlot = new("GetDamageMultiplier");
+    private static readonly MethodSlot GetFallDamageTakenSlot = new("GetFallDamageTaken");
+    private static readonly MethodSlot GetFallingModeSlot = new("GetFallingMode");
+    private static readonly MethodSlot GetFlyingModeSlot = new("GetFlyingMode");
+    private static readonly MethodSlot GetFootstepVolumeMultiplierSlot = new("GetFootstepVolumeMultiplier");
+    private static readonly MethodSlot GetGaitModeSlot = new("GetGaitMode");
+    private static readonly MethodSlot GetGrabbedPropSlot = new("GetGrabbedProp");
+    private static readonly MethodSlot GetGravityScaleSlot = new("GetGravityScale");
+    private static readonly MethodSlot GetHealthSlot = new("GetHealth");
+    private static readonly MethodSlot GetImpactDamageTakenSlot = new("GetImpactDamageTaken");
+    private static readonly MethodSlot GetJumpZVelocitySlot = new("GetJumpZVelocity");
+    private static readonly MethodSlot GetMaterialColorParameterSlot = new("GetMaterialColorParameter");
+    private static readonly MethodSlot GetMaterialScalarParameterSlot = new("GetMaterialScalarParameter");
+    private static readonly MethodSlot GetMaterialTextureParameterSlot = new("GetMaterialTextureParameter");
+    private static readonly MethodSlot GetMaterialVectorParameterSlot = new("GetMaterialVectorParameter");
+    private static readonly MethodSlot GetMaxHealthSlot = new("GetMaxHealth");
+    private static readonly MethodSlot GetMeshSlot = new("GetMesh");
+    private static readonly MethodSlot GetMorphTargetSlot = new("GetMorphTarget");
+    private static readonly MethodSlot GetMovingToSlot = new("GetMovingTo");
+    private static readonly MethodSlot GetPickedSlot = new("GetPicked");
+    private static readonly MethodSlot GetPlayerSlot = new("GetPlayer");
+    private static readonly MethodSlot GetPunchDamageSlot = new("GetPunchDamage");
+    private static readonly MethodSlot GetRadialDamageToRagdollSlot = new("GetRadialDamageToRagdoll");
+    private static readonly MethodSlot GetSpeedMultiplierSlot = new("GetSpeedMultiplier");
+    private static readonly MethodSlot GetStanceModeSlot = new("GetStanceMode");
+    private static readonly MethodSlot GetSwimmingModeSlot = new("GetSwimmingMode");
+    private static readonly MethodSlot GetTeamSlot = new("GetTeam");
+    private static readonly MethodSlot GetVehicleSlot = new("GetVehicle");
+    private static readonly MethodSlot GetVehicleSeatSlot = new("GetVehicleSeat");
+    private static readonly MethodSlot GetViewModeSlot = new("GetViewMode");
+    private static readonly MethodSlot GetWeaponAimModeSlot = new("GetWeaponAimMode");
+    private static readonly MethodSlot GetWeaponShooterModeSlot = new("GetWeaponShooterMode");
+    private static readonly MethodSlot GrabPropSlot = new("GrabProp");
+    private static readonly MethodSlot HideBoneSlot = new("HideBone");
+    private static readonly MethodSlot IsBoneHiddenSlot = new("IsBoneHidden");
+    private static readonly MethodSlot IsDeadSlot = new("IsDead");
+    private static readonly MethodSlot IsInRagdollModeSlot = new("IsInRagdollMode");
+    private static readonly MethodSlot IsInputEnabledSlot = new("IsInputEnabled");
+    private static readonly MethodSlot IsInvulnerableSlot = new("IsInvulnerable");
+    private static readonly MethodSlot JumpSlot = new("Jump");
+    private static readonly MethodSlot LeaveVehicleSlot = new("LeaveVehicle");
+    private static readonly MethodSlot LookAtSlot = new("LookAt");
+    private static readonly MethodSlot MoveToSlot = new("MoveTo");
+    private static readonly MethodSlot PickUpSlot = new("PickUp");
+    private static readonly MethodSlot PlayAnimationSlot = new("PlayAnimation");
+    private static readonly MethodSlot RemoveAllSkeletalMeshesAttachedSlot = new("RemoveAllSkeletalMeshesAttached");
+    private static readonly MethodSlot RemoveAllStaticMeshesAttachedSlot = new("RemoveAllStaticMeshesAttached");
+    private static readonly MethodSlot RemoveSkeletalMeshAttachedSlot = new("RemoveSkeletalMeshAttached");
+    private static readonly MethodSlot RemoveStaticMeshAttachedSlot = new("RemoveStaticMeshAttached");
+    private static readonly MethodSlot ResetMaterialSlot = new("ResetMaterial");
+    private static readonly MethodSlot ResetPhysicalAnimationSettingsSlot = new("ResetPhysicalAnimationSettings");
+    private static readonly MethodSlot RespawnSlot = new("Respawn");
+    private static readonly MethodSlot SetAIAvoidanceSettingsSlot = new("SetAIAvoidanceSettings");
+    private static readonly MethodSlot SetAccelerationSettingsSlot = new("SetAccelerationSettings");
+    private static readonly MethodSlot SetAirControlSlot = new("SetAirControl");
+    private static readonly MethodSlot SetAnimationIdleWalkRunCrouchingSlot = new("SetAnimationIdleWalkRunCrouching");
+    private static readonly MethodSlot SetAnimationIdleWalkRunProningSlot = new("SetAnimationIdleWalkRunProning");
+    private static readonly MethodSlot SetAnimationIdleWalkRunStandingSlot = new("SetAnimationIdleWalkRunStanding");
+    private static readonly MethodSlot SetAnimationsTransitionCrouchingProningSlot = new("SetAnimationsTransitionCrouchingProning");
+    private static readonly MethodSlot SetAnimationsTransitionStandingCrouchingSlot = new("SetAnimationsTransitionStandingCrouching");
+    private static readonly MethodSlot SetBrakingSettingsSlot = new("SetBrakingSettings");
+    private static readonly MethodSlot SetCameraModeSlot = new("SetCameraMode");
+    private static readonly MethodSlot SetCanAimSlot = new("SetCanAim");
+    private static readonly MethodSlot SetCanCrouchSlot = new("SetCanCrouch");
+    private static readonly MethodSlot SetCanDeployParachuteSlot = new("SetCanDeployParachute");
+    private static readonly MethodSlot SetCanDiveSlot = new("SetCanDive");
+    private static readonly MethodSlot SetCanDropSlot = new("SetCanDrop");
+    private static readonly MethodSlot SetCanGrabPropsSlot = new("SetCanGrabProps");
+    private static readonly MethodSlot SetCanJumpSlot = new("SetCanJump");
+    private static readonly MethodSlot SetCanPickupPickablesSlot = new("SetCanPickupPickables");
+    private static readonly MethodSlot SetCanPunchSlot = new("SetCanPunch");
+    private static readonly MethodSlot SetCanSprintSlot = new("SetCanSprint");
+    private static readonly MethodSlot SetCanUsePickablesSlot = new("SetCanUsePickables");
+    private static readonly MethodSlot SetCapsuleSizeSlot = new("SetCapsuleSize");
+    private static readonly MethodSlot SetControlRotationSlot = new("SetControlRotation");
+    private static readonly MethodSlot SetDamageMultiplierSlot = new("SetDamageMultiplier");
+    private static readonly MethodSlot SetDeathSoundSlot = new("SetDeathSound");
+    private static readonly MethodSlot SetFOVMultiplierSlot = new("SetFOVMultiplier");
+    private static readonly MethodSlot SetFallDamageTakenSlot = new("SetFallDamageTaken");
+    private static readonly MethodSlot SetFlyingModeSlot = new("SetFlyingMode");
+    private static readonly MethodSlot SetFootstepVolumeMultiplierSlot = new("SetFootstepVolumeMultiplier");
+    private static readonly MethodSlot SetGaitModeSlot = new("SetGaitMode");
+    private static readonly MethodSlot SetGravityScaleSlot = new("SetGravityScale");
+    private static readonly MethodSlot SetHealthSlot = new("SetHealth");
+    private static readonly MethodSlot SetHighFallingTimeSlot = new("SetHighFallingTime");
+    private static readonly MethodSlot SetHitReactionEnabledSlot = new("SetHitReactionEnabled");
+    private static readonly MethodSlot SetImpactDamageTakenSlot = new("SetImpactDamageTaken");
+    private static readonly MethodSlot SetInputEnabledSlot = new("SetInputEnabled");
+    private static readonly MethodSlot SetInvulnerableSlot = new("SetInvulnerable");
+    private static readonly MethodSlot SetJumpZVelocitySlot = new("SetJumpZVelocity");
+    private static readonly MethodSlot SetMaterialSlot = new("SetMaterial");
+    private static readonly MethodSlot SetMaterialColorParameterSlot = new("SetMaterialColorParameter");
+    private static readonly MethodSlot SetMaterialScalarParameterSlot = new("SetMaterialScalarParameter");
+    private static readonly MethodSlot SetMaterialTextureParameterSlot = new("SetMaterialTextureParameter");
+    private static readonly MethodSlot SetMaterialVectorParameterSlot = new("SetMaterialVectorParameter");
+    private static readonly MethodSlot SetMaxHealthSlot = new("SetMaxHealth");
+    private static readonly MethodSlot SetMeshSlot = new("SetMesh");
+    private static readonly MethodSlot SetMeshSettingsSlot = new("SetMeshSettings");
+    private static readonly MethodSlot SetMorphTargetSlot = new("SetMorphTarget");
+    private static readonly MethodSlot SetPainSoundSlot = new("SetPainSound");
+    private static readonly MethodSlot SetParachuteTextureSlot = new("SetParachuteTexture");
+    private static readonly MethodSlot SetPhysicalAnimationSettingsSlot = new("SetPhysicalAnimationSettings");
+    private static readonly MethodSlot SetPhysicalMaterialSlot = new("SetPhysicalMaterial");
+    private static readonly MethodSlot SetPhysicsAssetSlot = new("SetPhysicsAsset");
+    private static readonly MethodSlot SetPunchDamageSlot = new("SetPunchDamage");
+    private static readonly MethodSlot SetRadialDamageToRagdollSlot = new("SetRadialDamageToRagdoll");
+    private static readonly MethodSlot SetRagdollModeSlot = new("SetRagdollMode");
+    private static readonly MethodSlot SetRagdollOnDeathEnabledSlot = new("SetRagdollOnDeathEnabled");
+    private static readonly MethodSlot SetRagdollOnHitEnabledSlot = new("SetRagdollOnHitEnabled");
+    private static readonly MethodSlot SetRagdollStandUpCooldownSlot = new("SetRagdollStandUpCooldown");
+    private static readonly MethodSlot SetSimulatePhysicsSlot = new("SetSimulatePhysics");
+    private static readonly MethodSlot SetSpeedMultiplierSlot = new("SetSpeedMultiplier");
+    private static readonly MethodSlot SetStanceModeSlot = new("SetStanceMode");
+    private static readonly MethodSlot SetStaticMeshAttachedTransformSlot = new("SetStaticMeshAttachedTransform");
+    private static readonly MethodSlot SetTeamSlot = new("SetTeam");
+    private static readonly MethodSlot SetViewModeSlot = new("SetViewMode");
+    private static readonly MethodSlot SetWeaponAimModeSlot = new("SetWeaponAimMode");
+    private static readonly MethodSlot SetWeaponShooterModeSlot = new("SetWeaponShooterMode");
+    private static readonly MethodSlot StopAnimationSlot = new("StopAnimation");
+    private static readonly MethodSlot StopMovementSlot = new("StopMovement");
+    private static readonly MethodSlot UnGrabPropSlot = new("UnGrabProp");
+    private static readonly MethodSlot UnHideBoneSlot = new("UnHideBone");
 
     /// <summary>Gets all Skeletal Meshes attached to this entity</summary>
     public IReadOnlyDictionary<string, string> AllSkeletalMeshAttached => GetAllSkeletalMeshAttached();
@@ -568,7 +714,7 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
         bool? useBaseLeaderPoseComponent = null,
         string? animationPath = null,
         string? attachableId = null) =>
-        Invoke("AddSkeletalMeshAttached", ScriptArguments.Trim([id, skeletalMeshPath, socket, relativeLocation, relativeRotation, useParentBounds, useBaseLeaderPoseComponent, animationPath, attachableId], 2));
+        Invoke(AddSkeletalMeshAttachedSlot, ScriptArguments.Trim([id, skeletalMeshPath, socket, relativeLocation, relativeRotation, useParentBounds, useBaseLeaderPoseComponent, animationPath, attachableId], 2));
 
     /// <summary>Attaches a Static Mesh to this entity</summary>
     public void AddStaticMeshAttached(
@@ -579,7 +725,7 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
         Rotator? relativeRotation = null,
         bool? useParentBounds = null,
         string? attachableId = null) =>
-        Invoke("AddStaticMeshAttached", ScriptArguments.Trim([id, staticMeshPath, socket, relativeLocation, relativeRotation, useParentBounds, attachableId], 2));
+        Invoke(AddStaticMeshAttachedSlot, ScriptArguments.Trim([id, staticMeshPath, socket, relativeLocation, relativeRotation, useParentBounds, attachableId], 2));
 
     /// <summary>Do damage to this entity</summary>
     public uint ApplyDamage(
@@ -589,17 +735,17 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
         Vector? fromDirection = null,
         Player? instigator = null,
         Entity? causer = null) =>
-        Invoke<uint>("ApplyDamage", ScriptArguments.Trim([damage, boneName, damageType, fromDirection, instigator, causer], 1))!;
+        Invoke<uint>(ApplyDamageSlot, ScriptArguments.Trim([damage, boneName, damageType, fromDirection, instigator, causer], 1))!;
 
     /// <summary>Clear all Morph Target that are set to this Mesh</summary>
-    public void ClearMorphTargets() => Invoke("ClearMorphTargets");
+    public void ClearMorphTargets() => Invoke(ClearMorphTargetsSlot);
 
     /// <summary>Drops any Pickable the Character is holding</summary>
-    public void Drop() => Invoke("Drop");
+    public void Drop() => Invoke(DropSlot);
 
     /// <summary>Enters the Vehicle at Seat (0 - Driver)</summary>
     public void EnterVehicle(Entity vehicle, byte? seat = null) =>
-        Invoke("EnterVehicle", ScriptArguments.Trim([vehicle, seat], 1));
+        Invoke(EnterVehicleSlot, ScriptArguments.Trim([vehicle, seat], 1));
 
     /// <summary>AI: Makes this Pawn follow another actor</summary>
     public void Follow(
@@ -608,195 +754,195 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
         bool? stopOnSucceed = null,
         bool? stopOnFail = null,
         float? updateRate = null) =>
-        Invoke("Follow", ScriptArguments.Trim([actor, acceptanceRadius, stopOnSucceed, stopOnFail, updateRate], 1));
+        Invoke(FollowSlot, ScriptArguments.Trim([actor, acceptanceRadius, stopOnSucceed, stopOnFail, updateRate], 1));
 
     /// <summary>Gets all Skeletal Meshes attached to this entity</summary>
     public IReadOnlyDictionary<string, string> GetAllSkeletalMeshAttached() =>
-        Invoke<IReadOnlyDictionary<string, string>>("GetAllSkeletalMeshAttached")!;
+        Invoke<IReadOnlyDictionary<string, string>>(GetAllSkeletalMeshAttachedSlot)!;
 
     /// <summary>Gets all Static Meshes attached to this entity</summary>
     public IReadOnlyDictionary<string, string> GetAllStaticMeshAttached() =>
-        Invoke<IReadOnlyDictionary<string, string>>("GetAllStaticMeshAttached")!;
+        Invoke<IReadOnlyDictionary<string, string>>(GetAllStaticMeshAttachedSlot)!;
 
     /// <summary>Gets the camera mode</summary>
-    public CameraMode GetCameraMode() => Invoke<CameraMode>("GetCameraMode")!;
+    public CameraMode GetCameraMode() => Invoke<CameraMode>(GetCameraModeSlot)!;
 
     /// <summary>Gets if this Character is allowed to aim</summary>
-    public bool GetCanAim() => Invoke<bool>("GetCanAim")!;
+    public bool GetCanAim() => Invoke<bool>(GetCanAimSlot)!;
 
     /// <summary>Gets if this Pawn is allowed to Crouch</summary>
-    public bool GetCanCrouch() => Invoke<bool>("GetCanCrouch")!;
+    public bool GetCanCrouch() => Invoke<bool>(GetCanCrouchSlot)!;
 
     /// <summary>Gets if this Character is allowed to deploy the Parachute</summary>
-    public bool GetCanDeployParachute() => Invoke<bool>("GetCanDeployParachute")!;
+    public bool GetCanDeployParachute() => Invoke<bool>(GetCanDeployParachuteSlot)!;
 
     /// <summary>Gets if this Character is allowed to Dive</summary>
-    public bool GetCanDive() => Invoke<bool>("GetCanDive")!;
+    public bool GetCanDive() => Invoke<bool>(GetCanDiveSlot)!;
 
     /// <summary>Gets if this Character is allowed to drop the picked up item</summary>
-    public bool GetCanDrop() => Invoke<bool>("GetCanDrop")!;
+    public bool GetCanDrop() => Invoke<bool>(GetCanDropSlot)!;
 
     /// <summary>Gets if this Character is allowed to grab Props</summary>
-    public bool GetCanGrabProps() => Invoke<bool>("GetCanGrabProps")!;
+    public bool GetCanGrabProps() => Invoke<bool>(GetCanGrabPropsSlot)!;
 
     /// <summary>Gets if this Pawn is allowed to Jump</summary>
-    public bool GetCanJump() => Invoke<bool>("GetCanJump")!;
+    public bool GetCanJump() => Invoke<bool>(GetCanJumpSlot)!;
 
     /// <summary>Gets if this Character is allowed to pick up Pickables (Weapon, Grenade, Melee...)</summary>
-    public bool GetCanPickupPickables() => Invoke<bool>("GetCanPickupPickables")!;
+    public bool GetCanPickupPickables() => Invoke<bool>(GetCanPickupPickablesSlot)!;
 
     /// <summary>Gets if this Character is allowed to punch</summary>
-    public bool GetCanPunch() => Invoke<bool>("GetCanPunch")!;
+    public bool GetCanPunch() => Invoke<bool>(GetCanPunchSlot)!;
 
     /// <summary>Gets if this Character is allowed to sprint</summary>
-    public bool GetCanSprint() => Invoke<bool>("GetCanSprint")!;
+    public bool GetCanSprint() => Invoke<bool>(GetCanSprintSlot)!;
 
     /// <summary>Gets if this Character is allowed to use Pickables (Weapon, Grenade, Melee...)</summary>
-    public bool GetCanUsePickables() => Invoke<bool>("GetCanUsePickables")!;
+    public bool GetCanUsePickables() => Invoke<bool>(GetCanUsePickablesSlot)!;
 
     /// <summary>Gets the Capsule Size</summary>
     public IReadOnlyDictionary<string, float> GetCapsuleSize() =>
-        Invoke<IReadOnlyDictionary<string, float>>("GetCapsuleSize")!;
+        Invoke<IReadOnlyDictionary<string, float>>(GetCapsuleSizeSlot)!;
 
     /// <summary>Gets the Control Rotation, which is where this Pawn is looking or aiming</summary>
-    public Rotator GetControlRotation() => Invoke<Rotator>("GetControlRotation")!;
+    public Rotator GetControlRotation() => Invoke<Rotator>(GetControlRotationSlot)!;
 
     /// <summary>Gets the Damage Multiplier of a bone</summary>
-    public float GetDamageMultiplier(string boneName) => Invoke<float>("GetDamageMultiplier", boneName)!;
+    public float GetDamageMultiplier(string boneName) => Invoke<float>(GetDamageMultiplierSlot, boneName)!;
 
     /// <summary>Gets the Fall Damage multiplier</summary>
-    public ushort GetFallDamageTaken() => Invoke<ushort>("GetFallDamageTaken")!;
+    public ushort GetFallDamageTaken() => Invoke<ushort>(GetFallDamageTakenSlot)!;
 
     /// <summary>Gets the current Falling Mode</summary>
-    public FallingMode GetFallingMode() => Invoke<FallingMode>("GetFallingMode")!;
+    public FallingMode GetFallingMode() => Invoke<FallingMode>(GetFallingModeSlot)!;
 
     /// <summary>Gets if it's in Flying mode</summary>
-    public bool GetFlyingMode() => Invoke<bool>("GetFlyingMode")!;
+    public bool GetFlyingMode() => Invoke<bool>(GetFlyingModeSlot)!;
 
     /// <summary>Gets the Footstep Volume multiplier</summary>
-    public float GetFootstepVolumeMultiplier() => Invoke<float>("GetFootstepVolumeMultiplier")!;
+    public float GetFootstepVolumeMultiplier() => Invoke<float>(GetFootstepVolumeMultiplierSlot)!;
 
     /// <summary>Gets the current Gait Mode</summary>
-    public GaitMode GetGaitMode() => Invoke<GaitMode>("GetGaitMode")!;
+    public GaitMode GetGaitMode() => Invoke<GaitMode>(GetGaitModeSlot)!;
 
     /// <summary>Gets the Grabbed Prop</summary>
-    public Prop? GetGrabbedProp() => Invoke<Prop?>("GetGrabbedProp");
+    public Prop? GetGrabbedProp() => Invoke<Prop?>(GetGrabbedPropSlot);
 
     /// <summary>Gets the gravity scale</summary>
-    public float GetGravityScale() => Invoke<float>("GetGravityScale")!;
+    public float GetGravityScale() => Invoke<float>(GetGravityScaleSlot)!;
 
     /// <summary>Gets the current health</summary>
-    public uint GetHealth() => Invoke<uint>("GetHealth")!;
+    public uint GetHealth() => Invoke<uint>(GetHealthSlot)!;
 
     /// <summary>Gets the Impact Damage taken when being run over</summary>
-    public ushort GetImpactDamageTaken() => Invoke<ushort>("GetImpactDamageTaken")!;
+    public ushort GetImpactDamageTaken() => Invoke<ushort>(GetImpactDamageTakenSlot)!;
 
     /// <summary>Gets the initial vertical velocity when jumping, which defines the jump height</summary>
-    public ushort GetJumpZVelocity() => Invoke<ushort>("GetJumpZVelocity")!;
+    public ushort GetJumpZVelocity() => Invoke<ushort>(GetJumpZVelocitySlot)!;
 
     /// <summary>Gets a Color parameter from this Actor's material</summary>
     public Color? GetMaterialColorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Color?>("GetMaterialColorParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<Color?>(GetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets a Scalar parameter from this Actor's material</summary>
     public float? GetMaterialScalarParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<float?>("GetMaterialScalarParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<float?>(GetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets a Texture parameter from this Actor's material</summary>
     public string? GetMaterialTextureParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<string?>("GetMaterialTextureParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<string?>(GetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets a Vector parameter from this Actor's material</summary>
     public Vector? GetMaterialVectorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Vector?>("GetMaterialVectorParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<Vector?>(GetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets the Max Health</summary>
-    public uint GetMaxHealth() => Invoke<uint>("GetMaxHealth")!;
+    public uint GetMaxHealth() => Invoke<uint>(GetMaxHealthSlot)!;
 
     /// <summary>Gets the base Mesh Asset</summary>
-    public string GetMesh() => Invoke<string>("GetMesh")!;
+    public string GetMesh() => Invoke<string>(GetMeshSlot)!;
 
     /// <summary>Returns the value of a Morph Target</summary>
-    public float GetMorphTarget(string name) => Invoke<float>("GetMorphTarget", name)!;
+    public float GetMorphTarget(string name) => Invoke<float>(GetMorphTargetSlot, name)!;
 
     /// <summary>Gets the Moving To location</summary>
-    public Vector GetMovingTo() => Invoke<Vector>("GetMovingTo")!;
+    public Vector GetMovingTo() => Invoke<Vector>(GetMovingToSlot)!;
 
     /// <summary>Gets the Pickable if picking up</summary>
-    public object? GetPicked() => Invoke<object?>("GetPicked");
+    public object? GetPicked() => Invoke<object?>(GetPickedSlot);
 
     /// <summary>Gets the possessing Player</summary>
-    public Player? GetPlayer() => Invoke<Player?>("GetPlayer");
+    public Player? GetPlayer() => Invoke<Player?>(GetPlayerSlot);
 
     /// <summary>Gets the damage dealt by this Character's punches</summary>
-    public ushort GetPunchDamage() => Invoke<ushort>("GetPunchDamage")!;
+    public ushort GetPunchDamage() => Invoke<ushort>(GetPunchDamageSlot)!;
 
     /// <summary>Gets the minimum radial damage (e.g. explosions) taken to enter in ragdoll mode</summary>
-    public short GetRadialDamageToRagdoll() => Invoke<short>("GetRadialDamageToRagdoll")!;
+    public short GetRadialDamageToRagdoll() => Invoke<short>(GetRadialDamageToRagdollSlot)!;
 
     /// <summary>Gets the movement speed multiplier</summary>
-    public float GetSpeedMultiplier() => Invoke<float>("GetSpeedMultiplier")!;
+    public float GetSpeedMultiplier() => Invoke<float>(GetSpeedMultiplierSlot)!;
 
     /// <summary>Gets the Stance Mode</summary>
-    public StanceMode GetStanceMode() => Invoke<StanceMode>("GetStanceMode")!;
+    public StanceMode GetStanceMode() => Invoke<StanceMode>(GetStanceModeSlot)!;
 
     /// <summary>Gets the Swimming Mode</summary>
-    public SwimmingMode GetSwimmingMode() => Invoke<SwimmingMode>("GetSwimmingMode")!;
+    public SwimmingMode GetSwimmingMode() => Invoke<SwimmingMode>(GetSwimmingModeSlot)!;
 
     /// <summary>Gets the Team of this Character</summary>
-    public uint GetTeam() => Invoke<uint>("GetTeam")!;
+    public uint GetTeam() => Invoke<uint>(GetTeamSlot)!;
 
     /// <summary>Gets the entered Vehicle</summary>
-    public object? GetVehicle() => Invoke<object?>("GetVehicle");
+    public object? GetVehicle() => Invoke<object?>(GetVehicleSlot);
 
     /// <summary>Gets the entered Vehicle seat</summary>
-    public long GetVehicleSeat() => Invoke<long>("GetVehicleSeat")!;
+    public long GetVehicleSeat() => Invoke<long>(GetVehicleSeatSlot)!;
 
     /// <summary>Gets the View Mode</summary>
-    public ViewMode GetViewMode() => Invoke<ViewMode>("GetViewMode")!;
+    public ViewMode GetViewMode() => Invoke<ViewMode>(GetViewModeSlot)!;
 
     /// <summary>Gets the Weapon Aim Mode</summary>
-    public AimMode GetWeaponAimMode() => Invoke<AimMode>("GetWeaponAimMode")!;
+    public AimMode GetWeaponAimMode() => Invoke<AimMode>(GetWeaponAimModeSlot)!;
 
     /// <summary>Gets if this Character is in Shooter Mode</summary>
-    public bool GetWeaponShooterMode() => Invoke<bool>("GetWeaponShooterMode")!;
+    public bool GetWeaponShooterMode() => Invoke<bool>(GetWeaponShooterModeSlot)!;
 
     /// <summary>Gives a Prop to the Character</summary>
-    public void GrabProp(Prop prop) => Invoke("GrabProp", prop);
+    public void GrabProp(Prop prop) => Invoke(GrabPropSlot, prop);
 
     /// <summary>Hides a bone of this Pawn</summary>
-    public void HideBone(string boneName) => Invoke("HideBone", boneName);
+    public void HideBone(string boneName) => Invoke(HideBoneSlot, boneName);
 
     /// <summary>Gets if a bone is hidden</summary>
-    public bool IsBoneHidden(string boneName) => Invoke<bool>("IsBoneHidden", boneName)!;
+    public bool IsBoneHidden(string boneName) => Invoke<bool>(IsBoneHiddenSlot, boneName)!;
 
     /// <summary>Returns if the entity is dead</summary>
-    public bool IsDead() => Invoke<bool>("IsDead")!;
+    public bool IsDead() => Invoke<bool>(IsDeadSlot)!;
 
     /// <summary>Gets if Character is in ragdoll mode</summary>
-    public bool IsInRagdollMode() => Invoke<bool>("IsInRagdollMode")!;
+    public bool IsInRagdollMode() => Invoke<bool>(IsInRagdollModeSlot)!;
 
     /// <summary>Gets if this Character has input enabled</summary>
-    public bool IsInputEnabled() => Invoke<bool>("IsInputEnabled")!;
+    public bool IsInputEnabled() => Invoke<bool>(IsInputEnabledSlot)!;
 
     /// <summary>Gets if this Character is invulnerable</summary>
-    public bool IsInvulnerable() => Invoke<bool>("IsInvulnerable")!;
+    public bool IsInvulnerable() => Invoke<bool>(IsInvulnerableSlot)!;
 
     /// <summary>Triggers this Pawn to jump</summary>
-    public void Jump() => Invoke("Jump");
+    public void Jump() => Invoke(JumpSlot);
 
     /// <summary>Leaves the current Vehicle</summary>
-    public void LeaveVehicle() => Invoke("LeaveVehicle");
+    public void LeaveVehicle() => Invoke(LeaveVehicleSlot);
 
     /// <summary>AI: Tries to make this Character to look at Location</summary>
-    public void LookAt(Vector location) => Invoke("LookAt", location);
+    public void LookAt(Vector location) => Invoke(LookAtSlot, location);
 
     /// <summary>AI: Makes this Pawn walk to the Location</summary>
     public void MoveTo(Vector location, float? acceptanceRadius = null) =>
-        Invoke("MoveTo", ScriptArguments.Trim([location, acceptanceRadius], 1));
+        Invoke(MoveToSlot, ScriptArguments.Trim([location, acceptanceRadius], 1));
 
     /// <summary>Gives a Melee/Grenade/Weapon (Pickable) to the Character</summary>
-    public void PickUp(Entity pickable) => Invoke("PickUp", pickable);
+    public void PickUp(Entity pickable) => Invoke(PickUpSlot, pickable);
 
     /// <summary>Plays an Animation Montage on this character</summary>
     public void PlayAnimation(
@@ -807,34 +953,34 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
         float? blendOutTime = null,
         float? playRate = null,
         bool? stopAllMontages = null) =>
-        Invoke("PlayAnimation", ScriptArguments.Trim([animationPath, slotType, loopIndefinitely, blendInTime, blendOutTime, playRate, stopAllMontages], 1));
+        Invoke(PlayAnimationSlot, ScriptArguments.Trim([animationPath, slotType, loopIndefinitely, blendInTime, blendOutTime, playRate, stopAllMontages], 1));
 
     /// <summary>Removes all SkeletalMeshes attached</summary>
-    public void RemoveAllSkeletalMeshesAttached() => Invoke("RemoveAllSkeletalMeshesAttached");
+    public void RemoveAllSkeletalMeshesAttached() => Invoke(RemoveAllSkeletalMeshesAttachedSlot);
 
     /// <summary>Removes all StaticMeshes attached</summary>
-    public void RemoveAllStaticMeshesAttached() => Invoke("RemoveAllStaticMeshesAttached");
+    public void RemoveAllStaticMeshesAttached() => Invoke(RemoveAllStaticMeshesAttachedSlot);
 
     /// <summary>Removes, if it exists, a SkeletalMesh from this entity given its custom ID</summary>
-    public void RemoveSkeletalMeshAttached(string id) => Invoke("RemoveSkeletalMeshAttached", id);
+    public void RemoveSkeletalMeshAttached(string id) => Invoke(RemoveSkeletalMeshAttachedSlot, id);
 
     /// <summary>Removes, if it exists, a StaticMesh from this entity given its custom ID</summary>
-    public void RemoveStaticMeshAttached(string id) => Invoke("RemoveStaticMeshAttached", id);
+    public void RemoveStaticMeshAttached(string id) => Invoke(RemoveStaticMeshAttachedSlot, id);
 
     /// <summary>Resets the material from the specified index to the original one</summary>
     public void ResetMaterial(int? index = null, string? attachableId = null) =>
-        Invoke("ResetMaterial", ScriptArguments.Trim([index, attachableId], 0));
+        Invoke(ResetMaterialSlot, ScriptArguments.Trim([index, attachableId], 0));
 
     /// <summary>Resets all Physical Animation settings</summary>
-    public void ResetPhysicalAnimationSettings() => Invoke("ResetPhysicalAnimationSettings");
+    public void ResetPhysicalAnimationSettings() => Invoke(ResetPhysicalAnimationSettingsSlot);
 
     /// <summary>Respawns the Entity, filling its Health and moving it to its Initial Location</summary>
     public void Respawn(Vector? location = null, Rotator? rotation = null) =>
-        Invoke("Respawn", ScriptArguments.Trim([location, rotation], 0));
+        Invoke(RespawnSlot, ScriptArguments.Trim([location, rotation], 0));
 
     /// <summary>AI: Configures the RVO (Reciprocal Velocity Obstacles) Avoidance system used by the AIs when moving</summary>
     public void SetAIAvoidanceSettings(bool enabled, ushort? avoidanceConsiderationRadius = null) =>
-        Invoke("SetAIAvoidanceSettings", ScriptArguments.Trim([enabled, avoidanceConsiderationRadius], 1));
+        Invoke(SetAIAvoidanceSettingsSlot, ScriptArguments.Trim([enabled, avoidanceConsiderationRadius], 1));
 
     /// <summary>Sets the Movement Max Acceleration of this Character</summary>
     public void SetAccelerationSettings(
@@ -845,34 +991,34 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
         ushort? swimming = null,
         ushort? swimmingSurface = null,
         ushort? flying = null) =>
-        Invoke("SetAccelerationSettings", ScriptArguments.Trim([walking, parachuting, skydiving, falling, swimming, swimmingSurface, flying], 0));
+        Invoke(SetAccelerationSettingsSlot, ScriptArguments.Trim([walking, parachuting, skydiving, falling, swimming, swimmingSurface, flying], 0));
 
     /// <summary>Sets the amount of movement control allowed when it is in air</summary>
     public void SetAirControl(
         float? airControl = null,
         float? boostMultiplier = null,
         float? boostVelocityThreshold = null) =>
-        Invoke("SetAirControl", ScriptArguments.Trim([airControl, boostMultiplier, boostVelocityThreshold], 0));
+        Invoke(SetAirControlSlot, ScriptArguments.Trim([airControl, boostMultiplier, boostVelocityThreshold], 0));
 
     /// <summary>Sets the Blend Space (2D) Animation for CrouchingHorizontal Axis stands for Speed X and Vertical Axis for Speed Y</summary>
     public void SetAnimationIdleWalkRunCrouching(string blendSpacePath, bool? enableTurnInPlace = null) =>
-        Invoke("SetAnimationIdleWalkRunCrouching", ScriptArguments.Trim([blendSpacePath, enableTurnInPlace], 1));
+        Invoke(SetAnimationIdleWalkRunCrouchingSlot, ScriptArguments.Trim([blendSpacePath, enableTurnInPlace], 1));
 
     /// <summary>Sets the Blend Space (2D) Animation for ProningHorizontal Axis stands for Speed X and Vertical Axis for Speed Y</summary>
     public void SetAnimationIdleWalkRunProning(string blendSpacePath) =>
-        Invoke("SetAnimationIdleWalkRunProning", blendSpacePath);
+        Invoke(SetAnimationIdleWalkRunProningSlot, blendSpacePath);
 
     /// <summary>Sets the Blend Space (2D) Animation for Standing</summary>
     public void SetAnimationIdleWalkRunStanding(string blendSpacePath, bool? enableTurnInPlace = null) =>
-        Invoke("SetAnimationIdleWalkRunStanding", ScriptArguments.Trim([blendSpacePath, enableTurnInPlace], 1));
+        Invoke(SetAnimationIdleWalkRunStandingSlot, ScriptArguments.Trim([blendSpacePath, enableTurnInPlace], 1));
 
     /// <summary>Sets the Transition Animation between Crouching and Proning</summary>
     public void SetAnimationsTransitionCrouchingProning(string crouchingToProning, string proningToCrouching) =>
-        Invoke("SetAnimationsTransitionCrouchingProning", crouchingToProning, proningToCrouching);
+        Invoke(SetAnimationsTransitionCrouchingProningSlot, crouchingToProning, proningToCrouching);
 
     /// <summary>Sets the Transition Animation between Standing and Crouching</summary>
     public void SetAnimationsTransitionStandingCrouching(string standingToCrouching, string crouchingToStanding) =>
-        Invoke("SetAnimationsTransitionStandingCrouching", standingToCrouching, crouchingToStanding);
+        Invoke(SetAnimationsTransitionStandingCrouchingSlot, standingToCrouching, crouchingToStanding);
 
     /// <summary>Sets the Movement Braking Settings of this Pawn</summary>
     public void SetBrakingSettings(
@@ -882,101 +1028,101 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
         ushort? brakingFlying = null,
         ushort? brakingSwimming = null,
         ushort? brakingFalling = null) =>
-        Invoke("SetBrakingSettings", ScriptArguments.Trim([groundFriction, brakingFrictionFactor, brakingWalking, brakingFlying, brakingSwimming, brakingFalling], 0));
+        Invoke(SetBrakingSettingsSlot, ScriptArguments.Trim([groundFriction, brakingFrictionFactor, brakingWalking, brakingFlying, brakingSwimming, brakingFalling], 0));
 
     /// <summary>Sets the Camera Mode</summary>
-    public void SetCameraMode(CameraMode cameraMode) => Invoke("SetCameraMode", cameraMode);
+    public void SetCameraMode(CameraMode cameraMode) => Invoke(SetCameraModeSlot, cameraMode);
 
     /// <summary>Sets if this Character is allowed to Aim</summary>
-    public void SetCanAim(bool canAim) => Invoke("SetCanAim", canAim);
+    public void SetCanAim(bool canAim) => Invoke(SetCanAimSlot, canAim);
 
     /// <summary>Sets if this Pawn is allowed to Crouch</summary>
-    public void SetCanCrouch(bool canCrouch) => Invoke("SetCanCrouch", canCrouch);
+    public void SetCanCrouch(bool canCrouch) => Invoke(SetCanCrouchSlot, canCrouch);
 
     /// <summary>Sets if this Character is allowed to deploy the Parachute</summary>
-    public void SetCanDeployParachute(bool canDeployParachute) => Invoke("SetCanDeployParachute", canDeployParachute);
+    public void SetCanDeployParachute(bool canDeployParachute) => Invoke(SetCanDeployParachuteSlot, canDeployParachute);
 
     /// <summary>Sets if this Character is allowed to Dive</summary>
-    public void SetCanDive(bool canDive) => Invoke("SetCanDive", canDive);
+    public void SetCanDive(bool canDive) => Invoke(SetCanDiveSlot, canDive);
 
     /// <summary>Sets if this Character is allowed to Drop the Picked up item</summary>
-    public void SetCanDrop(bool canDrop) => Invoke("SetCanDrop", canDrop);
+    public void SetCanDrop(bool canDrop) => Invoke(SetCanDropSlot, canDrop);
 
     /// <summary>Sets if this Character is allowed to Grab any Prop</summary>
-    public void SetCanGrabProps(bool canGrabProps) => Invoke("SetCanGrabProps", canGrabProps);
+    public void SetCanGrabProps(bool canGrabProps) => Invoke(SetCanGrabPropsSlot, canGrabProps);
 
     /// <summary>Sets if this Pawn is allowed to Jump</summary>
-    public void SetCanJump(bool canJump) => Invoke("SetCanJump", canJump);
+    public void SetCanJump(bool canJump) => Invoke(SetCanJumpSlot, canJump);
 
     /// <summary>Sets if this Character is allowed to Pick up any Pickable (Weapon, Grenade, Melee...)</summary>
-    public void SetCanPickupPickables(bool canPickup) => Invoke("SetCanPickupPickables", canPickup);
+    public void SetCanPickupPickables(bool canPickup) => Invoke(SetCanPickupPickablesSlot, canPickup);
 
     /// <summary>Sets if this Character is allowed to Punch</summary>
-    public void SetCanPunch(bool canPunch) => Invoke("SetCanPunch", canPunch);
+    public void SetCanPunch(bool canPunch) => Invoke(SetCanPunchSlot, canPunch);
 
     /// <summary>Sets if this Character is allowed to Sprint</summary>
-    public void SetCanSprint(bool canSprint) => Invoke("SetCanSprint", canSprint);
+    public void SetCanSprint(bool canSprint) => Invoke(SetCanSprintSlot, canSprint);
 
     /// <summary>Sets if this Character is allowed to use Pickables (Weapon, Grenade, Melee...)</summary>
-    public void SetCanUsePickables(bool canUse) => Invoke("SetCanUsePickables", canUse);
+    public void SetCanUsePickables(bool canUse) => Invoke(SetCanUsePickablesSlot, canUse);
 
     /// <summary>Sets this Pawn's Capsule size</summary>
     public void SetCapsuleSize(ushort? radius = null, ushort? halfHeight = null, ushort? crouchedHalfHeight = null) =>
-        Invoke("SetCapsuleSize", ScriptArguments.Trim([radius, halfHeight, crouchedHalfHeight], 0));
+        Invoke(SetCapsuleSizeSlot, ScriptArguments.Trim([radius, halfHeight, crouchedHalfHeight], 0));
 
     /// <summary>Sets the Control Rotation, which is where this Pawn is looking or aiming</summary>
-    public void SetControlRotation(Rotator controlRotation) => Invoke("SetControlRotation", controlRotation);
+    public void SetControlRotation(Rotator controlRotation) => Invoke(SetControlRotationSlot, controlRotation);
 
     /// <summary>Changes how much damage this entity takes on specific bones</summary>
     public void SetDamageMultiplier(string boneName, float multiplier) =>
-        Invoke("SetDamageMultiplier", boneName, multiplier);
+        Invoke(SetDamageMultiplierSlot, boneName, multiplier);
 
     /// <summary>Changes the Death sound when Character dies</summary>
-    public void SetDeathSound(string soundAsset) => Invoke("SetDeathSound", soundAsset);
+    public void SetDeathSound(string soundAsset) => Invoke(SetDeathSoundSlot, soundAsset);
 
     /// <summary>Sets the Field of View multiplier</summary>
-    public void SetFOVMultiplier(float multiplier) => Invoke("SetFOVMultiplier", multiplier);
+    public void SetFOVMultiplier(float multiplier) => Invoke(SetFOVMultiplierSlot, multiplier);
 
     /// <summary>Set the Fall Damage multiplier taken when falling from High places</summary>
-    public void SetFallDamageTaken(ushort damage) => Invoke("SetFallDamageTaken", damage);
+    public void SetFallDamageTaken(ushort damage) => Invoke(SetFallDamageTakenSlot, damage);
 
     /// <summary>Enables or disables the Flying Mode, which removes gravity and allows moving in all directions</summary>
-    public void SetFlyingMode(bool flyingMode) => Invoke("SetFlyingMode", flyingMode);
+    public void SetFlyingMode(bool flyingMode) => Invoke(SetFlyingModeSlot, flyingMode);
 
     /// <summary>Set the Footstep Volume multiplier</summary>
     public void SetFootstepVolumeMultiplier(float volumeMultiplier) =>
-        Invoke("SetFootstepVolumeMultiplier", volumeMultiplier);
+        Invoke(SetFootstepVolumeMultiplierSlot, volumeMultiplier);
 
     /// <summary>Sets the Gait Mode (walking or sprinting)</summary>
-    public void SetGaitMode(GaitMode gaitMode) => Invoke("SetGaitMode", gaitMode);
+    public void SetGaitMode(GaitMode gaitMode) => Invoke(SetGaitModeSlot, gaitMode);
 
     /// <summary>Changes the Gravity Scale</summary>
-    public void SetGravityScale(float gravityScale) => Invoke("SetGravityScale", gravityScale);
+    public void SetGravityScale(float gravityScale) => Invoke(SetGravityScaleSlot, gravityScale);
 
     /// <summary>Sets the Health of this Entity</summary>
-    public void SetHealth(uint newHealth) => Invoke("SetHealth", newHealth);
+    public void SetHealth(uint newHealth) => Invoke(SetHealthSlot, newHealth);
 
     /// <summary>Sets time to transition to HighFalling state</summary>
-    public void SetHighFallingTime(float time) => Invoke("SetHighFallingTime", time);
+    public void SetHighFallingTime(float time) => Invoke(SetHighFallingTimeSlot, time);
 
     /// <summary>Sets if the character will react to damage by applying small dynamic ragdoll effect to local bones damaged</summary>
-    public void SetHitReactionEnabled(bool isEnabled) => Invoke("SetHitReactionEnabled", isEnabled);
+    public void SetHitReactionEnabled(bool isEnabled) => Invoke(SetHitReactionEnabledSlot, isEnabled);
 
     /// <summary>Set the Impact Damage taken when being run over by things</summary>
-    public void SetImpactDamageTaken(ushort impactDamage) => Invoke("SetImpactDamageTaken", impactDamage);
+    public void SetImpactDamageTaken(ushort impactDamage) => Invoke(SetImpactDamageTakenSlot, impactDamage);
 
     /// <summary>Enables/Disables Character's Input</summary>
-    public void SetInputEnabled(bool isEnabled) => Invoke("SetInputEnabled", isEnabled);
+    public void SetInputEnabled(bool isEnabled) => Invoke(SetInputEnabledSlot, isEnabled);
 
     /// <summary>Sets if the Character can receive any damage</summary>
-    public void SetInvulnerable(bool isInvulnerable) => Invoke("SetInvulnerable", isInvulnerable);
+    public void SetInvulnerable(bool isInvulnerable) => Invoke(SetInvulnerableSlot, isInvulnerable);
 
     /// <summary>Sets the velocity of the jump</summary>
-    public void SetJumpZVelocity(ushort jumpZVelocity) => Invoke("SetJumpZVelocity", jumpZVelocity);
+    public void SetJumpZVelocity(ushort jumpZVelocity) => Invoke(SetJumpZVelocitySlot, jumpZVelocity);
 
     /// <summary>Sets the material at the specified index of this Actor</summary>
     public void SetMaterial(string materialPath, int? index = null, string? attachableId = null) =>
-        Invoke("SetMaterial", ScriptArguments.Trim([materialPath, index, attachableId], 1));
+        Invoke(SetMaterialSlot, ScriptArguments.Trim([materialPath, index, attachableId], 1));
 
     /// <summary>Sets a Color parameter in this Actor's material</summary>
     public void SetMaterialColorParameter(
@@ -984,7 +1130,7 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
         Color color,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialColorParameter", ScriptArguments.Trim([parameterName, color, index, attachableId], 2));
+        Invoke(SetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, color, index, attachableId], 2));
 
     /// <summary>Sets a Scalar parameter in this Actor's material</summary>
     public void SetMaterialScalarParameter(
@@ -992,7 +1138,7 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
         float scalar,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialScalarParameter", ScriptArguments.Trim([parameterName, scalar, index, attachableId], 2));
+        Invoke(SetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, scalar, index, attachableId], 2));
 
     /// <summary>Sets a texture parameter in this Actor's material to an image</summary>
     public void SetMaterialTextureParameter(
@@ -1000,7 +1146,7 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
         string texturePath,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialTextureParameter", ScriptArguments.Trim([parameterName, texturePath, index, attachableId], 2));
+        Invoke(SetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, texturePath, index, attachableId], 2));
 
     /// <summary>Sets a Vector parameter in this Actor's material</summary>
     public void SetMaterialVectorParameter(
@@ -1008,29 +1154,29 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
         Vector vector,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialVectorParameter", ScriptArguments.Trim([parameterName, vector, index, attachableId], 2));
+        Invoke(SetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, vector, index, attachableId], 2));
 
     /// <summary>Sets the MaxHealth of this Entity</summary>
-    public void SetMaxHealth(uint maxHealth) => Invoke("SetMaxHealth", maxHealth);
+    public void SetMaxHealth(uint maxHealth) => Invoke(SetMaxHealthSlot, maxHealth);
 
     /// <summary>Changes the Character Mesh at runtime</summary>
-    public void SetMesh(string skeletalMeshAsset) => Invoke("SetMesh", skeletalMeshAsset);
+    public void SetMesh(string skeletalMeshAsset) => Invoke(SetMeshSlot, skeletalMeshAsset);
 
     /// <summary>Configures the mesh attachment settings and visibility</summary>
     public void SetMeshSettings(
         Vector? relativeLocation = null,
         Rotator? relativeRotation = null,
         bool? isVisible = null) =>
-        Invoke("SetMeshSettings", ScriptArguments.Trim([relativeLocation, relativeRotation, isVisible], 0));
+        Invoke(SetMeshSettingsSlot, ScriptArguments.Trim([relativeLocation, relativeRotation, isVisible], 0));
 
     /// <summary>Sets the value of a Morph Target</summary>
-    public void SetMorphTarget(string name, float value) => Invoke("SetMorphTarget", name, value);
+    public void SetMorphTarget(string name, float value) => Invoke(SetMorphTargetSlot, name, value);
 
     /// <summary>Changes the Pain sound when Character takes damage</summary>
-    public void SetPainSound(string soundAsset) => Invoke("SetPainSound", soundAsset);
+    public void SetPainSound(string soundAsset) => Invoke(SetPainSoundSlot, soundAsset);
 
     /// <summary>Changes the texture of the Character's parachute</summary>
-    public void SetParachuteTexture(string texture) => Invoke("SetParachuteTexture", texture);
+    public void SetParachuteTexture(string texture) => Invoke(SetParachuteTextureSlot, texture);
 
     /// <summary>Applies the physical animation settings to the body given</summary>
     public void SetPhysicalAnimationSettings(
@@ -1043,70 +1189,71 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
         float? velocityStrength = null,
         float? maxLinearForce = null,
         float? maxAngularForce = null) =>
-        Invoke("SetPhysicalAnimationSettings", ScriptArguments.Trim([bone, includeSelf, isLocalSimulation, orientationStrength, angularVelocityStrength, positionStrength, velocityStrength, maxLinearForce, maxAngularForce], 3));
+        Invoke(SetPhysicalAnimationSettingsSlot, ScriptArguments.Trim([bone, includeSelf, isLocalSimulation, orientationStrength, angularVelocityStrength, positionStrength, velocityStrength, maxLinearForce, maxAngularForce], 3));
 
     /// <summary>Overrides this Actor's Physical Material with a new one</summary>
-    public void SetPhysicalMaterial(string physicalMaterialPath) => Invoke("SetPhysicalMaterial", physicalMaterialPath);
+    public void SetPhysicalMaterial(string physicalMaterialPath) =>
+        Invoke(SetPhysicalMaterialSlot, physicalMaterialPath);
 
     /// <summary>Sets the Physics Asset for the Character</summary>
-    public void SetPhysicsAsset(string physicsAsset) => Invoke("SetPhysicsAsset", physicsAsset);
+    public void SetPhysicsAsset(string physicsAsset) => Invoke(SetPhysicsAssetSlot, physicsAsset);
 
     /// <summary>Set the Punch Damage this Character will apply on others</summary>
-    public void SetPunchDamage(ushort punchDamage) => Invoke("SetPunchDamage", punchDamage);
+    public void SetPunchDamage(ushort punchDamage) => Invoke(SetPunchDamageSlot, punchDamage);
 
     /// <summary>Set the minimum radial damage (e.g. explosions) taken to enter in ragdoll mode</summary>
-    public void SetRadialDamageToRagdoll(short damage) => Invoke("SetRadialDamageToRagdoll", damage);
+    public void SetRadialDamageToRagdoll(short damage) => Invoke(SetRadialDamageToRagdollSlot, damage);
 
     /// <summary>Enables or disables the Ragdoll Mode, making the Character fall as a physics body</summary>
-    public void SetRagdollMode(bool ragdollEnabled) => Invoke("SetRagdollMode", ragdollEnabled);
+    public void SetRagdollMode(bool ragdollEnabled) => Invoke(SetRagdollModeSlot, ragdollEnabled);
 
     /// <summary>Sets if the character will enter ragdoll mode when it dies. You can set it to false to apply custom Death animations</summary>
-    public void SetRagdollOnDeathEnabled(bool isEnabled) => Invoke("SetRagdollOnDeathEnabled", isEnabled);
+    public void SetRagdollOnDeathEnabled(bool isEnabled) => Invoke(SetRagdollOnDeathEnabledSlot, isEnabled);
 
     /// <summary>Sets if the character will enter ragdoll mode when being hit by an object or falling from a high place</summary>
-    public void SetRagdollOnHitEnabled(bool isEnabled) => Invoke("SetRagdollOnHitEnabled", isEnabled);
+    public void SetRagdollOnHitEnabled(bool isEnabled) => Invoke(SetRagdollOnHitEnabledSlot, isEnabled);
 
     /// <summary>Sets the cooldown time (in seconds) before this Character can stand up from ragdoll</summary>
-    public void SetRagdollStandUpCooldown(float time) => Invoke("SetRagdollStandUpCooldown", time);
+    public void SetRagdollStandUpCooldown(float time) => Invoke(SetRagdollStandUpCooldownSlot, time);
 
     /// <summary>Sets the Character Capsule to simulate physics</summary>
-    public void SetSimulatePhysics(bool simulatePhysics) => Invoke("SetSimulatePhysics", simulatePhysics);
+    public void SetSimulatePhysics(bool simulatePhysics) => Invoke(SetSimulatePhysicsSlot, simulatePhysics);
 
     /// <summary>Sets the multiplier applied to all movement speeds</summary>
-    public void SetSpeedMultiplier(float speedMultiplier) => Invoke("SetSpeedMultiplier", speedMultiplier);
+    public void SetSpeedMultiplier(float speedMultiplier) => Invoke(SetSpeedMultiplierSlot, speedMultiplier);
 
     /// <summary>Sets the Stance Mode (standing, crouching or proning)</summary>
-    public void SetStanceMode(StanceMode stanceMode) => Invoke("SetStanceMode", stanceMode);
+    public void SetStanceMode(StanceMode stanceMode) => Invoke(SetStanceModeSlot, stanceMode);
 
     /// <summary>Sets a Static Mesh Attached location and rotation</summary>
     public void SetStaticMeshAttachedTransform(string id, Vector relativeLocation, Rotator relativeRotation) =>
-        Invoke("SetStaticMeshAttachedTransform", id, relativeLocation, relativeRotation);
+        Invoke(SetStaticMeshAttachedTransformSlot, id, relativeLocation, relativeRotation);
 
     /// <summary>Sets a Team which will disable damaging same Team Members</summary>
-    public void SetTeam(uint team) => Invoke("SetTeam", team);
+    public void SetTeam(uint team) => Invoke(SetTeamSlot, team);
 
     /// <summary>Sets the View Mode (first person, third person or top down)</summary>
-    public void SetViewMode(ViewMode viewMode) => Invoke("SetViewMode", viewMode);
+    public void SetViewMode(ViewMode viewMode) => Invoke(SetViewModeSlot, viewMode);
 
     /// <summary>Sets the Weapon's Aim Mode</summary>
-    public void SetWeaponAimMode(AimMode aimMode) => Invoke("SetWeaponAimMode", aimMode);
+    public void SetWeaponAimMode(AimMode aimMode) => Invoke(SetWeaponAimModeSlot, aimMode);
 
     /// <summary>Sets if this Character is in Shooter Mode, in which a held Weapon is always aimed while idle or walking, is lowered while sprinting, and the aim input aims down sights instead of raising the Weapon</summary>
-    public void SetWeaponShooterMode(bool weaponShooterMode) => Invoke("SetWeaponShooterMode", weaponShooterMode);
+    public void SetWeaponShooterMode(bool weaponShooterMode) => Invoke(SetWeaponShooterModeSlot, weaponShooterMode);
 
     /// <summary>Stops an Animation Montage on this character</summary>
     public void StopAnimation(string? animationAsset = null) =>
-        Invoke("StopAnimation", ScriptArguments.Trim([animationAsset], 0));
+        Invoke(StopAnimationSlot, ScriptArguments.Trim([animationAsset], 0));
 
     /// <summary>AI: Stops the movement, optionally zeroing the velocity as well</summary>
     public void StopMovement(bool? stopsVelocity = null) =>
-        Invoke("StopMovement", ScriptArguments.Trim([stopsVelocity], 0));
+        Invoke(StopMovementSlot, ScriptArguments.Trim([stopsVelocity], 0));
 
     /// <summary>UnGrabs/Drops the Prop the Character is holding</summary>
-    public void UnGrabProp() => Invoke("UnGrabProp");
+    public void UnGrabProp() => Invoke(UnGrabPropSlot);
 
     /// <summary>Unhides a bone of this Pawn</summary>
-    public void UnHideBone(string boneName) => Invoke("UnHideBone", boneName);
+    public void UnHideBone(string boneName) => Invoke(UnHideBoneSlot, boneName);
 
     /// <summary>Subscribes to the Attack event of this entity only.</summary>
     public ScriptSubscription SubscribeAttack(AttackHandler handler) => Subscribe("Attack", handler);

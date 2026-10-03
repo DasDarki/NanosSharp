@@ -2,6 +2,7 @@
 
 using NanosSharp.Entities.Binding;
 using NanosSharp.Enums;
+using NanosSharp.Interop.Reflection;
 using NanosSharp.Mathematics;
 using NanosSharp.Scripting;
 
@@ -75,6 +76,35 @@ public partial class Cable : Actor, IPaintable
     private static readonly ClassEvent<NetworkAuthorityChangeHandler> NetworkAuthorityChangeEvent = new("Cable", "NetworkAuthorityChange");
     private static readonly ClassEvent<SpawnHandler> SpawnEvent = new("Cable", "Spawn");
     private static readonly ClassEvent<ValueChangeHandler> ValueChangeEvent = new("Cable", "ValueChange");
+    private static readonly MethodSlot AttachEndToSlot = new("AttachEndTo");
+    private static readonly MethodSlot AttachStartToSlot = new("AttachStartTo");
+    private static readonly MethodSlot DetachEndSlot = new("DetachEnd");
+    private static readonly MethodSlot DetachStartSlot = new("DetachStart");
+    private static readonly MethodSlot GetAttachedEndToSlot = new("GetAttachedEndTo");
+    private static readonly MethodSlot GetAttachedStartToSlot = new("GetAttachedStartTo");
+    private static readonly MethodSlot GetMaterialColorParameterSlot = new("GetMaterialColorParameter");
+    private static readonly MethodSlot GetMaterialScalarParameterSlot = new("GetMaterialScalarParameter");
+    private static readonly MethodSlot GetMaterialTextureParameterSlot = new("GetMaterialTextureParameter");
+    private static readonly MethodSlot GetMaterialVectorParameterSlot = new("GetMaterialVectorParameter");
+    private static readonly MethodSlot ResetMaterialSlot = new("ResetMaterial");
+    private static readonly MethodSlot SetAngularLimitsSlot = new("SetAngularLimits");
+    private static readonly MethodSlot SetAngularMotorSLERPOrientationSettingsSlot = new("SetAngularMotorSLERPOrientationSettings");
+    private static readonly MethodSlot SetAngularMotorSLERPVelocitySettingsSlot = new("SetAngularMotorSLERPVelocitySettings");
+    private static readonly MethodSlot SetAngularMotorTwistAndSwingOrientationSettingsSlot = new("SetAngularMotorTwistAndSwingOrientationSettings");
+    private static readonly MethodSlot SetAngularMotorTwistAndSwingVelocitySettingsSlot = new("SetAngularMotorTwistAndSwingVelocitySettings");
+    private static readonly MethodSlot SetCableSettingsSlot = new("SetCableSettings");
+    private static readonly MethodSlot SetForcesSlot = new("SetForces");
+    private static readonly MethodSlot SetLinearLimitsSlot = new("SetLinearLimits");
+    private static readonly MethodSlot SetLinearMotorPositionSettingsSlot = new("SetLinearMotorPositionSettings");
+    private static readonly MethodSlot SetLinearMotorVelocitySettingsSlot = new("SetLinearMotorVelocitySettings");
+    private static readonly MethodSlot SetMaterialSlot = new("SetMaterial");
+    private static readonly MethodSlot SetMaterialColorParameterSlot = new("SetMaterialColorParameter");
+    private static readonly MethodSlot SetMaterialScalarParameterSlot = new("SetMaterialScalarParameter");
+    private static readonly MethodSlot SetMaterialTextureParameterSlot = new("SetMaterialTextureParameter");
+    private static readonly MethodSlot SetMaterialVectorParameterSlot = new("SetMaterialVectorParameter");
+    private static readonly MethodSlot SetPhysicalMaterialSlot = new("SetPhysicalMaterial");
+    private static readonly MethodSlot SetPhysicsConstraintSettingsSlot = new("SetPhysicsConstraintSettings");
+    private static readonly MethodSlot SetRenderingSettingsSlot = new("SetRenderingSettings");
 
     /// <summary>Gets the Actor attached to End</summary>
     public Actor? AttachedEndTo => GetAttachedEndTo();
@@ -98,43 +128,43 @@ public partial class Cable : Actor, IPaintable
         Vector? relativeLocation = null,
         string? boneName = null,
         Vector? constraintOffset = null) =>
-        Invoke<bool>("AttachEndTo", ScriptArguments.Trim([other, relativeLocation, boneName, constraintOffset], 1))!;
+        Invoke<bool>(AttachEndToSlot, ScriptArguments.Trim([other, relativeLocation, boneName, constraintOffset], 1))!;
 
     /// <summary>Attaches the beginning of this cable to another Actor at a specific bone or relative location</summary>
     public bool AttachStartTo(Entity other, Vector? relativeLocation = null, string? boneName = null) =>
-        Invoke<bool>("AttachStartTo", ScriptArguments.Trim([other, relativeLocation, boneName], 1))!;
+        Invoke<bool>(AttachStartToSlot, ScriptArguments.Trim([other, relativeLocation, boneName], 1))!;
 
     /// <summary>Detaches the End of this Cable</summary>
-    public void DetachEnd() => Invoke("DetachEnd");
+    public void DetachEnd() => Invoke(DetachEndSlot);
 
     /// <summary>Detaches the Start of this Cable</summary>
-    public void DetachStart() => Invoke("DetachStart");
+    public void DetachStart() => Invoke(DetachStartSlot);
 
     /// <summary>Gets the Actor attached to End</summary>
-    public Actor? GetAttachedEndTo() => Invoke<Actor?>("GetAttachedEndTo");
+    public Actor? GetAttachedEndTo() => Invoke<Actor?>(GetAttachedEndToSlot);
 
     /// <summary>Gets the Actor attached to Start</summary>
-    public Actor? GetAttachedStartTo() => Invoke<Actor?>("GetAttachedStartTo");
+    public Actor? GetAttachedStartTo() => Invoke<Actor?>(GetAttachedStartToSlot);
 
     /// <summary>Gets a Color parameter from this Actor's material</summary>
     public Color? GetMaterialColorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Color?>("GetMaterialColorParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<Color?>(GetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets a Scalar parameter from this Actor's material</summary>
     public float? GetMaterialScalarParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<float?>("GetMaterialScalarParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<float?>(GetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets a Texture parameter from this Actor's material</summary>
     public string? GetMaterialTextureParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<string?>("GetMaterialTextureParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<string?>(GetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets a Vector parameter from this Actor's material</summary>
     public Vector? GetMaterialVectorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Vector?>("GetMaterialVectorParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<Vector?>(GetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Resets the material from the specified index to the original one</summary>
     public void ResetMaterial(int? index = null, string? attachableId = null) =>
-        Invoke("ResetMaterial", ScriptArguments.Trim([index, attachableId], 0));
+        Invoke(ResetMaterialSlot, ScriptArguments.Trim([index, attachableId], 0));
 
     /// <summary>Sets the Physics Angular Limits of this cable</summary>
     public void SetAngularLimits(
@@ -144,21 +174,21 @@ public partial class Cable : Actor, IPaintable
         float? swing1Limit = null,
         float? swing2Limit = null,
         float? twistLimit = null) =>
-        Invoke("SetAngularLimits", ScriptArguments.Trim([swing1Motion, swing2Motion, twistMotion, swing1Limit, swing2Limit, twistLimit], 3));
+        Invoke(SetAngularLimitsSlot, ScriptArguments.Trim([swing1Motion, swing2Motion, twistMotion, swing1Limit, swing2Limit, twistLimit], 3));
 
     /// <summary>Sets whether the SLERP angular orientation drive is enabled and the target orientation</summary>
     public void SetAngularMotorSLERPOrientationSettings(
         bool? enableDriveSlerp = null,
         float? strength = null,
         Rotator? target = null) =>
-        Invoke("SetAngularMotorSLERPOrientationSettings", ScriptArguments.Trim([enableDriveSlerp, strength, target], 0));
+        Invoke(SetAngularMotorSLERPOrientationSettingsSlot, ScriptArguments.Trim([enableDriveSlerp, strength, target], 0));
 
     /// <summary>Sets whether the SLERP angular velocity drive is enabled and the target angular velocity</summary>
     public void SetAngularMotorSLERPVelocitySettings(
         bool? enableDriveSlerp = null,
         float? strength = null,
         Vector? target = null) =>
-        Invoke("SetAngularMotorSLERPVelocitySettings", ScriptArguments.Trim([enableDriveSlerp, strength, target], 0));
+        Invoke(SetAngularMotorSLERPVelocitySettingsSlot, ScriptArguments.Trim([enableDriveSlerp, strength, target], 0));
 
     /// <summary>Sets which twist and swing angular orientation drives are enabled and the target orientation</summary>
     public void SetAngularMotorTwistAndSwingOrientationSettings(
@@ -166,7 +196,7 @@ public partial class Cable : Actor, IPaintable
         bool? enableDriveSwing = null,
         float? strength = null,
         Rotator? target = null) =>
-        Invoke("SetAngularMotorTwistAndSwingOrientationSettings", ScriptArguments.Trim([enableDriveTwist, enableDriveSwing, strength, target], 0));
+        Invoke(SetAngularMotorTwistAndSwingOrientationSettingsSlot, ScriptArguments.Trim([enableDriveTwist, enableDriveSwing, strength, target], 0));
 
     /// <summary>Sets which twist and swing angular velocity drives are enabled and the target angular velocity</summary>
     public void SetAngularMotorTwistAndSwingVelocitySettings(
@@ -174,7 +204,7 @@ public partial class Cable : Actor, IPaintable
         bool? enableDriveSwing = null,
         float? strength = null,
         Vector? target = null) =>
-        Invoke("SetAngularMotorTwistAndSwingVelocitySettings", ScriptArguments.Trim([enableDriveTwist, enableDriveSwing, strength, target], 0));
+        Invoke(SetAngularMotorTwistAndSwingVelocitySettingsSlot, ScriptArguments.Trim([enableDriveTwist, enableDriveSwing, strength, target], 0));
 
     /// <summary>Set the overall settings for this cable (visuals only)</summary>
     public void SetCableSettings(
@@ -182,11 +212,11 @@ public partial class Cable : Actor, IPaintable
         uint? numSegments = null,
         uint? solverIterations = null,
         bool? enableStiffness = null) =>
-        Invoke("SetCableSettings", ScriptArguments.Trim([length, numSegments, solverIterations, enableStiffness], 1));
+        Invoke(SetCableSettingsSlot, ScriptArguments.Trim([length, numSegments, solverIterations, enableStiffness], 1));
 
     /// <summary>Set the forces the cable has applied (visuals only)</summary>
     public void SetForces(Vector force, float? gravityScale = null) =>
-        Invoke("SetForces", ScriptArguments.Trim([force, gravityScale], 1));
+        Invoke(SetForcesSlot, ScriptArguments.Trim([force, gravityScale], 1));
 
     /// <summary>Sets the Physics Linear Limits of this cable</summary>
     public void SetLinearLimits(
@@ -198,7 +228,7 @@ public partial class Cable : Actor, IPaintable
         bool? useSoftConstraint = null,
         float? stiffness = null,
         float? damping = null) =>
-        Invoke("SetLinearLimits", ScriptArguments.Trim([xMotion, yMotion, zMotion, limit, restitution, useSoftConstraint, stiffness, damping], 3));
+        Invoke(SetLinearLimitsSlot, ScriptArguments.Trim([xMotion, yMotion, zMotion, limit, restitution, useSoftConstraint, stiffness, damping], 3));
 
     /// <summary>Sets which linear position drives are enabled and the target position</summary>
     public void SetLinearMotorPositionSettings(
@@ -207,7 +237,7 @@ public partial class Cable : Actor, IPaintable
         bool? enableDriveZ = null,
         float? strength = null,
         Vector? target = null) =>
-        Invoke("SetLinearMotorPositionSettings", ScriptArguments.Trim([enableDriveX, enableDriveY, enableDriveZ, strength, target], 0));
+        Invoke(SetLinearMotorPositionSettingsSlot, ScriptArguments.Trim([enableDriveX, enableDriveY, enableDriveZ, strength, target], 0));
 
     /// <summary>Sets which linear velocity drives are enabled and the target velocity</summary>
     public void SetLinearMotorVelocitySettings(
@@ -216,11 +246,11 @@ public partial class Cable : Actor, IPaintable
         bool? enableDriveZ = null,
         float? strength = null,
         Vector? target = null) =>
-        Invoke("SetLinearMotorVelocitySettings", ScriptArguments.Trim([enableDriveX, enableDriveY, enableDriveZ, strength, target], 0));
+        Invoke(SetLinearMotorVelocitySettingsSlot, ScriptArguments.Trim([enableDriveX, enableDriveY, enableDriveZ, strength, target], 0));
 
     /// <summary>Sets the material at the specified index of this Actor</summary>
     public void SetMaterial(string materialPath, int? index = null, string? attachableId = null) =>
-        Invoke("SetMaterial", ScriptArguments.Trim([materialPath, index, attachableId], 1));
+        Invoke(SetMaterialSlot, ScriptArguments.Trim([materialPath, index, attachableId], 1));
 
     /// <summary>Sets a Color parameter in this Actor's material</summary>
     public void SetMaterialColorParameter(
@@ -228,7 +258,7 @@ public partial class Cable : Actor, IPaintable
         Color color,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialColorParameter", ScriptArguments.Trim([parameterName, color, index, attachableId], 2));
+        Invoke(SetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, color, index, attachableId], 2));
 
     /// <summary>Sets a Scalar parameter in this Actor's material</summary>
     public void SetMaterialScalarParameter(
@@ -236,7 +266,7 @@ public partial class Cable : Actor, IPaintable
         float scalar,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialScalarParameter", ScriptArguments.Trim([parameterName, scalar, index, attachableId], 2));
+        Invoke(SetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, scalar, index, attachableId], 2));
 
     /// <summary>Sets a texture parameter in this Actor's material to an image</summary>
     public void SetMaterialTextureParameter(
@@ -244,7 +274,7 @@ public partial class Cable : Actor, IPaintable
         string texturePath,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialTextureParameter", ScriptArguments.Trim([parameterName, texturePath, index, attachableId], 2));
+        Invoke(SetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, texturePath, index, attachableId], 2));
 
     /// <summary>Sets a Vector parameter in this Actor's material</summary>
     public void SetMaterialVectorParameter(
@@ -252,18 +282,19 @@ public partial class Cable : Actor, IPaintable
         Vector vector,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialVectorParameter", ScriptArguments.Trim([parameterName, vector, index, attachableId], 2));
+        Invoke(SetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, vector, index, attachableId], 2));
 
     /// <summary>Overrides this Actor's Physical Material with a new one</summary>
-    public void SetPhysicalMaterial(string physicalMaterialPath) => Invoke("SetPhysicalMaterial", physicalMaterialPath);
+    public void SetPhysicalMaterial(string physicalMaterialPath) =>
+        Invoke(SetPhysicalMaterialSlot, physicalMaterialPath);
 
     /// <summary>Set the Physics Constraint related settings for this cable</summary>
     public void SetPhysicsConstraintSettings(bool disableCollision) =>
-        Invoke("SetPhysicsConstraintSettings", disableCollision);
+        Invoke(SetPhysicsConstraintSettingsSlot, disableCollision);
 
     /// <summary>Set the rendering settings of this cable (visuals only)</summary>
     public void SetRenderingSettings(float width, uint numSides, float tileMaterial) =>
-        Invoke("SetRenderingSettings", width, numSides, tileMaterial);
+        Invoke(SetRenderingSettingsSlot, width, numSides, tileMaterial);
 
     /// <summary>Subscribes to the ClassRegister event of this entity only.</summary>
     public ScriptSubscription SubscribeClassRegister(ClassRegisterHandler handler) => Subscribe("ClassRegister", handler);

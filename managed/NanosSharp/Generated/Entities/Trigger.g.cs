@@ -2,6 +2,7 @@
 
 using NanosSharp.Entities.Binding;
 using NanosSharp.Enums;
+using NanosSharp.Interop.Reflection;
 using NanosSharp.Mathematics;
 using NanosSharp.Scripting;
 
@@ -91,6 +92,10 @@ public partial class Trigger : Actor
     private static readonly ClassEvent<NetworkAuthorityChangeHandler> NetworkAuthorityChangeEvent = new("Trigger", "NetworkAuthorityChange");
     private static readonly ClassEvent<SpawnHandler> SpawnEvent = new("Trigger", "Spawn");
     private static readonly ClassEvent<ValueChangeHandler> ValueChangeEvent = new("Trigger", "ValueChange");
+    private static readonly MethodSlot ForceOverlapCheckingSlot = new("ForceOverlapChecking");
+    private static readonly MethodSlot SetColorSlot = new("SetColor");
+    private static readonly MethodSlot SetExtentSlot = new("SetExtent");
+    private static readonly MethodSlot SetOverlapOnlyClassesSlot = new("SetOverlapOnlyClasses");
 
     /// <summary>Spawns a new Trigger.</summary>
     public Trigger(
@@ -110,17 +115,17 @@ public partial class Trigger : Actor
     }
 
     /// <summary>Forces an Overlap check to occur, will immediately trigger overlaps</summary>
-    public void ForceOverlapChecking() => Invoke("ForceOverlapChecking");
+    public void ForceOverlapChecking() => Invoke(ForceOverlapCheckingSlot);
 
     /// <summary>Sets the Trigger color (if visible)</summary>
-    public void SetColor(Color color) => Invoke("SetColor", color);
+    public void SetColor(Color color) => Invoke(SetColorSlot, color);
 
     /// <summary>Sets the extent size of this trigger (sphere triggers can receive as float for radius)</summary>
-    public void SetExtent(Vector extent) => Invoke("SetExtent", extent);
+    public void SetExtent(Vector extent) => Invoke(SetExtentSlot, extent);
 
     /// <summary>Sets the filter to Trigger to only overlap specific Classes. Leave it empty for all Classes</summary>
     public void SetOverlapOnlyClasses(IEnumerable<string> overlapOnlyClasses) =>
-        Invoke("SetOverlapOnlyClasses", overlapOnlyClasses);
+        Invoke(SetOverlapOnlyClassesSlot, overlapOnlyClasses);
 
     /// <summary>Subscribes to the BeginOverlap event of this entity only.</summary>
     public ScriptSubscription SubscribeBeginOverlap(BeginOverlapHandler handler) => Subscribe("BeginOverlap", handler);

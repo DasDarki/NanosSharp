@@ -5,9 +5,11 @@
 #include <cstdlib>
 #include <cstring>
 #include <exception>
+#include <memory>
 #include <string>
 #include <typeinfo>
 #include <utility>
+#include <vector>
 
 #include "bridge/managed_function_ref.h"
 #include "host/isolated_libraries.h"
@@ -381,11 +383,41 @@ void* LibraryLoad(const char* path, char** error) {
 
 void* PackageGetEntity(game::Package* package) { return package->scripting_entity(); }
 
+class ArgumentLease {
+ public:
+  ArgumentLease() : arguments_(Acquire()) {}
+  ~ArgumentLease() {
+    arguments_.clear();
+    --depth_;
+  }
+
+  ArgumentLease(const ArgumentLease&) = delete;
+  ArgumentLease& operator=(const ArgumentLease&) = delete;
+
+  std::vector<ScriptValue>& arguments() { return arguments_; }
+
+ private:
+  static std::vector<ScriptValue>& Acquire() {
+    if (depth_ == pool_.size()) {
+      pool_.push_back(std::make_unique<std::vector<ScriptValue>>());
+    }
+    return *pool_[depth_++];
+  }
+
+  static std::vector<std::unique_ptr<std::vector<ScriptValue>>> pool_;
+  static size_t depth_;
+
+  std::vector<ScriptValue>& arguments_;
+};
+
+std::vector<std::unique_ptr<std::vector<ScriptValue>>> ArgumentLease::pool_;
+size_t ArgumentLease::depth_ = 0;
+
 uint8_t FunctionCall(FunctionHandle handle, EnvironmentHandle environment, const NativeArgument* args,
                      int32_t count, NativeArgument* result, char** error) {
   return Guard(error, [&] {
-    std::vector<ScriptValue> arguments;
-    arguments.reserve(count);
+    ArgumentLease lease;
+    std::vector<ScriptValue>& arguments = lease.arguments();
     for (int32_t i = 0; i < count; ++i) {
       arguments.push_back(FromArgument(args[i]));
     }

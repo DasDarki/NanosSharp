@@ -2,6 +2,7 @@
 
 using NanosSharp.Entities.Binding;
 using NanosSharp.Enums;
+using NanosSharp.Interop.Reflection;
 using NanosSharp.Mathematics;
 using NanosSharp.Scripting;
 
@@ -91,6 +92,50 @@ public partial class Player : Entity
     private static readonly ClassEvent<VOIPGlobalChannelSettingChangeHandler> VOIPGlobalChannelSettingChangeEvent = new("Player", "VOIPGlobalChannelSettingChange");
     private static readonly ClassEvent<VOIPLocalSettingChangeHandler> VOIPLocalSettingChangeEvent = new("Player", "VOIPLocalSettingChange");
     private static readonly ClassEvent<ValueChangeHandler> ValueChangeEvent = new("Player", "ValueChange");
+    private static readonly MethodSlot AttachCameraToSlot = new("AttachCameraTo");
+    private static readonly MethodSlot BanSlot = new("Ban");
+    private static readonly MethodSlot ConnectSlot = new("Connect");
+    private static readonly MethodSlot GetAccountIDSlot = new("GetAccountID");
+    private static readonly MethodSlot GetAccountIconURLSlot = new("GetAccountIconURL");
+    private static readonly MethodSlot GetAccountNameSlot = new("GetAccountName");
+    private static readonly MethodSlot GetControlledCharacterSlot = new("GetControlledCharacter");
+    private static readonly MethodSlot GetDimensionSlot = new("GetDimension");
+    private static readonly MethodSlot GetIPSlot = new("GetIP");
+    private static readonly MethodSlot GetNameSlot = new("GetName");
+    private static readonly MethodSlot GetPingSlot = new("GetPing");
+    private static readonly MethodSlot GetSteamIDSlot = new("GetSteamID");
+    private static readonly MethodSlot GetVOIPListeningChannelsSlot = new("GetVOIPListeningChannels");
+    private static readonly MethodSlot GetVOIPSpeakingChannelsSlot = new("GetVOIPSpeakingChannels");
+    private static readonly MethodSlot IsHostSlot = new("IsHost");
+    private static readonly MethodSlot IsVOIPMutedSlot = new("IsVOIPMuted");
+    private static readonly MethodSlot KickSlot = new("Kick");
+    private static readonly MethodSlot PossessSlot = new("Possess");
+    private static readonly MethodSlot ResetCameraSlot = new("ResetCamera");
+    private static readonly MethodSlot RotateCameraToSlot = new("RotateCameraTo");
+    private static readonly MethodSlot SetCameraArmLengthSlot = new("SetCameraArmLength");
+    private static readonly MethodSlot SetCameraFOVSlot = new("SetCameraFOV");
+    private static readonly MethodSlot SetCameraLocationSlot = new("SetCameraLocation");
+    private static readonly MethodSlot SetCameraRotationSlot = new("SetCameraRotation");
+    private static readonly MethodSlot SetCameraSocketOffsetSlot = new("SetCameraSocketOffset");
+    private static readonly MethodSlot SetCameraSpeedSettingsSlot = new("SetCameraSpeedSettings");
+    private static readonly MethodSlot SetDimensionSlot = new("SetDimension");
+    private static readonly MethodSlot SetDistanceOptimizationMultiplierSlot = new("SetDistanceOptimizationMultiplier");
+    private static readonly MethodSlot SetManualCameraFadeSlot = new("SetManualCameraFade");
+    private static readonly MethodSlot SetNameSlot = new("SetName");
+    private static readonly MethodSlot SetVOIPGlobalAllChannelsSettingSlot = new("SetVOIPGlobalAllChannelsSetting");
+    private static readonly MethodSlot SetVOIPGlobalChannelSettingSlot = new("SetVOIPGlobalChannelSetting");
+    private static readonly MethodSlot SetVOIPGlobalHighPassFilterSlot = new("SetVOIPGlobalHighPassFilter");
+    private static readonly MethodSlot SetVOIPGlobalLowPassFilterSlot = new("SetVOIPGlobalLowPassFilter");
+    private static readonly MethodSlot SetVOIPGlobalVolumeSlot = new("SetVOIPGlobalVolume");
+    private static readonly MethodSlot SetVOIPLocalMaxDistanceSlot = new("SetVOIPLocalMaxDistance");
+    private static readonly MethodSlot SetVOIPLocalSettingSlot = new("SetVOIPLocalSetting");
+    private static readonly MethodSlot SetVOIPLocalVolumeSlot = new("SetVOIPLocalVolume");
+    private static readonly MethodSlot SetVOIPMutedSlot = new("SetVOIPMuted");
+    private static readonly MethodSlot SpectateSlot = new("Spectate");
+    private static readonly MethodSlot StartCameraFadeSlot = new("StartCameraFade");
+    private static readonly MethodSlot StopCameraFadeSlot = new("StopCameraFade");
+    private static readonly MethodSlot TranslateCameraToSlot = new("TranslateCameraTo");
+    private static readonly MethodSlot UnPossessSlot = new("UnPossess");
 
     /// <summary>Gets the Player's nanos world account ID</summary>
     public string AccountID => GetAccountID();
@@ -149,85 +194,85 @@ public partial class Player : Entity
 
     /// <summary>Attaches the Player's Camera to an Actor</summary>
     public void AttachCameraTo(Entity actor, Vector? socketOffset = null, float? blendSpeed = null) =>
-        Invoke("AttachCameraTo", ScriptArguments.Trim([actor, socketOffset, blendSpeed], 1));
+        Invoke(AttachCameraToSlot, ScriptArguments.Trim([actor, socketOffset, blendSpeed], 1));
 
     /// <summary>Bans the player from the server</summary>
-    public void Ban(string reason) => Invoke("Ban", reason);
+    public void Ban(string reason) => Invoke(BanSlot, reason);
 
     /// <summary>Redirects the player to another server</summary>
     public void Connect(string ip, string? password = null) =>
-        Invoke("Connect", ScriptArguments.Trim([ip, password], 1));
+        Invoke(ConnectSlot, ScriptArguments.Trim([ip, password], 1));
 
     /// <summary>Gets the Player's nanos world account ID</summary>
-    public string GetAccountID() => Invoke<string>("GetAccountID")!;
+    public string GetAccountID() => Invoke<string>(GetAccountIDSlot)!;
 
     /// <summary>Return a URL which can be used through WebUI and Widgets to display the Player's Steam Avatar (64x64)</summary>
-    public string GetAccountIconURL() => Invoke<string>("GetAccountIconURL")!;
+    public string GetAccountIconURL() => Invoke<string>(GetAccountIconURLSlot)!;
 
     /// <summary>Gets the Player's nanos world account name</summary>
-    public string GetAccountName() => Invoke<string>("GetAccountName")!;
+    public string GetAccountName() => Invoke<string>(GetAccountNameSlot)!;
 
     /// <summary>Gets the Pawn (Character) this Player is currently possessing</summary>
-    public object? GetControlledCharacter() => Invoke<object?>("GetControlledCharacter");
+    public object? GetControlledCharacter() => Invoke<object?>(GetControlledCharacterSlot);
 
     /// <summary>Gets this Player's dimension</summary>
-    public uint GetDimension() => Invoke<uint>("GetDimension")!;
+    public uint GetDimension() => Invoke<uint>(GetDimensionSlot)!;
 
     /// <summary>Gets the Player's IP address</summary>
-    public string GetIP() => Invoke<string>("GetIP")!;
+    public string GetIP() => Invoke<string>(GetIPSlot)!;
 
     /// <summary>Gets the Player's name</summary>
-    public string GetName() => Invoke<string>("GetName")!;
+    public string GetName() => Invoke<string>(GetNameSlot)!;
 
     /// <summary>Gets the Player's ping</summary>
-    public int GetPing() => Invoke<int>("GetPing")!;
+    public int GetPing() => Invoke<int>(GetPingSlot)!;
 
     /// <summary>Gets the Player's Steam ID</summary>
-    public string GetSteamID() => Invoke<string>("GetSteamID")!;
+    public string GetSteamID() => Invoke<string>(GetSteamIDSlot)!;
 
     /// <summary>Returns a list of VOIP channels this player is listening to</summary>
-    public IReadOnlyList<uint> GetVOIPListeningChannels() => Invoke<IReadOnlyList<uint>>("GetVOIPListeningChannels")!;
+    public IReadOnlyList<uint> GetVOIPListeningChannels() => Invoke<IReadOnlyList<uint>>(GetVOIPListeningChannelsSlot)!;
 
     /// <summary>Returns a list of VOIP channels this player is currently speaking to</summary>
-    public IReadOnlyList<uint> GetVOIPSpeakingChannels() => Invoke<IReadOnlyList<uint>>("GetVOIPSpeakingChannels")!;
+    public IReadOnlyList<uint> GetVOIPSpeakingChannels() => Invoke<IReadOnlyList<uint>>(GetVOIPSpeakingChannelsSlot)!;
 
     /// <summary>Gets if this Player is the host of a P2P (listen) server</summary>
-    public bool IsHost() => Invoke<bool>("IsHost")!;
+    public bool IsHost() => Invoke<bool>(IsHostSlot)!;
 
     /// <summary>Returns whether VOIP is muted for this player</summary>
-    public bool IsVOIPMuted() => Invoke<bool>("IsVOIPMuted")!;
+    public bool IsVOIPMuted() => Invoke<bool>(IsVOIPMutedSlot)!;
 
     /// <summary>Kicks the player from the server</summary>
-    public void Kick(string reason) => Invoke("Kick", reason);
+    public void Kick(string reason) => Invoke(KickSlot, reason);
 
     /// <summary>Makes this Player possess and control a Pawn (Character)</summary>
     public void Possess(Entity newPawn, float? blendTime = null, float? exp = null) =>
-        Invoke("Possess", ScriptArguments.Trim([newPawn, blendTime, exp], 1));
+        Invoke(PossessSlot, ScriptArguments.Trim([newPawn, blendTime, exp], 1));
 
     /// <summary>Resets the Camera to default state (Unspectate and Detaches)</summary>
-    public void ResetCamera() => Invoke("ResetCamera");
+    public void ResetCamera() => Invoke(ResetCameraSlot);
 
     /// <summary>Smoothly moves the Player's Camera Rotation</summary>
     public void RotateCameraTo(Rotator rotation, float? time = null, float? exp = null) =>
-        Invoke("RotateCameraTo", ScriptArguments.Trim([rotation, time, exp], 1));
+        Invoke(RotateCameraToSlot, ScriptArguments.Trim([rotation, time, exp], 1));
 
     /// <summary>Sets the Player's Camera Arm Length (Spring Arm length)</summary>
     public void SetCameraArmLength(float length, bool? force = null) =>
-        Invoke("SetCameraArmLength", ScriptArguments.Trim([length, force], 1));
+        Invoke(SetCameraArmLengthSlot, ScriptArguments.Trim([length, force], 1));
 
     /// <summary>Sets the Player's Camera FOV (if not possessing a Character)</summary>
-    public void SetCameraFOV(float? fov = null) => Invoke("SetCameraFOV", ScriptArguments.Trim([fov], 0));
+    public void SetCameraFOV(float? fov = null) => Invoke(SetCameraFOVSlot, ScriptArguments.Trim([fov], 0));
 
     /// <summary>Sets the Player's Camera Location (only works if not possessing any Character)</summary>
     public void SetCameraLocation(Vector location, float? argument2 = null, float? argument3 = null) =>
-        Invoke("SetCameraLocation", ScriptArguments.Trim([location, argument2, argument3], 1));
+        Invoke(SetCameraLocationSlot, ScriptArguments.Trim([location, argument2, argument3], 1));
 
     /// <summary>Sets the Player's Camera Rotation</summary>
     public void SetCameraRotation(Rotator rotation, float? argument2 = null, float? argument3 = null) =>
-        Invoke("SetCameraRotation", ScriptArguments.Trim([rotation, argument2, argument3], 1));
+        Invoke(SetCameraRotationSlot, ScriptArguments.Trim([rotation, argument2, argument3], 1));
 
     /// <summary>Sets the Player's Camera Socket Offset (Spring Arm Offset)</summary>
-    public void SetCameraSocketOffset(Vector socketOffset) => Invoke("SetCameraSocketOffset", socketOffset);
+    public void SetCameraSocketOffset(Vector socketOffset) => Invoke(SetCameraSocketOffsetSlot, socketOffset);
 
     /// <summary>Sets the Player's Camera Speed Settings (if not possessing a Character)</summary>
     public void SetCameraSpeedSettings(
@@ -235,54 +280,54 @@ public partial class Player : Entity
         float? acceleration = null,
         float? deceleration = null,
         float? turningBoost = null) =>
-        Invoke("SetCameraSpeedSettings", ScriptArguments.Trim([maxSpeed, acceleration, deceleration, turningBoost], 0));
+        Invoke(SetCameraSpeedSettingsSlot, ScriptArguments.Trim([maxSpeed, acceleration, deceleration, turningBoost], 0));
 
     /// <summary>Sets this Player's dimension</summary>
-    public void SetDimension(uint dimension) => Invoke("SetDimension", dimension);
+    public void SetDimension(uint dimension) => Invoke(SetDimensionSlot, dimension);
 
     /// <summary>Sets the multiplier for how much this Player's is affected by distance optimization from other actors</summary>
     public void SetDistanceOptimizationMultiplier(float multiplier) =>
-        Invoke("SetDistanceOptimizationMultiplier", multiplier);
+        Invoke(SetDistanceOptimizationMultiplierSlot, multiplier);
 
     /// <summary>Turns on camera fading at the given opacity</summary>
     public void SetManualCameraFade(float inFadeAmount, Color color, bool inFadeAudio) =>
-        Invoke("SetManualCameraFade", inFadeAmount, color, inFadeAudio);
+        Invoke(SetManualCameraFadeSlot, inFadeAmount, color, inFadeAudio);
 
     /// <summary>Sets the player's name</summary>
-    public void SetName(string playerName) => Invoke("SetName", playerName);
+    public void SetName(string playerName) => Invoke(SetNameSlot, playerName);
 
     /// <summary>Sets the VOIP setting for all global channels</summary>
     public void SetVOIPGlobalAllChannelsSetting(VOIPSetting setting) =>
-        Invoke("SetVOIPGlobalAllChannelsSetting", setting);
+        Invoke(SetVOIPGlobalAllChannelsSettingSlot, setting);
 
     /// <summary>Sets the VOIP setting for a specific global channel</summary>
     public void SetVOIPGlobalChannelSetting(byte channel, VOIPSetting setting) =>
-        Invoke("SetVOIPGlobalChannelSetting", channel, setting);
+        Invoke(SetVOIPGlobalChannelSettingSlot, channel, setting);
 
     /// <summary>Sets the global VOIP high-pass filter threshold frequency</summary>
-    public void SetVOIPGlobalHighPassFilter(ushort threshold) => Invoke("SetVOIPGlobalHighPassFilter", threshold);
+    public void SetVOIPGlobalHighPassFilter(ushort threshold) => Invoke(SetVOIPGlobalHighPassFilterSlot, threshold);
 
     /// <summary>Sets the global VOIP low-pass filter threshold frequency</summary>
-    public void SetVOIPGlobalLowPassFilter(ushort threshold) => Invoke("SetVOIPGlobalLowPassFilter", threshold);
+    public void SetVOIPGlobalLowPassFilter(ushort threshold) => Invoke(SetVOIPGlobalLowPassFilterSlot, threshold);
 
     /// <summary>Sets the global VOIP volume. It only affects the global channels</summary>
-    public void SetVOIPGlobalVolume(float volume) => Invoke("SetVOIPGlobalVolume", volume);
+    public void SetVOIPGlobalVolume(float volume) => Invoke(SetVOIPGlobalVolumeSlot, volume);
 
     /// <summary>Sets the local/proximity VOIP max distance. This also affects networking usage</summary>
-    public void SetVOIPLocalMaxDistance(ushort maxDistance) => Invoke("SetVOIPLocalMaxDistance", maxDistance);
+    public void SetVOIPLocalMaxDistance(ushort maxDistance) => Invoke(SetVOIPLocalMaxDistanceSlot, maxDistance);
 
     /// <summary>Sets the VOIP setting for the local/proximity</summary>
-    public void SetVOIPLocalSetting(VOIPSetting setting) => Invoke("SetVOIPLocalSetting", setting);
+    public void SetVOIPLocalSetting(VOIPSetting setting) => Invoke(SetVOIPLocalSettingSlot, setting);
 
     /// <summary>Sets the local/proximity VOIP input/output volume. It only affects the local/proximity channel</summary>
-    public void SetVOIPLocalVolume(float volume) => Invoke("SetVOIPLocalVolume", volume);
+    public void SetVOIPLocalVolume(float volume) => Invoke(SetVOIPLocalVolumeSlot, volume);
 
     /// <summary>Mutes or unmutes VOIP for this player</summary>
-    public void SetVOIPMuted(bool isMuted) => Invoke("SetVOIPMuted", isMuted);
+    public void SetVOIPMuted(bool isMuted) => Invoke(SetVOIPMutedSlot, isMuted);
 
     /// <summary>Makes this Player spectate another Player</summary>
     public void Spectate(Player player, float? blendSpeed = null) =>
-        Invoke("Spectate", ScriptArguments.Trim([player, blendSpeed], 1));
+        Invoke(SpectateSlot, ScriptArguments.Trim([player, blendSpeed], 1));
 
     /// <summary>Does a camera fade to/from a solid color</summary>
     public void StartCameraFade(
@@ -292,17 +337,17 @@ public partial class Player : Entity
         Color toColor,
         bool? shouldFadeAudio = null,
         bool? holdWhenFinished = null) =>
-        Invoke("StartCameraFade", ScriptArguments.Trim([fromAlpha, toAlpha, duration, toColor, shouldFadeAudio, holdWhenFinished], 4));
+        Invoke(StartCameraFadeSlot, ScriptArguments.Trim([fromAlpha, toAlpha, duration, toColor, shouldFadeAudio, holdWhenFinished], 4));
 
     /// <summary>Stops camera fading.</summary>
-    public void StopCameraFade() => Invoke("StopCameraFade");
+    public void StopCameraFade() => Invoke(StopCameraFadeSlot);
 
     /// <summary>Smoothly moves the Player's Camera Location (only works if not possessing any Character)</summary>
     public void TranslateCameraTo(Vector location, float? time = null, float? exp = null) =>
-        Invoke("TranslateCameraTo", ScriptArguments.Trim([location, time, exp], 1));
+        Invoke(TranslateCameraToSlot, ScriptArguments.Trim([location, time, exp], 1));
 
     /// <summary>Release the Player from the Character</summary>
-    public void UnPossess() => Invoke("UnPossess");
+    public void UnPossess() => Invoke(UnPossessSlot);
 
     /// <summary>Subscribes to the ClassRegister event of this entity only.</summary>
     public ScriptSubscription SubscribeClassRegister(ClassRegisterHandler handler) => Subscribe("ClassRegister", handler);

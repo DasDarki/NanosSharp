@@ -13,37 +13,24 @@ internal sealed unsafe class NativeMethod(nint handle)
 
     public string Signature => NativeRuntime.TakeString(NativeRuntime.Api.FunctionGetSignature(handle));
 
-    public object? Invoke(nint environment, ReadOnlySpan<object?> arguments)
+    public object? Invoke(nint environment, Entity? self, ReadOnlySpan<object?> head, ReadOnlySpan<object?> tail = default)
     {
-        var result = Call(environment, null, arguments);
+        var result = Call(environment, self, head, tail);
         return ResultReader.Read(ref result);
     }
 
-    public T? Invoke<T>(nint environment, ReadOnlySpan<object?> arguments)
+    public T? Invoke<T>(nint environment, Entity? self, ReadOnlySpan<object?> head, ReadOnlySpan<object?> tail = default)
     {
-        var result = Call(environment, null, arguments);
+        var result = Call(environment, self, head, tail);
         return ResultReader.Read<T>(ref result);
     }
 
-    public object? InvokeMember(nint environment, Entity self, ReadOnlySpan<object?> arguments)
-    {
-        var result = Call(environment, self, arguments);
-        return ResultReader.Read(ref result);
-    }
-
-    public T? InvokeMember<T>(nint environment, Entity self, ReadOnlySpan<object?> arguments)
-    {
-        var result = Call(environment, self, arguments);
-        return ResultReader.Read<T>(ref result);
-    }
-
-    private NativeArgument Call(nint environment, Entity? self, ReadOnlySpan<object?> arguments)
+    private NativeArgument Call(nint environment, Entity? self, ReadOnlySpan<object?> head, ReadOnlySpan<object?> tail)
     {
         MainThread.Ensure();
-        var count = arguments.Length + (self is null ? 0 : 1);
+        var count = head.Length + tail.Length + (self is null ? 0 : 1);
         var buffer = count <= StackArgumentLimit ? stackalloc NativeArgument[count] : new NativeArgument[count];
-        Span<byte> strings = stackalloc byte[StackStringBytes];
-        var packer = new ArgumentPacker(buffer, arguments, strings);
+        var packer = new ArgumentPacker(buffer, head, tail, stackalloc byte[StackStringBytes]);
         try
         {
             if (self is not null)
@@ -51,24 +38,34 @@ internal sealed unsafe class NativeMethod(nint handle)
                 packer.AddSelf(self);
             }
 
-            foreach (var argument in arguments)
-            {
-                packer.Add(argument);
-            }
-
-            NativeArgument result;
-            byte* error = null;
-            fixed (NativeArgument* pointer = buffer)
-            {
-                var succeeded = NativeRuntime.Api.FunctionCall(handle, environment, pointer, packer.Count, &result, &error);
-                NativeRuntime.ThrowIfFailed(succeeded, error);
-            }
-
-            return result;
+            AddAll(ref packer, head);
+            AddAll(ref packer, tail);
+            return Execute(environment, buffer, packer.Count);
         }
         finally
         {
             packer.Dispose();
+        }
+    }
+
+    private NativeArgument Execute(nint environment, Span<NativeArgument> arguments, int count)
+    {
+        NativeArgument result;
+        byte* error = null;
+        fixed (NativeArgument* pointer = arguments)
+        {
+            var succeeded = NativeRuntime.Api.FunctionCall(handle, environment, pointer, count, &result, &error);
+            NativeRuntime.ThrowIfFailed(succeeded, error);
+        }
+
+        return result;
+    }
+
+    private static void AddAll(ref ArgumentPacker packer, ReadOnlySpan<object?> values)
+    {
+        foreach (var value in values)
+        {
+            packer.Add(value);
         }
     }
 }

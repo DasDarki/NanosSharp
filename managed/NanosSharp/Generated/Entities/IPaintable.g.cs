@@ -2,6 +2,7 @@
 
 using NanosSharp.Entities.Binding;
 using NanosSharp.Enums;
+using NanosSharp.Interop.Reflection;
 using NanosSharp.Mathematics;
 using NanosSharp.Scripting;
 
@@ -10,6 +11,7 @@ namespace NanosSharp.Entities;
 /// <summary>Base class for all Paintable entities. This class provides customization for materials, exposing common functions to allow you to set custom material parameters, including loading textures from disk.</summary>
 public partial interface IPaintable
 {
+
     /// <summary>Gets a Color parameter from this Actor's material</summary>
     Color? GetMaterialColorParameter(string parameterName, int? index = null, string? attachableId = null);
 

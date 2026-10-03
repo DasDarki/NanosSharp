@@ -2,7 +2,8 @@ using System.Diagnostics;
 
 public sealed class Benchmark : Package
 {
-    private const int Iterations = 20000;
+    private static readonly int Iterations =
+        int.TryParse(Environment.GetEnvironmentVariable("NANOSSHARP_BENCH_ITERATIONS"), out var iterations) ? iterations : 20000;
     private const int WarmupIterations = 1000;
 
     protected override void OnStart() => Server.OnStart += Run;
@@ -25,6 +26,11 @@ public sealed class Benchmark : Package
 
     private static void Measure(string name, Action operation)
     {
+        if (Environment.GetEnvironmentVariable("NANOSSHARP_BENCH_ONLY") is { Length: > 0 } only && only != name)
+        {
+            return;
+        }
+
         for (var index = 0; index < WarmupIterations; index++)
         {
             operation();

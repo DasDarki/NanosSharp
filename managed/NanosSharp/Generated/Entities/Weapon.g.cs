@@ -2,6 +2,7 @@
 
 using NanosSharp.Entities.Binding;
 using NanosSharp.Enums;
+using NanosSharp.Interop.Reflection;
 using NanosSharp.Mathematics;
 using NanosSharp.Scripting;
 
@@ -147,6 +148,105 @@ public partial class Weapon : Actor, IPaintable, IPickable
     private static readonly ClassEvent<ReloadHandler> ReloadEvent = new("Weapon", "Reload");
     private static readonly ClassEvent<SpawnHandler> SpawnEvent = new("Weapon", "Spawn");
     private static readonly ClassEvent<ValueChangeHandler> ValueChangeEvent = new("Weapon", "ValueChange");
+    private static readonly MethodSlot AddSkeletalMeshAttachedSlot = new("AddSkeletalMeshAttached");
+    private static readonly MethodSlot AddStaticMeshAttachedSlot = new("AddStaticMeshAttached");
+    private static readonly MethodSlot GetAllSkeletalMeshAttachedSlot = new("GetAllSkeletalMeshAttached");
+    private static readonly MethodSlot GetAllStaticMeshAttachedSlot = new("GetAllStaticMeshAttached");
+    private static readonly MethodSlot GetAmmoBagSlot = new("GetAmmoBag");
+    private static readonly MethodSlot GetAmmoClipSlot = new("GetAmmoClip");
+    private static readonly MethodSlot GetAmmoToReloadSlot = new("GetAmmoToReload");
+    private static readonly MethodSlot GetAnimationCharacterFireSlot = new("GetAnimationCharacterFire");
+    private static readonly MethodSlot GetAnimationFireSlot = new("GetAnimationFire");
+    private static readonly MethodSlot GetAnimationReloadSlot = new("GetAnimationReload");
+    private static readonly MethodSlot GetBulletColorSlot = new("GetBulletColor");
+    private static readonly MethodSlot GetBulletCountSlot = new("GetBulletCount");
+    private static readonly MethodSlot GetCadenceSlot = new("GetCadence");
+    private static readonly MethodSlot GetCanHoldUseSlot = new("GetCanHoldUse");
+    private static readonly MethodSlot GetClipCapacitySlot = new("GetClipCapacity");
+    private static readonly MethodSlot GetDamageSlot = new("GetDamage");
+    private static readonly MethodSlot GetHandlerSlot = new("GetHandler");
+    private static readonly MethodSlot GetHandlingModeSlot = new("GetHandlingMode");
+    private static readonly MethodSlot GetHoldReleaseUseSlot = new("GetHoldReleaseUse");
+    private static readonly MethodSlot GetLeftHandLocationSlot = new("GetLeftHandLocation");
+    private static readonly MethodSlot GetLeftHandRotationSlot = new("GetLeftHandRotation");
+    private static readonly MethodSlot GetMagazineMeshSlot = new("GetMagazineMesh");
+    private static readonly MethodSlot GetMaterialColorParameterSlot = new("GetMaterialColorParameter");
+    private static readonly MethodSlot GetMaterialScalarParameterSlot = new("GetMaterialScalarParameter");
+    private static readonly MethodSlot GetMaterialTextureParameterSlot = new("GetMaterialTextureParameter");
+    private static readonly MethodSlot GetMaterialVectorParameterSlot = new("GetMaterialVectorParameter");
+    private static readonly MethodSlot GetMeshSlot = new("GetMesh");
+    private static readonly MethodSlot GetParticlesBarrelSlot = new("GetParticlesBarrel");
+    private static readonly MethodSlot GetParticlesBulletTrailSlot = new("GetParticlesBulletTrail");
+    private static readonly MethodSlot GetParticlesShellsSlot = new("GetParticlesShells");
+    private static readonly MethodSlot GetRecoilSlot = new("GetRecoil");
+    private static readonly MethodSlot GetRightHandOffsetSlot = new("GetRightHandOffset");
+    private static readonly MethodSlot GetSightFOVMultiplierSlot = new("GetSightFOVMultiplier");
+    private static readonly MethodSlot GetSightLocationSlot = new("GetSightLocation");
+    private static readonly MethodSlot GetSightRotationSlot = new("GetSightRotation");
+    private static readonly MethodSlot GetSoundAimSlot = new("GetSoundAim");
+    private static readonly MethodSlot GetSoundDrySlot = new("GetSoundDry");
+    private static readonly MethodSlot GetSoundFireSlot = new("GetSoundFire");
+    private static readonly MethodSlot GetSoundLoadSlot = new("GetSoundLoad");
+    private static readonly MethodSlot GetSoundUnloadSlot = new("GetSoundUnload");
+    private static readonly MethodSlot GetSoundZoomingSlot = new("GetSoundZooming");
+    private static readonly MethodSlot GetSpreadSlot = new("GetSpread");
+    private static readonly MethodSlot GetWallbangDamageMultiplierSlot = new("GetWallbangDamageMultiplier");
+    private static readonly MethodSlot GetWallbangMaxDistanceSlot = new("GetWallbangMaxDistance");
+    private static readonly MethodSlot PlayAnimationSlot = new("PlayAnimation");
+    private static readonly MethodSlot PullUseSlot = new("PullUse");
+    private static readonly MethodSlot ReleaseUseSlot = new("ReleaseUse");
+    private static readonly MethodSlot ReloadSlot = new("Reload");
+    private static readonly MethodSlot RemoveAllSkeletalMeshesAttachedSlot = new("RemoveAllSkeletalMeshesAttached");
+    private static readonly MethodSlot RemoveAllStaticMeshesAttachedSlot = new("RemoveAllStaticMeshesAttached");
+    private static readonly MethodSlot RemoveSkeletalMeshAttachedSlot = new("RemoveSkeletalMeshAttached");
+    private static readonly MethodSlot RemoveStaticMeshAttachedSlot = new("RemoveStaticMeshAttached");
+    private static readonly MethodSlot ResetMaterialSlot = new("ResetMaterial");
+    private static readonly MethodSlot SetAmmoBagSlot = new("SetAmmoBag");
+    private static readonly MethodSlot SetAmmoClipSlot = new("SetAmmoClip");
+    private static readonly MethodSlot SetAmmoSettingsSlot = new("SetAmmoSettings");
+    private static readonly MethodSlot SetAnimationCharacterFireSlot = new("SetAnimationCharacterFire");
+    private static readonly MethodSlot SetAnimationFireSlot = new("SetAnimationFire");
+    private static readonly MethodSlot SetAnimationReloadSlot = new("SetAnimationReload");
+    private static readonly MethodSlot SetAttachmentSettingsSlot = new("SetAttachmentSettings");
+    private static readonly MethodSlot SetAutoReloadSlot = new("SetAutoReload");
+    private static readonly MethodSlot SetBulletColorSlot = new("SetBulletColor");
+    private static readonly MethodSlot SetBulletSettingsSlot = new("SetBulletSettings");
+    private static readonly MethodSlot SetBuoyancyPontoonsSlot = new("SetBuoyancyPontoons");
+    private static readonly MethodSlot SetBuoyancySettingsSlot = new("SetBuoyancySettings");
+    private static readonly MethodSlot SetCadenceSlot = new("SetCadence");
+    private static readonly MethodSlot SetCanUseSlot = new("SetCanUse");
+    private static readonly MethodSlot SetClipCapacitySlot = new("SetClipCapacity");
+    private static readonly MethodSlot SetCrosshairMaterialSlot = new("SetCrosshairMaterial");
+    private static readonly MethodSlot SetDamageSlot = new("SetDamage");
+    private static readonly MethodSlot SetHandlingModeSlot = new("SetHandlingMode");
+    private static readonly MethodSlot SetLeftHandTransformSlot = new("SetLeftHandTransform");
+    private static readonly MethodSlot SetMagazineMeshSlot = new("SetMagazineMesh");
+    private static readonly MethodSlot SetMaterialSlot = new("SetMaterial");
+    private static readonly MethodSlot SetMaterialColorParameterSlot = new("SetMaterialColorParameter");
+    private static readonly MethodSlot SetMaterialScalarParameterSlot = new("SetMaterialScalarParameter");
+    private static readonly MethodSlot SetMaterialTextureParameterSlot = new("SetMaterialTextureParameter");
+    private static readonly MethodSlot SetMaterialVectorParameterSlot = new("SetMaterialVectorParameter");
+    private static readonly MethodSlot SetParticlesBarrelSlot = new("SetParticlesBarrel");
+    private static readonly MethodSlot SetParticlesBulletTrailSlot = new("SetParticlesBulletTrail");
+    private static readonly MethodSlot SetParticlesShellsSlot = new("SetParticlesShells");
+    private static readonly MethodSlot SetPhysicalMaterialSlot = new("SetPhysicalMaterial");
+    private static readonly MethodSlot SetPickableSlot = new("SetPickable");
+    private static readonly MethodSlot SetRecoilSlot = new("SetRecoil");
+    private static readonly MethodSlot SetRightHandOffsetSlot = new("SetRightHandOffset");
+    private static readonly MethodSlot SetSightFOVMultiplierSlot = new("SetSightFOVMultiplier");
+    private static readonly MethodSlot SetSightTransformSlot = new("SetSightTransform");
+    private static readonly MethodSlot SetSoundAimSlot = new("SetSoundAim");
+    private static readonly MethodSlot SetSoundDrySlot = new("SetSoundDry");
+    private static readonly MethodSlot SetSoundFireSlot = new("SetSoundFire");
+    private static readonly MethodSlot SetSoundFireLastBulletsSlot = new("SetSoundFireLastBullets");
+    private static readonly MethodSlot SetSoundLoadSlot = new("SetSoundLoad");
+    private static readonly MethodSlot SetSoundUnloadSlot = new("SetSoundUnload");
+    private static readonly MethodSlot SetSoundZoomingSlot = new("SetSoundZooming");
+    private static readonly MethodSlot SetSpreadSlot = new("SetSpread");
+    private static readonly MethodSlot SetStaticMeshAttachedTransformSlot = new("SetStaticMeshAttachedTransform");
+    private static readonly MethodSlot SetUsageSettingsSlot = new("SetUsageSettings");
+    private static readonly MethodSlot SetWallbangSettingsSlot = new("SetWallbangSettings");
+    private static readonly MethodSlot StopAnimationSlot = new("StopAnimation");
 
     /// <summary>Gets all Skeletal Meshes attached to this entity</summary>
     public IReadOnlyDictionary<string, string> AllSkeletalMeshAttached => GetAllSkeletalMeshAttached();
@@ -385,7 +485,7 @@ public partial class Weapon : Actor, IPaintable, IPickable
         bool? useBaseLeaderPoseComponent = null,
         string? animationPath = null,
         string? attachableId = null) =>
-        Invoke("AddSkeletalMeshAttached", ScriptArguments.Trim([id, skeletalMeshPath, socket, relativeLocation, relativeRotation, useParentBounds, useBaseLeaderPoseComponent, animationPath, attachableId], 2));
+        Invoke(AddSkeletalMeshAttachedSlot, ScriptArguments.Trim([id, skeletalMeshPath, socket, relativeLocation, relativeRotation, useParentBounds, useBaseLeaderPoseComponent, animationPath, attachableId], 2));
 
     /// <summary>Attaches a Static Mesh to this entity</summary>
     public void AddStaticMeshAttached(
@@ -396,139 +496,139 @@ public partial class Weapon : Actor, IPaintable, IPickable
         Rotator? relativeRotation = null,
         bool? useParentBounds = null,
         string? attachableId = null) =>
-        Invoke("AddStaticMeshAttached", ScriptArguments.Trim([id, staticMeshPath, socket, relativeLocation, relativeRotation, useParentBounds, attachableId], 2));
+        Invoke(AddStaticMeshAttachedSlot, ScriptArguments.Trim([id, staticMeshPath, socket, relativeLocation, relativeRotation, useParentBounds, attachableId], 2));
 
     /// <summary>Gets all Skeletal Meshes attached to this entity</summary>
     public IReadOnlyDictionary<string, string> GetAllSkeletalMeshAttached() =>
-        Invoke<IReadOnlyDictionary<string, string>>("GetAllSkeletalMeshAttached")!;
+        Invoke<IReadOnlyDictionary<string, string>>(GetAllSkeletalMeshAttachedSlot)!;
 
     /// <summary>Gets all Static Meshes attached to this entity</summary>
     public IReadOnlyDictionary<string, string> GetAllStaticMeshAttached() =>
-        Invoke<IReadOnlyDictionary<string, string>>("GetAllStaticMeshAttached")!;
+        Invoke<IReadOnlyDictionary<string, string>>(GetAllStaticMeshAttachedSlot)!;
 
     /// <summary>Gets this Weapon's Ammo Bag</summary>
-    public int GetAmmoBag() => Invoke<int>("GetAmmoBag")!;
+    public int GetAmmoBag() => Invoke<int>(GetAmmoBagSlot)!;
 
     /// <summary>Gets this Weapon's Ammo Clip</summary>
-    public int GetAmmoClip() => Invoke<int>("GetAmmoClip")!;
+    public int GetAmmoClip() => Invoke<int>(GetAmmoClipSlot)!;
 
     /// <summary>Gets the amount of ammo needed to fully reload</summary>
-    public int GetAmmoToReload() => Invoke<int>("GetAmmoToReload")!;
+    public int GetAmmoToReload() => Invoke<int>(GetAmmoToReloadSlot)!;
 
     /// <summary>Gets the Animation played by the Character when firing</summary>
-    public string GetAnimationCharacterFire() => Invoke<string>("GetAnimationCharacterFire")!;
+    public string GetAnimationCharacterFire() => Invoke<string>(GetAnimationCharacterFireSlot)!;
 
     /// <summary>Gets the Animation played by the Weapon when firing</summary>
-    public string GetAnimationFire() => Invoke<string>("GetAnimationFire")!;
+    public string GetAnimationFire() => Invoke<string>(GetAnimationFireSlot)!;
 
     /// <summary>Gets the reload animation</summary>
-    public string GetAnimationReload() => Invoke<string>("GetAnimationReload")!;
+    public string GetAnimationReload() => Invoke<string>(GetAnimationReloadSlot)!;
 
     /// <summary>Gets the color of the bullet trail</summary>
-    public Color GetBulletColor() => Invoke<Color>("GetBulletColor")!;
+    public Color GetBulletColor() => Invoke<Color>(GetBulletColorSlot)!;
 
     /// <summary>Gets how many bullets are fired per shot</summary>
-    public int GetBulletCount() => Invoke<int>("GetBulletCount")!;
+    public int GetBulletCount() => Invoke<int>(GetBulletCountSlot)!;
 
     /// <summary>Gets the time between shots</summary>
-    public float GetCadence() => Invoke<float>("GetCadence")!;
+    public float GetCadence() => Invoke<float>(GetCadenceSlot)!;
 
     /// <summary>Gets if the weapon can be used continuously by holding the use button</summary>
-    public bool GetCanHoldUse() => Invoke<bool>("GetCanHoldUse")!;
+    public bool GetCanHoldUse() => Invoke<bool>(GetCanHoldUseSlot)!;
 
     /// <summary>Gets the max number of bullets the clip can hold</summary>
-    public int GetClipCapacity() => Invoke<int>("GetClipCapacity")!;
+    public int GetClipCapacity() => Invoke<int>(GetClipCapacitySlot)!;
 
     /// <summary>Gets the base damage of this Weapon</summary>
-    public int GetDamage() => Invoke<int>("GetDamage")!;
+    public int GetDamage() => Invoke<int>(GetDamageSlot)!;
 
     /// <summary>Gets the Character, if it exists, that's holding this Pickable</summary>
-    public Character? GetHandler() => Invoke<Character?>("GetHandler");
+    public Character? GetHandler() => Invoke<Character?>(GetHandlerSlot);
 
     /// <summary>Gets the Handling Mode of this Pickable</summary>
-    public HandlingMode GetHandlingMode() => Invoke<HandlingMode>("GetHandlingMode")!;
+    public HandlingMode GetHandlingMode() => Invoke<HandlingMode>(GetHandlingModeSlot)!;
 
     /// <summary>Gets if the weapon is triggered/fired when releasing the use button</summary>
-    public bool GetHoldReleaseUse() => Invoke<bool>("GetHoldReleaseUse")!;
+    public bool GetHoldReleaseUse() => Invoke<bool>(GetHoldReleaseUseSlot)!;
 
     /// <summary>Gets the location offset of the left hand</summary>
-    public Vector GetLeftHandLocation() => Invoke<Vector>("GetLeftHandLocation")!;
+    public Vector GetLeftHandLocation() => Invoke<Vector>(GetLeftHandLocationSlot)!;
 
     /// <summary>Gets the rotation offset of the left hand</summary>
-    public Rotator GetLeftHandRotation() => Invoke<Rotator>("GetLeftHandRotation")!;
+    public Rotator GetLeftHandRotation() => Invoke<Rotator>(GetLeftHandRotationSlot)!;
 
     /// <summary>Gets the magazine Static Mesh used when reloading</summary>
-    public string GetMagazineMesh() => Invoke<string>("GetMagazineMesh")!;
+    public string GetMagazineMesh() => Invoke<string>(GetMagazineMeshSlot)!;
 
     /// <summary>Gets a Color parameter from this Actor's material</summary>
     public Color? GetMaterialColorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Color?>("GetMaterialColorParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<Color?>(GetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets a Scalar parameter from this Actor's material</summary>
     public float? GetMaterialScalarParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<float?>("GetMaterialScalarParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<float?>(GetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets a Texture parameter from this Actor's material</summary>
     public string? GetMaterialTextureParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<string?>("GetMaterialTextureParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<string?>(GetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets a Vector parameter from this Actor's material</summary>
     public Vector? GetMaterialVectorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Vector?>("GetMaterialVectorParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<Vector?>(GetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets the name of the asset this Pickable uses</summary>
-    public string GetMesh() => Invoke<string>("GetMesh")!;
+    public string GetMesh() => Invoke<string>(GetMeshSlot)!;
 
     /// <summary>Gets the Particle of the Fire Blast in the muzzle</summary>
-    public string GetParticlesBarrel() => Invoke<string>("GetParticlesBarrel")!;
+    public string GetParticlesBarrel() => Invoke<string>(GetParticlesBarrelSlot)!;
 
     /// <summary>Gets the Particle of the bullet trail</summary>
-    public string GetParticlesBulletTrail() => Invoke<string>("GetParticlesBulletTrail")!;
+    public string GetParticlesBulletTrail() => Invoke<string>(GetParticlesBulletTrailSlot)!;
 
     /// <summary>Gets the Particle of the ejected shells</summary>
-    public string GetParticlesShells() => Invoke<string>("GetParticlesShells")!;
+    public string GetParticlesShells() => Invoke<string>(GetParticlesShellsSlot)!;
 
     /// <summary>Gets the base recoil of this Weapon</summary>
-    public float GetRecoil() => Invoke<float>("GetRecoil")!;
+    public float GetRecoil() => Invoke<float>(GetRecoilSlot)!;
 
     /// <summary>Gets the offset of the right hand, relative to the camera</summary>
-    public Vector GetRightHandOffset() => Invoke<Vector>("GetRightHandOffset")!;
+    public Vector GetRightHandOffset() => Invoke<Vector>(GetRightHandOffsetSlot)!;
 
     /// <summary>Gets the Field of View multiplier applied when aiming down sights</summary>
-    public float GetSightFOVMultiplier() => Invoke<float>("GetSightFOVMultiplier")!;
+    public float GetSightFOVMultiplier() => Invoke<float>(GetSightFOVMultiplierSlot)!;
 
     /// <summary>Gets the sight location offset used when aiming down sights</summary>
-    public Vector GetSightLocation() => Invoke<Vector>("GetSightLocation")!;
+    public Vector GetSightLocation() => Invoke<Vector>(GetSightLocationSlot)!;
 
     /// <summary>Gets the sight rotation used when aiming down sights</summary>
-    public Rotator GetSightRotation() => Invoke<Rotator>("GetSightRotation")!;
+    public Rotator GetSightRotation() => Invoke<Rotator>(GetSightRotationSlot)!;
 
     /// <summary>Gets the Sound played when aiming</summary>
-    public string GetSoundAim() => Invoke<string>("GetSoundAim")!;
+    public string GetSoundAim() => Invoke<string>(GetSoundAimSlot)!;
 
     /// <summary>Gets the Sound played when firing with an empty clip</summary>
-    public string GetSoundDry() => Invoke<string>("GetSoundDry")!;
+    public string GetSoundDry() => Invoke<string>(GetSoundDrySlot)!;
 
     /// <summary>Gets the Sound played when firing</summary>
-    public string GetSoundFire() => Invoke<string>("GetSoundFire")!;
+    public string GetSoundFire() => Invoke<string>(GetSoundFireSlot)!;
 
     /// <summary>Gets the Sound played when loading a magazine</summary>
-    public string GetSoundLoad() => Invoke<string>("GetSoundLoad")!;
+    public string GetSoundLoad() => Invoke<string>(GetSoundLoadSlot)!;
 
     /// <summary>Gets the Sound played when unloading a magazine</summary>
-    public string GetSoundUnload() => Invoke<string>("GetSoundUnload")!;
+    public string GetSoundUnload() => Invoke<string>(GetSoundUnloadSlot)!;
 
     /// <summary>Gets the Sound played when zooming</summary>
-    public string GetSoundZooming() => Invoke<string>("GetSoundZooming")!;
+    public string GetSoundZooming() => Invoke<string>(GetSoundZoomingSlot)!;
 
     /// <summary>Gets the base spread of this Weapon</summary>
-    public float GetSpread() => Invoke<float>("GetSpread")!;
+    public float GetSpread() => Invoke<float>(GetSpreadSlot)!;
 
     /// <summary>Gets the damage multiplier applied when a bullet passes through a wall</summary>
-    public float GetWallbangDamageMultiplier() => Invoke<float>("GetWallbangDamageMultiplier")!;
+    public float GetWallbangDamageMultiplier() => Invoke<float>(GetWallbangDamageMultiplierSlot)!;
 
     /// <summary>Gets the max distance a bullet can pass through walls</summary>
-    public float GetWallbangMaxDistance() => Invoke<float>("GetWallbangMaxDistance")!;
+    public float GetWallbangMaxDistance() => Invoke<float>(GetWallbangMaxDistanceSlot)!;
 
     /// <summary>Plays an Animation on this Weapon</summary>
     public void PlayAnimation(
@@ -539,75 +639,76 @@ public partial class Weapon : Actor, IPaintable, IPickable
         float? blendOutTime = null,
         float? playRate = null,
         bool? stopAllMontages = null) =>
-        Invoke("PlayAnimation", ScriptArguments.Trim([animationPath, slotName, loopIndefinitely, blendInTime, blendOutTime, playRate, stopAllMontages], 1));
+        Invoke(PlayAnimationSlot, ScriptArguments.Trim([animationPath, slotName, loopIndefinitely, blendInTime, blendOutTime, playRate, stopAllMontages], 1));
 
     /// <summary>Pulls the usage of this Pickable (will start firing if this is a weapon)</summary>
-    public void PullUse(float? releaseUseAfter = null) => Invoke("PullUse", ScriptArguments.Trim([releaseUseAfter], 0));
+    public void PullUse(float? releaseUseAfter = null) =>
+        Invoke(PullUseSlot, ScriptArguments.Trim([releaseUseAfter], 0));
 
     /// <summary>Releases the usage of this Pickable (will stop firing if this is a weapon)</summary>
-    public void ReleaseUse() => Invoke("ReleaseUse");
+    public void ReleaseUse() => Invoke(ReleaseUseSlot);
 
     /// <summary>Forces this Weapon to reload</summary>
-    public void Reload() => Invoke("Reload");
+    public void Reload() => Invoke(ReloadSlot);
 
     /// <summary>Removes all SkeletalMeshes attached</summary>
-    public void RemoveAllSkeletalMeshesAttached() => Invoke("RemoveAllSkeletalMeshesAttached");
+    public void RemoveAllSkeletalMeshesAttached() => Invoke(RemoveAllSkeletalMeshesAttachedSlot);
 
     /// <summary>Removes all StaticMeshes attached</summary>
-    public void RemoveAllStaticMeshesAttached() => Invoke("RemoveAllStaticMeshesAttached");
+    public void RemoveAllStaticMeshesAttached() => Invoke(RemoveAllStaticMeshesAttachedSlot);
 
     /// <summary>Removes, if it exists, a SkeletalMesh from this Pickable given its custom ID</summary>
-    public void RemoveSkeletalMeshAttached(string id) => Invoke("RemoveSkeletalMeshAttached", id);
+    public void RemoveSkeletalMeshAttached(string id) => Invoke(RemoveSkeletalMeshAttachedSlot, id);
 
     /// <summary>Removes, if it exists, a StaticMesh from this Pickable given its custom ID</summary>
-    public void RemoveStaticMeshAttached(string id) => Invoke("RemoveStaticMeshAttached", id);
+    public void RemoveStaticMeshAttached(string id) => Invoke(RemoveStaticMeshAttachedSlot, id);
 
     /// <summary>Resets the material from the specified index to the original one</summary>
     public void ResetMaterial(int? index = null, string? attachableId = null) =>
-        Invoke("ResetMaterial", ScriptArguments.Trim([index, attachableId], 0));
+        Invoke(ResetMaterialSlot, ScriptArguments.Trim([index, attachableId], 0));
 
     /// <summary>Sets this Weapon's Ammo in the Bag</summary>
-    public void SetAmmoBag(int newAmmoBag) => Invoke("SetAmmoBag", newAmmoBag);
+    public void SetAmmoBag(int newAmmoBag) => Invoke(SetAmmoBagSlot, newAmmoBag);
 
     /// <summary>Sets this Weapon's Ammo in the Clip</summary>
-    public void SetAmmoClip(int newAmmoClip) => Invoke("SetAmmoClip", newAmmoClip);
+    public void SetAmmoClip(int newAmmoClip) => Invoke(SetAmmoClipSlot, newAmmoClip);
 
     /// <summary>Sets the ammo counts and the clip capacity at once</summary>
     public void SetAmmoSettings(uint ammoClip, uint ammoBag, uint? ammoToReload = null, uint? clipCapacity = null) =>
-        Invoke("SetAmmoSettings", ScriptArguments.Trim([ammoClip, ammoBag, ammoToReload, clipCapacity], 2));
+        Invoke(SetAmmoSettingsSlot, ScriptArguments.Trim([ammoClip, ammoBag, ammoToReload, clipCapacity], 2));
 
     /// <summary>Sets the Animation played by the Character when firing this Weapon</summary>
     public void SetAnimationCharacterFire(string animationCharacterFirePath, float? playRate = null) =>
-        Invoke("SetAnimationCharacterFire", ScriptArguments.Trim([animationCharacterFirePath, playRate], 1));
+        Invoke(SetAnimationCharacterFireSlot, ScriptArguments.Trim([animationCharacterFirePath, playRate], 1));
 
     /// <summary>Sets the Animation played by the Weapon itself when firing</summary>
     public void SetAnimationFire(string animationFirePath, float? playRate = null) =>
-        Invoke("SetAnimationFire", ScriptArguments.Trim([animationFirePath, playRate], 1));
+        Invoke(SetAnimationFireSlot, ScriptArguments.Trim([animationFirePath, playRate], 1));
 
     /// <summary>Sets the Animation played by the Character when reloading this Weapon</summary>
     public void SetAnimationReload(string reloadAnimationPath, float? playRate = null) =>
-        Invoke("SetAnimationReload", ScriptArguments.Trim([reloadAnimationPath, playRate], 1));
+        Invoke(SetAnimationReloadSlot, ScriptArguments.Trim([reloadAnimationPath, playRate], 1));
 
     /// <summary>Sets the Attachment Settings for this Pickable (how it attaches to the Character when Picking up)</summary>
     public void SetAttachmentSettings(
         Vector relativeLocation,
         Rotator? relativeRotation = null,
         string? socket = null) =>
-        Invoke("SetAttachmentSettings", ScriptArguments.Trim([relativeLocation, relativeRotation, socket], 1));
+        Invoke(SetAttachmentSettingsSlot, ScriptArguments.Trim([relativeLocation, relativeRotation, socket], 1));
 
     /// <summary>Sets if the Character will reload automatically when the clip is empty</summary>
-    public void SetAutoReload(bool autoReload) => Invoke("SetAutoReload", autoReload);
+    public void SetAutoReload(bool autoReload) => Invoke(SetAutoReloadSlot, autoReload);
 
     /// <summary>Set the Bullet Color</summary>
-    public void SetBulletColor(Color bulletColor) => Invoke("SetBulletColor", bulletColor);
+    public void SetBulletColor(Color bulletColor) => Invoke(SetBulletColorSlot, bulletColor);
 
     /// <summary>Sets how many bullets are fired per shot and how they look and travel</summary>
     public void SetBulletSettings(uint bulletCount, float bulletMaxDistance, uint bulletVelocity, Color bulletColor) =>
-        Invoke("SetBulletSettings", bulletCount, bulletMaxDistance, bulletVelocity, bulletColor);
+        Invoke(SetBulletSettingsSlot, bulletCount, bulletMaxDistance, bulletVelocity, bulletColor);
 
     /// <summary>Sets the Buoyancy Pontoons used by the Water simulation</summary>
     public void SetBuoyancyPontoons(IEnumerable<IDictionary<string, object?>>? pontoons = null) =>
-        Invoke("SetBuoyancyPontoons", ScriptArguments.Trim([pontoons], 0));
+        Invoke(SetBuoyancyPontoonsSlot, ScriptArguments.Trim([pontoons], 0));
 
     /// <summary>Sets how this entity behaves on Water</summary>
     public void SetBuoyancySettings(
@@ -615,37 +716,37 @@ public partial class Weapon : Actor, IPaintable, IPickable
         float? buoyancyCoefficient = null,
         float? buoyancyDamp = null,
         float? maxBuoyantForce = null) =>
-        Invoke("SetBuoyancySettings", ScriptArguments.Trim([enabled, buoyancyCoefficient, buoyancyDamp, maxBuoyantForce], 0));
+        Invoke(SetBuoyancySettingsSlot, ScriptArguments.Trim([enabled, buoyancyCoefficient, buoyancyDamp, maxBuoyantForce], 0));
 
     /// <summary>Sets the time between shots</summary>
-    public void SetCadence(float cadence) => Invoke("SetCadence", cadence);
+    public void SetCadence(float cadence) => Invoke(SetCadenceSlot, cadence);
 
     /// <summary>Sets if this Pickable can be used by the player when held</summary>
-    public void SetCanUse(bool canUse) => Invoke("SetCanUse", canUse);
+    public void SetCanUse(bool canUse) => Invoke(SetCanUseSlot, canUse);
 
     /// <summary>Sets the max number of bullets the Weapon's clip can hold</summary>
-    public void SetClipCapacity(int clip) => Invoke("SetClipCapacity", clip);
+    public void SetClipCapacity(int clip) => Invoke(SetClipCapacitySlot, clip);
 
     /// <summary>Sets the crosshair material for this Pickable</summary>
-    public void SetCrosshairMaterial(string materialAsset) => Invoke("SetCrosshairMaterial", materialAsset);
+    public void SetCrosshairMaterial(string materialAsset) => Invoke(SetCrosshairMaterialSlot, materialAsset);
 
     /// <summary>Set the Base Weapon's Damage</summary>
-    public void SetDamage(int damage) => Invoke("SetDamage", damage);
+    public void SetDamage(int damage) => Invoke(SetDamageSlot, damage);
 
     /// <summary>Sets how the Character grabs this Weapon</summary>
-    public void SetHandlingMode(HandlingMode handlingMode) => Invoke("SetHandlingMode", handlingMode);
+    public void SetHandlingMode(HandlingMode handlingMode) => Invoke(SetHandlingModeSlot, handlingMode);
 
     /// <summary>Sets where the Character's left hand holds this Weapon, relative to the Weapon</summary>
     public void SetLeftHandTransform(Vector leftHandLocation, Rotator leftHandRotation) =>
-        Invoke("SetLeftHandTransform", leftHandLocation, leftHandRotation);
+        Invoke(SetLeftHandTransformSlot, leftHandLocation, leftHandRotation);
 
     /// <summary>Set the mesh used when the Character reloads the weapon</summary>
     public void SetMagazineMesh(string magazineMesh, string? magazineMeshHideBone = null) =>
-        Invoke("SetMagazineMesh", ScriptArguments.Trim([magazineMesh, magazineMeshHideBone], 1));
+        Invoke(SetMagazineMeshSlot, ScriptArguments.Trim([magazineMesh, magazineMeshHideBone], 1));
 
     /// <summary>Sets the material at the specified index of this Actor</summary>
     public void SetMaterial(string materialPath, int? index = null, string? attachableId = null) =>
-        Invoke("SetMaterial", ScriptArguments.Trim([materialPath, index, attachableId], 1));
+        Invoke(SetMaterialSlot, ScriptArguments.Trim([materialPath, index, attachableId], 1));
 
     /// <summary>Sets a Color parameter in this Actor's material</summary>
     public void SetMaterialColorParameter(
@@ -653,7 +754,7 @@ public partial class Weapon : Actor, IPaintable, IPickable
         Color color,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialColorParameter", ScriptArguments.Trim([parameterName, color, index, attachableId], 2));
+        Invoke(SetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, color, index, attachableId], 2));
 
     /// <summary>Sets a Scalar parameter in this Actor's material</summary>
     public void SetMaterialScalarParameter(
@@ -661,7 +762,7 @@ public partial class Weapon : Actor, IPaintable, IPickable
         float scalar,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialScalarParameter", ScriptArguments.Trim([parameterName, scalar, index, attachableId], 2));
+        Invoke(SetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, scalar, index, attachableId], 2));
 
     /// <summary>Sets a texture parameter in this Actor's material to an image</summary>
     public void SetMaterialTextureParameter(
@@ -669,7 +770,7 @@ public partial class Weapon : Actor, IPaintable, IPickable
         string texturePath,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialTextureParameter", ScriptArguments.Trim([parameterName, texturePath, index, attachableId], 2));
+        Invoke(SetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, texturePath, index, attachableId], 2));
 
     /// <summary>Sets a Vector parameter in this Actor's material</summary>
     public void SetMaterialVectorParameter(
@@ -677,84 +778,86 @@ public partial class Weapon : Actor, IPaintable, IPickable
         Vector vector,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialVectorParameter", ScriptArguments.Trim([parameterName, vector, index, attachableId], 2));
+        Invoke(SetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, vector, index, attachableId], 2));
 
     /// <summary>Sets the Particle of the fire blast at the muzzle</summary>
-    public void SetParticlesBarrel(string particleAssetPath) => Invoke("SetParticlesBarrel", particleAssetPath);
+    public void SetParticlesBarrel(string particleAssetPath) => Invoke(SetParticlesBarrelSlot, particleAssetPath);
 
     /// <summary>Sets the Particle of the bullet trail</summary>
     public void SetParticlesBulletTrail(string particleBulletTrailAssetPath) =>
-        Invoke("SetParticlesBulletTrail", particleBulletTrailAssetPath);
+        Invoke(SetParticlesBulletTrailSlot, particleBulletTrailAssetPath);
 
     /// <summary>Sets the Particle of the empty shells ejected when firing</summary>
     public void SetParticlesShells(string particleShellsAssetPath) =>
-        Invoke("SetParticlesShells", particleShellsAssetPath);
+        Invoke(SetParticlesShellsSlot, particleShellsAssetPath);
 
     /// <summary>Overrides this Actor's Physical Material with a new one</summary>
-    public void SetPhysicalMaterial(string physicalMaterialPath) => Invoke("SetPhysicalMaterial", physicalMaterialPath);
+    public void SetPhysicalMaterial(string physicalMaterialPath) =>
+        Invoke(SetPhysicalMaterialSlot, physicalMaterialPath);
 
     /// <summary>Sets if this Pickable can be picked up from ground by the player</summary>
-    public void SetPickable(bool isPickable) => Invoke("SetPickable", isPickable);
+    public void SetPickable(bool isPickable) => Invoke(SetPickableSlot, isPickable);
 
     /// <summary>Sets the base recoil of this Weapon</summary>
-    public void SetRecoil(float recoil) => Invoke("SetRecoil", recoil);
+    public void SetRecoil(float recoil) => Invoke(SetRecoilSlot, recoil);
 
     /// <summary>Set the offset of Right Hand</summary>
-    public void SetRightHandOffset(Vector rightHandOffset) => Invoke("SetRightHandOffset", rightHandOffset);
+    public void SetRightHandOffset(Vector rightHandOffset) => Invoke(SetRightHandOffsetSlot, rightHandOffset);
 
     /// <summary>Sets the Field of View multiplier applied when aiming down sights</summary>
-    public void SetSightFOVMultiplier(float sightFovMultiplier) => Invoke("SetSightFOVMultiplier", sightFovMultiplier);
+    public void SetSightFOVMultiplier(float sightFovMultiplier) =>
+        Invoke(SetSightFOVMultiplierSlot, sightFovMultiplier);
 
     /// <summary>Sets the offset that aligns the Player's view with the Weapon's sight when aiming down sights</summary>
     public void SetSightTransform(Vector sightLocation, Rotator sightRotation) =>
-        Invoke("SetSightTransform", sightLocation, sightRotation);
+        Invoke(SetSightTransformSlot, sightLocation, sightRotation);
 
     /// <summary>Sets the Sound played when starting to aim</summary>
     public void SetSoundAim(string soundAimAssetPath, float? volume = null, float? pitch = null) =>
-        Invoke("SetSoundAim", ScriptArguments.Trim([soundAimAssetPath, volume, pitch], 1));
+        Invoke(SetSoundAimSlot, ScriptArguments.Trim([soundAimAssetPath, volume, pitch], 1));
 
     /// <summary>Sets the Sound played when trying to fire with an empty clip</summary>
     public void SetSoundDry(string soundDryAssetPath, float? volume = null, float? pitch = null) =>
-        Invoke("SetSoundDry", ScriptArguments.Trim([soundDryAssetPath, volume, pitch], 1));
+        Invoke(SetSoundDrySlot, ScriptArguments.Trim([soundDryAssetPath, volume, pitch], 1));
 
     /// <summary>Sets the Sound played when firing</summary>
     public void SetSoundFire(string soundFireAssetPath, float? volume = null, float? pitch = null) =>
-        Invoke("SetSoundFire", ScriptArguments.Trim([soundFireAssetPath, volume, pitch], 1));
+        Invoke(SetSoundFireSlot, ScriptArguments.Trim([soundFireAssetPath, volume, pitch], 1));
 
     /// <summary>Sound when firing with only having X remaining bullets in the magazine</summary>
     public void SetSoundFireLastBullets(string soundAssetPath, int? remainingBulletsCount = null) =>
-        Invoke("SetSoundFireLastBullets", ScriptArguments.Trim([soundAssetPath, remainingBulletsCount], 1));
+        Invoke(SetSoundFireLastBulletsSlot, ScriptArguments.Trim([soundAssetPath, remainingBulletsCount], 1));
 
     /// <summary>Sets the Sound played when loading a magazine</summary>
     public void SetSoundLoad(string soundLoadAssetPath, float? volume = null, float? pitch = null) =>
-        Invoke("SetSoundLoad", ScriptArguments.Trim([soundLoadAssetPath, volume, pitch], 1));
+        Invoke(SetSoundLoadSlot, ScriptArguments.Trim([soundLoadAssetPath, volume, pitch], 1));
 
     /// <summary>Sets the Sound played when unloading a magazine</summary>
     public void SetSoundUnload(string soundUnloadAssetPath, float? volume = null, float? pitch = null) =>
-        Invoke("SetSoundUnload", ScriptArguments.Trim([soundUnloadAssetPath, volume, pitch], 1));
+        Invoke(SetSoundUnloadSlot, ScriptArguments.Trim([soundUnloadAssetPath, volume, pitch], 1));
 
     /// <summary>Sets the Sound played when zooming</summary>
     public void SetSoundZooming(string soundZoomingAssetPath, float? volume = null, float? pitch = null) =>
-        Invoke("SetSoundZooming", ScriptArguments.Trim([soundZoomingAssetPath, volume, pitch], 1));
+        Invoke(SetSoundZoomingSlot, ScriptArguments.Trim([soundZoomingAssetPath, volume, pitch], 1));
 
     /// <summary>Sets the base spread of this Weapon</summary>
-    public void SetSpread(float spread) => Invoke("SetSpread", spread);
+    public void SetSpread(float spread) => Invoke(SetSpreadSlot, spread);
 
     /// <summary>Sets a Static Mesh Attached location and rotation</summary>
     public void SetStaticMeshAttachedTransform(string id, Vector relativeLocation, Rotator relativeRotation) =>
-        Invoke("SetStaticMeshAttachedTransform", id, relativeLocation, relativeRotation);
+        Invoke(SetStaticMeshAttachedTransformSlot, id, relativeLocation, relativeRotation);
 
     /// <summary>Sets if the Weapon can hold to keep firing and if it needs to release to fire</summary>
     public void SetUsageSettings(bool canHoldUse, bool holdReleaseUse) =>
-        Invoke("SetUsageSettings", canHoldUse, holdReleaseUse);
+        Invoke(SetUsageSettingsSlot, canHoldUse, holdReleaseUse);
 
     /// <summary>Sets how the bullet will pass through walls</summary>
     public void SetWallbangSettings(float maxDistance, float damageMultiplier) =>
-        Invoke("SetWallbangSettings", maxDistance, damageMultiplier);
+        Invoke(SetWallbangSettingsSlot, maxDistance, damageMultiplier);
 
     /// <summary>Stops an Animation Montage on this Weapon</summary>
     public void StopAnimation(string? animationAsset = null) =>
-        Invoke("StopAnimation", ScriptArguments.Trim([animationAsset], 0));
+        Invoke(StopAnimationSlot, ScriptArguments.Trim([animationAsset], 0));
 
     /// <summary>Subscribes to the AmmoBagChange event of this entity only.</summary>
     public ScriptSubscription SubscribeAmmoBagChange(AmmoBagChangeHandler handler) => Subscribe("AmmoBagChange", handler);

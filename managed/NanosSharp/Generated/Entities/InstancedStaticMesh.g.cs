@@ -2,6 +2,7 @@
 
 using NanosSharp.Entities.Binding;
 using NanosSharp.Enums;
+using NanosSharp.Interop.Reflection;
 using NanosSharp.Mathematics;
 using NanosSharp.Scripting;
 
@@ -75,6 +76,25 @@ public partial class InstancedStaticMesh : Actor, IPaintable
     private static readonly ClassEvent<NetworkAuthorityChangeHandler> NetworkAuthorityChangeEvent = new("InstancedStaticMesh", "NetworkAuthorityChange");
     private static readonly ClassEvent<SpawnHandler> SpawnEvent = new("InstancedStaticMesh", "Spawn");
     private static readonly ClassEvent<ValueChangeHandler> ValueChangeEvent = new("InstancedStaticMesh", "ValueChange");
+    private static readonly MethodSlot AddInstanceSlot = new("AddInstance");
+    private static readonly MethodSlot AddInstancesSlot = new("AddInstances");
+    private static readonly MethodSlot ClearInstancesSlot = new("ClearInstances");
+    private static readonly MethodSlot GetInstanceCountSlot = new("GetInstanceCount");
+    private static readonly MethodSlot GetInstanceTransformSlot = new("GetInstanceTransform");
+    private static readonly MethodSlot GetMaterialColorParameterSlot = new("GetMaterialColorParameter");
+    private static readonly MethodSlot GetMaterialScalarParameterSlot = new("GetMaterialScalarParameter");
+    private static readonly MethodSlot GetMaterialTextureParameterSlot = new("GetMaterialTextureParameter");
+    private static readonly MethodSlot GetMaterialVectorParameterSlot = new("GetMaterialVectorParameter");
+    private static readonly MethodSlot GetMeshSlot = new("GetMesh");
+    private static readonly MethodSlot RemoveInstanceSlot = new("RemoveInstance");
+    private static readonly MethodSlot ResetMaterialSlot = new("ResetMaterial");
+    private static readonly MethodSlot SetInstanceTransformSlot = new("SetInstanceTransform");
+    private static readonly MethodSlot SetMaterialSlot = new("SetMaterial");
+    private static readonly MethodSlot SetMaterialColorParameterSlot = new("SetMaterialColorParameter");
+    private static readonly MethodSlot SetMaterialScalarParameterSlot = new("SetMaterialScalarParameter");
+    private static readonly MethodSlot SetMaterialTextureParameterSlot = new("SetMaterialTextureParameter");
+    private static readonly MethodSlot SetMaterialVectorParameterSlot = new("SetMaterialVectorParameter");
+    private static readonly MethodSlot SetPhysicalMaterialSlot = new("SetPhysicalMaterial");
 
     /// <summary>Returns the number of instances currently stored</summary>
     public ulong InstanceCount => GetInstanceCount();
@@ -100,45 +120,46 @@ public partial class InstancedStaticMesh : Actor, IPaintable
 
     /// <summary>Add an instance to this component</summary>
     public uint AddInstance(Vector relativeLocation, Rotator? relativeRotation = null, Vector? scale = null) =>
-        Invoke<uint>("AddInstance", ScriptArguments.Trim([relativeLocation, relativeRotation, scale], 1))!;
+        Invoke<uint>(AddInstanceSlot, ScriptArguments.Trim([relativeLocation, relativeRotation, scale], 1))!;
 
     /// <summary>Add multiple instances to this component. It is way efficient calling this once than AddInstance multiple times</summary>
-    public void AddInstances(IEnumerable<IDictionary<string, object?>> instances) => Invoke("AddInstances", instances);
+    public void AddInstances(IEnumerable<IDictionary<string, object?>> instances) =>
+        Invoke(AddInstancesSlot, instances);
 
     /// <summary>Removes all instances.</summary>
-    public void ClearInstances() => Invoke("ClearInstances");
+    public void ClearInstances() => Invoke(ClearInstancesSlot);
 
     /// <summary>Returns the number of instances currently stored</summary>
-    public ulong GetInstanceCount() => Invoke<ulong>("GetInstanceCount")!;
+    public ulong GetInstanceCount() => Invoke<ulong>(GetInstanceCountSlot)!;
 
     /// <summary>Returns the current transform of the instance at the given index</summary>
-    public object?[] GetInstanceTransform(uint index) => Invoke<object?[]>("GetInstanceTransform", index)!;
+    public object?[] GetInstanceTransform(uint index) => Invoke<object?[]>(GetInstanceTransformSlot, index)!;
 
     /// <summary>Gets a Color parameter from this Actor's material</summary>
     public Color? GetMaterialColorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Color?>("GetMaterialColorParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<Color?>(GetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets a Scalar parameter from this Actor's material</summary>
     public float? GetMaterialScalarParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<float?>("GetMaterialScalarParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<float?>(GetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets a Texture parameter from this Actor's material</summary>
     public string? GetMaterialTextureParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<string?>("GetMaterialTextureParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<string?>(GetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets a Vector parameter from this Actor's material</summary>
     public Vector? GetMaterialVectorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Vector?>("GetMaterialVectorParameter", ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        Invoke<Vector?>(GetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
 
     /// <summary>Gets the Asset path mesh used</summary>
-    public string GetMesh() => Invoke<string>("GetMesh")!;
+    public string GetMesh() => Invoke<string>(GetMeshSlot)!;
 
     /// <summary>Removes the instance at the given index. This will move the last element to the provided index, reducing the count by 1</summary>
-    public void RemoveInstance(uint index) => Invoke("RemoveInstance", index);
+    public void RemoveInstance(uint index) => Invoke(RemoveInstanceSlot, index);
 
     /// <summary>Resets the material from the specified index to the original one</summary>
     public void ResetMaterial(int? index = null, string? attachableId = null) =>
-        Invoke("ResetMaterial", ScriptArguments.Trim([index, attachableId], 0));
+        Invoke(ResetMaterialSlot, ScriptArguments.Trim([index, attachableId], 0));
 
     /// <summary>Changes the transform of an existing instance. You can pass all other parameters as nil to modify only a single property</summary>
     public void SetInstanceTransform(
@@ -146,11 +167,11 @@ public partial class InstancedStaticMesh : Actor, IPaintable
         Vector? relativeLocation = null,
         Rotator? relativeRotation = null,
         Vector? scale = null) =>
-        Invoke("SetInstanceTransform", ScriptArguments.Trim([index, relativeLocation, relativeRotation, scale], 1));
+        Invoke(SetInstanceTransformSlot, ScriptArguments.Trim([index, relativeLocation, relativeRotation, scale], 1));
 
     /// <summary>Sets the material at the specified index of this Actor</summary>
     public void SetMaterial(string materialPath, int? index = null, string? attachableId = null) =>
-        Invoke("SetMaterial", ScriptArguments.Trim([materialPath, index, attachableId], 1));
+        Invoke(SetMaterialSlot, ScriptArguments.Trim([materialPath, index, attachableId], 1));
 
     /// <summary>Sets a Color parameter in this Actor's material</summary>
     public void SetMaterialColorParameter(
@@ -158,7 +179,7 @@ public partial class InstancedStaticMesh : Actor, IPaintable
         Color color,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialColorParameter", ScriptArguments.Trim([parameterName, color, index, attachableId], 2));
+        Invoke(SetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, color, index, attachableId], 2));
 
     /// <summary>Sets a Scalar parameter in this Actor's material</summary>
     public void SetMaterialScalarParameter(
@@ -166,7 +187,7 @@ public partial class InstancedStaticMesh : Actor, IPaintable
         float scalar,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialScalarParameter", ScriptArguments.Trim([parameterName, scalar, index, attachableId], 2));
+        Invoke(SetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, scalar, index, attachableId], 2));
 
     /// <summary>Sets a texture parameter in this Actor's material to an image</summary>
     public void SetMaterialTextureParameter(
@@ -174,7 +195,7 @@ public partial class InstancedStaticMesh : Actor, IPaintable
         string texturePath,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialTextureParameter", ScriptArguments.Trim([parameterName, texturePath, index, attachableId], 2));
+        Invoke(SetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, texturePath, index, attachableId], 2));
 
     /// <summary>Sets a Vector parameter in this Actor's material</summary>
     public void SetMaterialVectorParameter(
@@ -182,10 +203,11 @@ public partial class InstancedStaticMesh : Actor, IPaintable
         Vector vector,
         int? index = null,
         string? attachableId = null) =>
-        Invoke("SetMaterialVectorParameter", ScriptArguments.Trim([parameterName, vector, index, attachableId], 2));
+        Invoke(SetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, vector, index, attachableId], 2));
 
     /// <summary>Overrides this Actor's Physical Material with a new one</summary>
-    public void SetPhysicalMaterial(string physicalMaterialPath) => Invoke("SetPhysicalMaterial", physicalMaterialPath);
+    public void SetPhysicalMaterial(string physicalMaterialPath) =>
+        Invoke(SetPhysicalMaterialSlot, physicalMaterialPath);
 
     /// <summary>Subscribes to the ClassRegister event of this entity only.</summary>
     public ScriptSubscription SubscribeClassRegister(ClassRegisterHandler handler) => Subscribe("ClassRegister", handler);

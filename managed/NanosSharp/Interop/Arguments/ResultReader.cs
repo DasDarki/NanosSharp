@@ -34,6 +34,16 @@ internal static unsafe class ResultReader
             return Unsafe.As<int, T>(ref value);
         }
 
+        if (typeof(T) == typeof(long) && type == ValueType.Integer)
+        {
+            return Unsafe.As<long, T>(ref result.Integer);
+        }
+
+        if (typeof(T) == typeof(string) && type == ValueType.String)
+        {
+            return (T)(object)ReadString(ref result);
+        }
+
         if (typeof(T) == typeof(uint) && type == ValueType.Integer)
         {
             var value = (uint)result.Integer;

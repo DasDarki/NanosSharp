@@ -2,6 +2,7 @@
 
 using NanosSharp.Entities.Binding;
 using NanosSharp.Enums;
+using NanosSharp.Interop.Reflection;
 using NanosSharp.Mathematics;
 using NanosSharp.Scripting;
 
@@ -10,6 +11,7 @@ namespace NanosSharp.Entities;
 /// <summary>Base class for all Vehicle entities.</summary>
 public partial interface IVehicle
 {
+
     /// <summary>Gets all Skeletal Meshes attached to this entity</summary>
     IReadOnlyDictionary<string, string> AllSkeletalMeshAttached { get; }
 
