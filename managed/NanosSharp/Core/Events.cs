@@ -5,7 +5,7 @@ using NanosSharp.Scripting;
 namespace NanosSharp.Core;
 
 /// <summary>Custom events shared between packages and clients.</summary>
-public static class Events
+public static partial class Events
 {
     private const string ClassName = "Events";
     private static readonly StaticMethodSlot CallSlot = new(ClassName, "Call");

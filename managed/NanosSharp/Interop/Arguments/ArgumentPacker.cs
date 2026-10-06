@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -247,10 +248,11 @@ internal unsafe ref struct ArgumentPacker
 
     private void AddString(string text)
     {
-        var maximumLength = Encoding.UTF8.GetMaxByteCount(text.Length);
-        var target = _scratchLength - _scratchOffset >= maximumLength ? _scratch + _scratchOffset : PinBuffer(maximumLength);
-        var length = Encoding.UTF8.GetBytes(text, new Span<byte>(target, maximumLength));
-        if (target == _scratch + _scratchOffset)
+        var maximumLength = (text.Length + 1) * 3;
+        var fitsScratch = _scratchLength - _scratchOffset >= maximumLength;
+        var target = fitsScratch ? _scratch + _scratchOffset : PinBuffer(maximumLength);
+        var length = WriteUtf8(text, new Span<byte>(target, maximumLength));
+        if (fitsScratch)
         {
             _scratchOffset += length;
         }
@@ -259,6 +261,11 @@ internal unsafe ref struct ArgumentPacker
         argument.StringData = (nint)target;
         argument.StringLength = length;
     }
+
+    private static int WriteUtf8(string text, Span<byte> destination) =>
+        Ascii.FromUtf16(text, destination, out var written) == OperationStatus.Done
+            ? written
+            : Encoding.UTF8.GetBytes(text, destination);
 
     private byte* PinBuffer(int length)
     {
