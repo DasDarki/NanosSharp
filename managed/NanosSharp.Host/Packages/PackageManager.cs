@@ -28,7 +28,8 @@ internal static unsafe class PackageManager
         var serverDirectory = Path.GetFullPath(Path.Combine(runtimeDirectory, "..", ".."));
         _settings = HostSettings.Load(Path.Combine(serverDirectory, SettingsFileName));
         var nugetCache = Path.Combine(serverDirectory, "NanosSharp", "cache", "nuget");
-        _buildOptions = new PackageBuildOptions(new NuGetRestorer(_settings.NuGet.Sources, nugetCache), _settings.Projects.Generate);
+        _buildOptions = new PackageBuildOptions(new NuGetRestorer(_settings.NuGet.Sources, nugetCache), _settings.Projects.Generate,
+            _settings.Compilation.Optimize);
         NativeCallbacks.EngineAttached += OnEngineAttached;
         NativeCallbacks.EngineDetaching += OnEngineDetaching;
         NativeCallbacks.PackageLoaded += OnPackageLoaded;

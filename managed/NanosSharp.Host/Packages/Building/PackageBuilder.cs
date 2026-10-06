@@ -43,7 +43,7 @@ internal static class PackageBuilder
         if (sources.Length > 0)
         {
             var references = assemblyPaths.Concat(dependencies.CompileReferences).Select(ReadAssembly).Concat(requiredImages);
-            var scripts = CompileScripts($"{packageName}.Scripts", sources, references);
+            var scripts = CompileScripts($"{packageName}.Scripts", sources, references, options.Optimize);
             assemblies[scripts.Name] = scripts;
         }
 
@@ -81,9 +81,9 @@ internal static class PackageBuilder
     }
 
     private static AssemblyImage CompileScripts(string assemblyName, IReadOnlyList<string> sources,
-        IEnumerable<AssemblyImage> references)
+        IEnumerable<AssemblyImage> references, bool optimize)
     {
-        var result = ScriptCompiler.Compile(assemblyName, sources, references);
+        var result = ScriptCompiler.Compile(assemblyName, sources, references, optimize);
         foreach (var diagnostic in result.Diagnostics)
         {
             Log.Warning(diagnostic);

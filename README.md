@@ -136,29 +136,35 @@ The output is deterministic, `build/generator/report.md` lists everything that c
 
 ## Performance
 
-`xmake test -d benchmarks` runs the same operations from C# and Lua inside the server:
+`xmake test -d benchmarks` runs the same operations from C# and Lua inside the server, measured after a warmup of
+500 ms with one million iterations each:
 
 | Operation | Lua | C# |
 |---|---|---|
-| Static getter (`Server.GetTickRate`) | ~55 ns | ~110 ns |
-| Entity getter (`GetLocation`) | ~270 ns | ~220 ns |
-| Entity setter (`SetLocation`) | ~265 ns | ~255 ns |
-| Event roundtrip (`Events.Call` with one handler) | ~280 ns | ~750 ns |
-| Prime sieve up to 2 000 000 | ~61 ms | ~11 ms |
-| Sorting 200 000 numbers | ~54 ms | ~29 ms |
+| Static getter (`Server.GetTickRate`) | ~55 ns | ~20 ns |
+| Entity getter (`GetLocation`) | ~260 ns | ~40 ns |
+| Entity setter (`SetLocation`) | ~245 ns | ~75 ns |
+| Event roundtrip (`Events.Call` with one handler) | ~255 ns | ~300 ns |
+| Prime sieve up to 2 000 000 | ~58 ms | ~3.5 ms |
+| Sorting 200 000 numbers | ~45 ms | ~28 ms |
 
-Calls into nanos world cost about the same as in Lua, except a fixed overhead for crossing between .NET and native
-code that matters for very cheap functions and events. Code running in C# itself is several times faster.
+Calls into nanos world are faster than from Lua. Events are slightly slower because they cross between .NET and native
+code twice and the handler receives its own copy of every string. Code running in C# itself is many times faster.
+Script packages are compiled with optimizations unless `optimize` is disabled in `NanosSharp.toml`.
 
 Generated methods write their arguments as typed blittable structs without boxing, methods are cached per class in
 slots and callbacks read their parameters directly from the native arguments through compiled invokers. Profile with
-`NANOSSHARP_BENCH_ONLY`, `NANOSSHARP_BENCH_ITERATIONS`, `DOTNET_PerfMapEnabled=1` and a `releasedbg` build.
+`NANOSSHARP_BENCH_ONLY`, `NANOSSHARP_BENCH_ITERATIONS`, `DOTNET_PerfMapEnabled=1`, `DOTNET_EnableWriteXorExecute=0` and a
+`releasedbg` build. `xmake test` deploys the Release configuration unless `-c Debug` is passed.
 
 ## Configuration
 
 `NanosSharp.toml` in the server directory (created on first start):
 
 ```toml
+[compilation]
+optimize = true
+
 [hot_reload]
 enabled = true
 delay_milliseconds = 500

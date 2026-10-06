@@ -122,7 +122,7 @@ task("test")
         config.load()
         local root = os.projectdir()
         local server_dir = path.absolute(option.get("server") or config.get("server_dir") or ".server", root)
-        local deploy_arguments = {"deploy", "-s", server_dir}
+        local deploy_arguments = {"deploy", "-s", server_dir, "-c", option.get("configuration")}
         os.execv("xmake", deploy_arguments)
 
         local packages = {}
@@ -178,6 +178,7 @@ task("test")
         description = "Run the NanosSharp integration tests inside a nanos world server.",
         options = {
             {"s", "server", "kv", nil, "The nanos world server directory."},
+            {"c", "configuration", "kv", "Release", "The .NET build configuration.", values = {"Debug", "Release"}},
             {"t", "timeout", "kv", "120", "Seconds until the server is stopped."},
             {"d", "directory", "kv", "tests", "Directory with the packages to run, for example benchmarks."},
             {"a", "arguments", "kv", nil, "Additional server arguments, for example '--steam_app game'."},

@@ -5,6 +5,8 @@ namespace NanosSharp.Host.Configuration;
 
 internal sealed class HostSettings
 {
+    public CompilationSettings Compilation { get; set; } = new();
+
     public HotReloadSettings HotReload { get; set; } = new();
 
     [JsonPropertyName("nuget")]

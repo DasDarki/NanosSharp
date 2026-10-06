@@ -3,8 +3,9 @@ using System.Diagnostics;
 public sealed class Benchmark : Package
 {
     private static readonly int Iterations =
-        int.TryParse(Environment.GetEnvironmentVariable("NANOSSHARP_BENCH_ITERATIONS"), out var iterations) ? iterations : 20000;
-    private const int WarmupIterations = 1000;
+        int.TryParse(Environment.GetEnvironmentVariable("NANOSSHARP_BENCH_ITERATIONS"), out var iterations) ? iterations : 1000000;
+
+    private static readonly TimeSpan WarmupDuration = TimeSpan.FromMilliseconds(500);
 
     protected override void OnStart() => Server.OnStart += Run;
 
@@ -67,7 +68,8 @@ public sealed class Benchmark : Package
             return;
         }
 
-        for (var index = 0; index < WarmupIterations; index++)
+        var warmup = Stopwatch.StartNew();
+        while (warmup.Elapsed < WarmupDuration)
         {
             operation();
         }

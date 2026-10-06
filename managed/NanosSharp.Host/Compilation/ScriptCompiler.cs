@@ -25,8 +25,7 @@ internal static class ScriptCompiler
 
     private static readonly CSharpCompilationOptions CompilationOptions = new(
         OutputKind.DynamicallyLinkedLibrary,
-        optimizationLevel: OptimizationLevel.Debug,
-        allowUnsafe: true,
+                allowUnsafe: true,
         nullableContextOptions: NullableContextOptions.Enable,
         specificDiagnosticOptions: new Dictionary<string, ReportDiagnostic>
         {
@@ -35,7 +34,7 @@ internal static class ScriptCompiler
         });
 
     public static CompilationResult Compile(string assemblyName, IReadOnlyList<string> sourceFiles,
-        IEnumerable<AssemblyImage> referenceImages)
+        IEnumerable<AssemblyImage> referenceImages, bool optimize)
     {
         var globalUsings = string.Concat(GlobalUsings.Select(name => $"global using {name};\n"));
         var syntaxTrees = sourceFiles
@@ -45,7 +44,8 @@ internal static class ScriptCompiler
 
         var references = FrameworkReferences.Value
             .Concat(referenceImages.Select(reference => MetadataReference.CreateFromImage(reference.Image)));
-        var compilation = CSharpCompilation.Create(assemblyName, syntaxTrees, references, CompilationOptions);
+        var compilation = CSharpCompilation.Create(assemblyName, syntaxTrees, references,
+            CompilationOptions.WithOptimizationLevel(optimize ? OptimizationLevel.Release : OptimizationLevel.Debug));
 
         using var assemblyStream = new MemoryStream();
         using var symbolStream = new MemoryStream();

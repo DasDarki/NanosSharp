@@ -1,7 +1,9 @@
-local iterations = 20000
+local iterations = 1000000
+local warmup_seconds = 0.5
 
 local function measure(name, operation)
-    for _ = 1, 1000 do
+    local warmup_started = os.clock()
+    while os.clock() - warmup_started < warmup_seconds do
         operation()
     end
 
