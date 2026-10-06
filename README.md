@@ -136,17 +136,22 @@ The output is deterministic, `build/generator/report.md` lists everything that c
 
 ## Performance
 
-`xmake test -d benchmarks` runs the same operations from C# and Lua inside the server (20 000 calls each):
+`xmake test -d benchmarks` runs the same operations from C# and Lua inside the server:
 
 | Operation | Lua | C# |
 |---|---|---|
-| Static getter (`Server.GetTickRate`) | ~50 ns | ~150 ns |
-| Entity getter (`GetLocation`) | ~250 ns | ~220 ns |
-| Entity setter (`SetLocation`) | ~255 ns | ~290 ns |
-| Event roundtrip (`Events.Call` with one handler) | ~265 ns | ~710 ns |
+| Static getter (`Server.GetTickRate`) | ~55 ns | ~110 ns |
+| Entity getter (`GetLocation`) | ~270 ns | ~220 ns |
+| Entity setter (`SetLocation`) | ~265 ns | ~255 ns |
+| Event roundtrip (`Events.Call` with one handler) | ~280 ns | ~750 ns |
+| Prime sieve up to 2 000 000 | ~61 ms | ~11 ms |
+| Sorting 200 000 numbers | ~54 ms | ~29 ms |
 
-Arguments are passed as blittable structs, methods are cached per class in slots, callbacks read their parameters
-directly from the native arguments through compiled invokers. Profile with
+Calls into nanos world cost about the same as in Lua, except a fixed overhead for crossing between .NET and native
+code that matters for very cheap functions and events. Code running in C# itself is several times faster.
+
+Generated methods write their arguments as typed blittable structs without boxing, methods are cached per class in
+slots and callbacks read their parameters directly from the native arguments through compiled invokers. Profile with
 `NANOSSHARP_BENCH_ONLY`, `NANOSSHARP_BENCH_ITERATIONS`, `DOTNET_PerfMapEnabled=1` and a `releasedbg` build.
 
 ## Configuration

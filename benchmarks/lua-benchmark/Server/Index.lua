@@ -25,4 +25,28 @@ Server.Subscribe("Start", function()
     measure("event roundtrip", function() Events.Call("lua-benchmark", 1, "text") end)
 
     prop:Destroy()
+
+    local started = os.clock()
+    local limit = 2000000
+    local composite = {}
+    local primes = 0
+    for number = 2, limit do
+        if not composite[number] then
+            primes = primes + 1
+            for multiple = number * number, limit, number do
+                composite[multiple] = true
+            end
+        end
+    end
+    Console.Log(string.format("[BENCH] lua compute prime sieve: %.1f ms (%d primes)", (os.clock() - started) * 1000, primes))
+
+    started = os.clock()
+    local values = {}
+    local seed = 12345
+    for index = 1, 200000 do
+        seed = (seed * 1103515245 + 12345) % 2147483648
+        values[index] = seed
+    end
+    table.sort(values)
+    Console.Log(string.format("[BENCH] lua compute sort: %.1f ms", (os.clock() - started) * 1000))
 end)

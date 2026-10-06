@@ -191,43 +191,43 @@ public partial class Prop : Actor, IPaintable
     }
 
     /// <summary>Gets ability to Grab this Prop</summary>
-    public GrabMode GetGrabMode() => Invoke<GrabMode>(GetGrabModeSlot)!;
+    public GrabMode GetGrabMode() => CallResult<GrabMode>(GetGrabModeSlot, 0)!;
 
     /// <summary>Gets the Character (if existing) which is holding this</summary>
-    public Character? GetHandler() => Invoke<Character?>(GetHandlerSlot);
+    public Character? GetHandler() => CallResult<Character?>(GetHandlerSlot, 0);
 
     /// <summary>Gets the overridden mass</summary>
-    public float GetMassOverride() => Invoke<float>(GetMassOverrideSlot)!;
+    public float GetMassOverride() => CallResult<float>(GetMassOverrideSlot, 0)!;
 
     /// <summary>Gets the mass scale</summary>
-    public float GetMassScale() => Invoke<float>(GetMassScaleSlot)!;
+    public float GetMassScale() => CallResult<float>(GetMassScaleSlot, 0)!;
 
     /// <summary>Gets a Color parameter from this Actor's material</summary>
     public Color? GetMaterialColorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Color?>(GetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        CallResult<Color?, string, int?, string?>(GetMaterialColorParameterSlot, 1, parameterName, index, attachableId);
 
     /// <summary>Gets a Scalar parameter from this Actor's material</summary>
     public float? GetMaterialScalarParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<float?>(GetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        CallResult<float?, string, int?, string?>(GetMaterialScalarParameterSlot, 1, parameterName, index, attachableId);
 
     /// <summary>Gets a Texture parameter from this Actor's material</summary>
     public string? GetMaterialTextureParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<string?>(GetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        CallResult<string?, string, int?, string?>(GetMaterialTextureParameterSlot, 1, parameterName, index, attachableId);
 
     /// <summary>Gets a Vector parameter from this Actor's material</summary>
     public Vector? GetMaterialVectorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Vector?>(GetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        CallResult<Vector?, string, int?, string?>(GetMaterialVectorParameterSlot, 1, parameterName, index, attachableId);
 
     /// <summary>Gets the Asset name</summary>
-    public string GetMesh() => Invoke<string>(GetMeshSlot)!;
+    public string GetMesh() => CallResult<string>(GetMeshSlot, 0)!;
 
     /// <summary>Resets the material from the specified index to the original one</summary>
     public void ResetMaterial(int? index = null, string? attachableId = null) =>
-        Invoke(ResetMaterialSlot, ScriptArguments.Trim([index, attachableId], 0));
+        Call(ResetMaterialSlot, 0, index, attachableId);
 
     /// <summary>Sets the Buoyancy Pontoons used by the Water simulation</summary>
     public void SetBuoyancyPontoons(IEnumerable<IDictionary<string, object?>>? pontoons = null) =>
-        Invoke(SetBuoyancyPontoonsSlot, ScriptArguments.Trim([pontoons], 0));
+        Call(SetBuoyancyPontoonsSlot, 0, pontoons);
 
     /// <summary>Sets how this entity behaves on Water</summary>
     public void SetBuoyancySettings(
@@ -235,23 +235,23 @@ public partial class Prop : Actor, IPaintable
         float? buoyancyCoefficient = null,
         float? buoyancyDamp = null,
         float? maxBuoyantForce = null) =>
-        Invoke(SetBuoyancySettingsSlot, ScriptArguments.Trim([enabled, buoyancyCoefficient, buoyancyDamp, maxBuoyantForce], 0));
+        Call(SetBuoyancySettingsSlot, 0, enabled, buoyancyCoefficient, buoyancyDamp, maxBuoyantForce);
 
     /// <summary>Sets ability to Characters to Grab this Prop</summary>
-    public void SetGrabMode(GrabMode grabMode) => Invoke(SetGrabModeSlot, grabMode);
+    public void SetGrabMode(GrabMode grabMode) => Call(SetGrabModeSlot, 1, grabMode);
 
     /// <summary>Sets the interaction tooltip text shown when a Character interacts with this Prop</summary>
-    public void SetInteractionToolTipText(string toolTipText) => Invoke(SetInteractionToolTipTextSlot, toolTipText);
+    public void SetInteractionToolTipText(string toolTipText) => Call(SetInteractionToolTipTextSlot, 1, toolTipText);
 
     /// <summary>Override the mass (in Kg) of this Prop</summary>
-    public void SetMassOverride(float mass) => Invoke(SetMassOverrideSlot, mass);
+    public void SetMassOverride(float mass) => Call(SetMassOverrideSlot, 1, mass);
 
     /// <summary>Change the mass scale used to calculate the mass of this Prop</summary>
-    public void SetMassScale(float scale) => Invoke(SetMassScaleSlot, scale);
+    public void SetMassScale(float scale) => Call(SetMassScaleSlot, 1, scale);
 
     /// <summary>Sets the material at the specified index of this Actor</summary>
     public void SetMaterial(string materialPath, int? index = null, string? attachableId = null) =>
-        Invoke(SetMaterialSlot, ScriptArguments.Trim([materialPath, index, attachableId], 1));
+        Call(SetMaterialSlot, 1, materialPath, index, attachableId);
 
     /// <summary>Sets a Color parameter in this Actor's material</summary>
     public void SetMaterialColorParameter(
@@ -259,7 +259,7 @@ public partial class Prop : Actor, IPaintable
         Color color,
         int? index = null,
         string? attachableId = null) =>
-        Invoke(SetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, color, index, attachableId], 2));
+        Call(SetMaterialColorParameterSlot, 2, parameterName, color, index, attachableId);
 
     /// <summary>Sets a Scalar parameter in this Actor's material</summary>
     public void SetMaterialScalarParameter(
@@ -267,7 +267,7 @@ public partial class Prop : Actor, IPaintable
         float scalar,
         int? index = null,
         string? attachableId = null) =>
-        Invoke(SetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, scalar, index, attachableId], 2));
+        Call(SetMaterialScalarParameterSlot, 2, parameterName, scalar, index, attachableId);
 
     /// <summary>Sets a texture parameter in this Actor's material to an image</summary>
     public void SetMaterialTextureParameter(
@@ -275,7 +275,7 @@ public partial class Prop : Actor, IPaintable
         string texturePath,
         int? index = null,
         string? attachableId = null) =>
-        Invoke(SetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, texturePath, index, attachableId], 2));
+        Call(SetMaterialTextureParameterSlot, 2, parameterName, texturePath, index, attachableId);
 
     /// <summary>Sets a Vector parameter in this Actor's material</summary>
     public void SetMaterialVectorParameter(
@@ -283,18 +283,18 @@ public partial class Prop : Actor, IPaintable
         Vector vector,
         int? index = null,
         string? attachableId = null) =>
-        Invoke(SetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, vector, index, attachableId], 2));
+        Call(SetMaterialVectorParameterSlot, 2, parameterName, vector, index, attachableId);
 
     /// <summary>Changes the mesh in runtime</summary>
-    public void SetMesh(string asset) => Invoke(SetMeshSlot, asset);
+    public void SetMesh(string asset) => Call(SetMeshSlot, 1, asset);
 
     /// <summary>Overrides this Actor's Physical Material with a new one</summary>
     public void SetPhysicalMaterial(string physicalMaterialPath) =>
-        Invoke(SetPhysicalMaterialSlot, physicalMaterialPath);
+        Call(SetPhysicalMaterialSlot, 1, physicalMaterialPath);
 
     /// <summary>Sets the Physics damping of this Prop</summary>
     public void SetPhysicsDamping(float linearDamping, float angularDamping) =>
-        Invoke(SetPhysicsDampingSlot, linearDamping, angularDamping);
+        Call(SetPhysicsDampingSlot, 2, linearDamping, angularDamping);
 
     /// <summary>Subscribes to the ClassRegister event of this entity only.</summary>
     public ScriptSubscription SubscribeClassRegister(ClassRegisterHandler handler) => Subscribe("ClassRegister", handler);

@@ -26,7 +26,7 @@ public static partial class HTTP
         string? contentType = null,
         bool? compress = null,
         IDictionary<string, string>? headers = null) =>
-        ScriptApi.Invoke<IReadOnlyDictionary<string, object?>>(RequestSlot, ScriptArguments.Trim([uri, endpoint, method, data, contentType, compress, headers], 1))!;
+        ScriptApi.CallResult<IReadOnlyDictionary<string, object?>, string, string?, object?, string?, string?, bool?, IDictionary<string, string>?>(RequestSlot, 1, uri, endpoint, method, data, contentType, compress, headers)!;
 
     /// <summary>Makes an asynchronous HTTP Request</summary>
     public static void RequestAsync(
@@ -38,13 +38,13 @@ public static partial class HTTP
         bool? compress = null,
         IDictionary<string, string>? headers = null,
         Delegate? callback = null) =>
-        ScriptApi.Invoke(RequestAsyncSlot, ScriptArguments.Trim([uri, endpoint, method, data, contentType, compress, headers, ScriptCallback.From(callback)], 1));
+        ScriptApi.Call(RequestAsyncSlot, 1, uri, endpoint, method, data, contentType, compress, headers, ScriptCallback.From(callback));
 
     /// <summary>Sets the HTTP requests global Connection Timeout in seconds</summary>
     public static void SetConnectionTimeout(uint connectionTimeout) =>
-        ScriptApi.Invoke(SetConnectionTimeoutSlot, connectionTimeout);
+        ScriptApi.Call(SetConnectionTimeoutSlot, 1, connectionTimeout);
 
     /// <summary>Sets the HTTP requests global Read and Write Timeout in seconds</summary>
     public static void SetReadWriteTimeout(uint readWriteTimeout) =>
-        ScriptApi.Invoke(SetReadWriteTimeoutSlot, readWriteTimeout);
+        ScriptApi.Call(SetReadWriteTimeoutSlot, 1, readWriteTimeout);
 }

@@ -336,7 +336,7 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
         Rotator? relativeRotation = null,
         bool? useParentBounds = null,
         string? attachableId = null) =>
-        Invoke(AddStaticMeshAttachedSlot, ScriptArguments.Trim([id, staticMeshPath, socket, relativeLocation, relativeRotation, useParentBounds, attachableId], 2));
+        Call(AddStaticMeshAttachedSlot, 2, id, staticMeshPath, socket, relativeLocation, relativeRotation, useParentBounds, attachableId);
 
     /// <summary>Do damage to this entity</summary>
     public uint ApplyDamage(
@@ -346,11 +346,11 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
         Vector? fromDirection = null,
         Player? instigator = null,
         Entity? causer = null) =>
-        Invoke<uint>(ApplyDamageSlot, ScriptArguments.Trim([damage, boneName, damageType, fromDirection, instigator, causer], 1))!;
+        CallResult<uint, uint, string?, DamageType?, Vector?, Player?, Entity?>(ApplyDamageSlot, 1, damage, boneName, damageType, fromDirection, instigator, causer)!;
 
     /// <summary>Assigns and Binds an Animation Blueprint Event Dispatcher</summary>
     public ScriptFunction BindAnimationBlueprintEventDispatcher(string dispatcherName, Delegate callback) =>
-        Invoke<ScriptFunction>(BindAnimationBlueprintEventDispatcherSlot, dispatcherName, ScriptCallback.From(callback))!;
+        CallResult<ScriptFunction, string, ScriptCallback?>(BindAnimationBlueprintEventDispatcherSlot, 2, dispatcherName, ScriptCallback.From(callback))!;
 
     /// <summary>Calls an Animation Blueprint Event or Function</summary>
     public object?[] CallAnimationBlueprintEvent(string eventName, params object?[] arguments) =>
@@ -363,94 +363,95 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
         bool? stopOnSucceed = null,
         bool? stopOnFail = null,
         float? updateRate = null) =>
-        Invoke(FollowSlot, ScriptArguments.Trim([actor, acceptanceRadius, stopOnSucceed, stopOnFail, updateRate], 1));
+        Call(FollowSlot, 1, actor, acceptanceRadius, stopOnSucceed, stopOnFail, updateRate);
 
     /// <summary>Gets all Skeletal Meshes attached to this entity</summary>
     public IReadOnlyDictionary<string, string> GetAllSkeletalMeshAttached() =>
-        Invoke<IReadOnlyDictionary<string, string>>(GetAllSkeletalMeshAttachedSlot)!;
+        CallResult<IReadOnlyDictionary<string, string>>(GetAllSkeletalMeshAttachedSlot, 0)!;
 
     /// <summary>Gets all Static Meshes attached to this entity</summary>
     public IReadOnlyDictionary<string, string> GetAllStaticMeshAttached() =>
-        Invoke<IReadOnlyDictionary<string, string>>(GetAllStaticMeshAttachedSlot)!;
+        CallResult<IReadOnlyDictionary<string, string>>(GetAllStaticMeshAttachedSlot, 0)!;
 
     /// <summary>Gets an Animation Blueprint Property/Variable value directly</summary>
     public object? GetAnimationBlueprintPropertyValue(string propertyName) =>
-        Invoke<object?>(GetAnimationBlueprintPropertyValueSlot, propertyName);
+        CallResult<object?, string>(GetAnimationBlueprintPropertyValueSlot, 1, propertyName);
 
     /// <summary>Gets if this Pawn is allowed to Crouch</summary>
-    public bool GetCanCrouch() => Invoke<bool>(GetCanCrouchSlot)!;
+    public bool GetCanCrouch() => CallResult<bool>(GetCanCrouchSlot, 0)!;
 
     /// <summary>Gets if this Pawn is allowed to Jump</summary>
-    public bool GetCanJump() => Invoke<bool>(GetCanJumpSlot)!;
+    public bool GetCanJump() => CallResult<bool>(GetCanJumpSlot, 0)!;
 
     /// <summary>Gets the Capsule Size</summary>
     public IReadOnlyDictionary<string, float> GetCapsuleSize() =>
-        Invoke<IReadOnlyDictionary<string, float>>(GetCapsuleSizeSlot)!;
+        CallResult<IReadOnlyDictionary<string, float>>(GetCapsuleSizeSlot, 0)!;
 
     /// <summary>Gets the Control Rotation, which is where this Pawn is looking or aiming</summary>
-    public Rotator GetControlRotation() => Invoke<Rotator>(GetControlRotationSlot)!;
+    public Rotator GetControlRotation() => CallResult<Rotator>(GetControlRotationSlot, 0)!;
 
     /// <summary>Gets the Damage Multiplier of a bone</summary>
-    public float GetDamageMultiplier(string boneName) => Invoke<float>(GetDamageMultiplierSlot, boneName)!;
+    public float GetDamageMultiplier(string boneName) =>
+        CallResult<float, string>(GetDamageMultiplierSlot, 1, boneName)!;
 
     /// <summary>Gets if it's in Flying mode</summary>
-    public bool GetFlyingMode() => Invoke<bool>(GetFlyingModeSlot)!;
+    public bool GetFlyingMode() => CallResult<bool>(GetFlyingModeSlot, 0)!;
 
     /// <summary>Gets the gravity scale</summary>
-    public float GetGravityScale() => Invoke<float>(GetGravityScaleSlot)!;
+    public float GetGravityScale() => CallResult<float>(GetGravityScaleSlot, 0)!;
 
     /// <summary>Gets the current health</summary>
-    public uint GetHealth() => Invoke<uint>(GetHealthSlot)!;
+    public uint GetHealth() => CallResult<uint>(GetHealthSlot, 0)!;
 
     /// <summary>Gets the initial vertical velocity when jumping, which defines the jump height</summary>
-    public ushort GetJumpZVelocity() => Invoke<ushort>(GetJumpZVelocitySlot)!;
+    public ushort GetJumpZVelocity() => CallResult<ushort>(GetJumpZVelocitySlot, 0)!;
 
     /// <summary>Gets a Color parameter from this Actor's material</summary>
     public Color? GetMaterialColorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Color?>(GetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        CallResult<Color?, string, int?, string?>(GetMaterialColorParameterSlot, 1, parameterName, index, attachableId);
 
     /// <summary>Gets a Scalar parameter from this Actor's material</summary>
     public float? GetMaterialScalarParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<float?>(GetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        CallResult<float?, string, int?, string?>(GetMaterialScalarParameterSlot, 1, parameterName, index, attachableId);
 
     /// <summary>Gets a Texture parameter from this Actor's material</summary>
     public string? GetMaterialTextureParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<string?>(GetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        CallResult<string?, string, int?, string?>(GetMaterialTextureParameterSlot, 1, parameterName, index, attachableId);
 
     /// <summary>Gets a Vector parameter from this Actor's material</summary>
     public Vector? GetMaterialVectorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Vector?>(GetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        CallResult<Vector?, string, int?, string?>(GetMaterialVectorParameterSlot, 1, parameterName, index, attachableId);
 
     /// <summary>Gets the Max Health</summary>
-    public uint GetMaxHealth() => Invoke<uint>(GetMaxHealthSlot)!;
+    public uint GetMaxHealth() => CallResult<uint>(GetMaxHealthSlot, 0)!;
 
     /// <summary>Gets the base Mesh Asset</summary>
-    public string GetMesh() => Invoke<string>(GetMeshSlot)!;
+    public string GetMesh() => CallResult<string>(GetMeshSlot, 0)!;
 
     /// <summary>Gets the Moving To location</summary>
-    public Vector GetMovingTo() => Invoke<Vector>(GetMovingToSlot)!;
+    public Vector GetMovingTo() => CallResult<Vector>(GetMovingToSlot, 0)!;
 
     /// <summary>Gets the possessing Player</summary>
-    public Player? GetPlayer() => Invoke<Player?>(GetPlayerSlot);
+    public Player? GetPlayer() => CallResult<Player?>(GetPlayerSlot, 0);
 
     /// <summary>Hides a bone of this Pawn</summary>
-    public void HideBone(string boneName) => Invoke(HideBoneSlot, boneName);
+    public void HideBone(string boneName) => Call(HideBoneSlot, 1, boneName);
 
     /// <summary>Gets if a bone is hidden</summary>
-    public bool IsBoneHidden(string boneName) => Invoke<bool>(IsBoneHiddenSlot, boneName)!;
+    public bool IsBoneHidden(string boneName) => CallResult<bool, string>(IsBoneHiddenSlot, 1, boneName)!;
 
     /// <summary>Gets if this Character is crouching</summary>
-    public bool IsCrouching() => Invoke<bool>(IsCrouchingSlot)!;
+    public bool IsCrouching() => CallResult<bool>(IsCrouchingSlot, 0)!;
 
     /// <summary>Returns if the entity is dead</summary>
-    public bool IsDead() => Invoke<bool>(IsDeadSlot)!;
+    public bool IsDead() => CallResult<bool>(IsDeadSlot, 0)!;
 
     /// <summary>Triggers this Pawn to jump</summary>
-    public void Jump() => Invoke(JumpSlot);
+    public void Jump() => Call(JumpSlot, 0);
 
     /// <summary>AI: Makes this Pawn walk to the Location</summary>
     public void MoveTo(Vector location, float? acceptanceRadius = null) =>
-        Invoke(MoveToSlot, ScriptArguments.Trim([location, acceptanceRadius], 1));
+        Call(MoveToSlot, 1, location, acceptanceRadius);
 
     /// <summary>Plays an Animation Montage on this character</summary>
     public void PlayAnimation(
@@ -461,46 +462,45 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
         float? blendOutTime = null,
         float? playRate = null,
         bool? stopAllMontages = null) =>
-        Invoke(PlayAnimationSlot, ScriptArguments.Trim([animationPath, slotName, loopIndefinitely, blendInTime, blendOutTime, playRate, stopAllMontages], 1));
+        Call(PlayAnimationSlot, 1, animationPath, slotName, loopIndefinitely, blendInTime, blendOutTime, playRate, stopAllMontages);
 
     /// <summary>Removes all SkeletalMeshes attached</summary>
-    public void RemoveAllSkeletalMeshesAttached() => Invoke(RemoveAllSkeletalMeshesAttachedSlot);
+    public void RemoveAllSkeletalMeshesAttached() => Call(RemoveAllSkeletalMeshesAttachedSlot, 0);
 
     /// <summary>Removes all StaticMeshes attached</summary>
-    public void RemoveAllStaticMeshesAttached() => Invoke(RemoveAllStaticMeshesAttachedSlot);
+    public void RemoveAllStaticMeshesAttached() => Call(RemoveAllStaticMeshesAttachedSlot, 0);
 
     /// <summary>Removes, if it exists, a SkeletalMesh from this entity given its custom ID</summary>
-    public void RemoveSkeletalMeshAttached(string id) => Invoke(RemoveSkeletalMeshAttachedSlot, id);
+    public void RemoveSkeletalMeshAttached(string id) => Call(RemoveSkeletalMeshAttachedSlot, 1, id);
 
     /// <summary>Removes, if it exists, a StaticMesh from this entity given its custom ID</summary>
-    public void RemoveStaticMeshAttached(string id) => Invoke(RemoveStaticMeshAttachedSlot, id);
+    public void RemoveStaticMeshAttached(string id) => Call(RemoveStaticMeshAttachedSlot, 1, id);
 
     /// <summary>Resets the material from the specified index to the original one</summary>
     public void ResetMaterial(int? index = null, string? attachableId = null) =>
-        Invoke(ResetMaterialSlot, ScriptArguments.Trim([index, attachableId], 0));
+        Call(ResetMaterialSlot, 0, index, attachableId);
 
     /// <summary>Respawns the Entity, filling its Health and moving it to its Initial Location</summary>
-    public void Respawn(Vector? location = null, Rotator? rotation = null) =>
-        Invoke(RespawnSlot, ScriptArguments.Trim([location, rotation], 0));
+    public void Respawn(Vector? location = null, Rotator? rotation = null) => Call(RespawnSlot, 0, location, rotation);
 
     /// <summary>AI: Configures the RVO (Reciprocal Velocity Obstacles) Avoidance system used by the AIs when moving</summary>
     public void SetAIAvoidanceSettings(bool enabled, ushort? avoidanceConsiderationRadius = null) =>
-        Invoke(SetAIAvoidanceSettingsSlot, ScriptArguments.Trim([enabled, avoidanceConsiderationRadius], 1));
+        Call(SetAIAvoidanceSettingsSlot, 1, enabled, avoidanceConsiderationRadius);
 
     /// <summary>Sets the amount of movement control allowed when it is in air</summary>
     public void SetAirControl(
         float? airControl = null,
         float? boostMultiplier = null,
         float? boostVelocityThreshold = null) =>
-        Invoke(SetAirControlSlot, ScriptArguments.Trim([airControl, boostMultiplier, boostVelocityThreshold], 0));
+        Call(SetAirControlSlot, 0, airControl, boostMultiplier, boostVelocityThreshold);
 
     /// <summary>Sets the Animation Blueprint of this Character</summary>
     public void SetAnimationBlueprint(string customAnimationBlueprint) =>
-        Invoke(SetAnimationBlueprintSlot, customAnimationBlueprint);
+        Call(SetAnimationBlueprintSlot, 1, customAnimationBlueprint);
 
     /// <summary>Sets an Animation Blueprint Property/Variable value directly</summary>
     public void SetAnimationBlueprintPropertyValue(string propertyName, object? value) =>
-        Invoke(SetAnimationBlueprintPropertyValueSlot, propertyName, value);
+        Call(SetAnimationBlueprintPropertyValueSlot, 2, propertyName, value);
 
     /// <summary>Sets the Movement Braking Settings of this Pawn</summary>
     public void SetBrakingSettings(
@@ -510,46 +510,46 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
         ushort? brakingFlying = null,
         ushort? brakingSwimming = null,
         ushort? brakingFalling = null) =>
-        Invoke(SetBrakingSettingsSlot, ScriptArguments.Trim([groundFriction, brakingFrictionFactor, brakingWalking, brakingFlying, brakingSwimming, brakingFalling], 0));
+        Call(SetBrakingSettingsSlot, 0, groundFriction, brakingFrictionFactor, brakingWalking, brakingFlying, brakingSwimming, brakingFalling);
 
     /// <summary>Sets if this Pawn is allowed to Crouch</summary>
-    public void SetCanCrouch(bool canCrouch) => Invoke(SetCanCrouchSlot, canCrouch);
+    public void SetCanCrouch(bool canCrouch) => Call(SetCanCrouchSlot, 1, canCrouch);
 
     /// <summary>Sets if this Pawn is allowed to Jump</summary>
-    public void SetCanJump(bool canJump) => Invoke(SetCanJumpSlot, canJump);
+    public void SetCanJump(bool canJump) => Call(SetCanJumpSlot, 1, canJump);
 
     /// <summary>Sets this Pawn's Capsule size</summary>
     public void SetCapsuleSize(ushort? radius = null, ushort? halfHeight = null, ushort? crouchedHalfHeight = null) =>
-        Invoke(SetCapsuleSizeSlot, ScriptArguments.Trim([radius, halfHeight, crouchedHalfHeight], 0));
+        Call(SetCapsuleSizeSlot, 0, radius, halfHeight, crouchedHalfHeight);
 
     /// <summary>Sets the Control Rotation, which is where this Pawn is looking or aiming</summary>
-    public void SetControlRotation(Rotator controlRotation) => Invoke(SetControlRotationSlot, controlRotation);
+    public void SetControlRotation(Rotator controlRotation) => Call(SetControlRotationSlot, 1, controlRotation);
 
     /// <summary>Sets if this Character is crouching</summary>
-    public void SetCrouching(bool isCrouching) => Invoke(SetCrouchingSlot, isCrouching);
+    public void SetCrouching(bool isCrouching) => Call(SetCrouchingSlot, 1, isCrouching);
 
     /// <summary>Changes how much damage this entity takes on specific bones</summary>
     public void SetDamageMultiplier(string boneName, float multiplier) =>
-        Invoke(SetDamageMultiplierSlot, boneName, multiplier);
+        Call(SetDamageMultiplierSlot, 2, boneName, multiplier);
 
     /// <summary>Enables or disables the Flying Mode, which removes gravity and allows moving in all directions</summary>
-    public void SetFlyingMode(bool flyingMode) => Invoke(SetFlyingModeSlot, flyingMode);
+    public void SetFlyingMode(bool flyingMode) => Call(SetFlyingModeSlot, 1, flyingMode);
 
     /// <summary>Changes the Gravity Scale</summary>
-    public void SetGravityScale(float gravityScale) => Invoke(SetGravityScaleSlot, gravityScale);
+    public void SetGravityScale(float gravityScale) => Call(SetGravityScaleSlot, 1, gravityScale);
 
     /// <summary>Sets the Health of this Entity</summary>
-    public void SetHealth(uint newHealth) => Invoke(SetHealthSlot, newHealth);
+    public void SetHealth(uint newHealth) => Call(SetHealthSlot, 1, newHealth);
 
     /// <summary>Sets if the character will react to damage by applying small dynamic ragdoll effect to local bones damaged</summary>
-    public void SetHitReactionEnabled(bool isEnabled) => Invoke(SetHitReactionEnabledSlot, isEnabled);
+    public void SetHitReactionEnabled(bool isEnabled) => Call(SetHitReactionEnabledSlot, 1, isEnabled);
 
     /// <summary>Sets the velocity of the jump</summary>
-    public void SetJumpZVelocity(ushort jumpZVelocity) => Invoke(SetJumpZVelocitySlot, jumpZVelocity);
+    public void SetJumpZVelocity(ushort jumpZVelocity) => Call(SetJumpZVelocitySlot, 1, jumpZVelocity);
 
     /// <summary>Sets the material at the specified index of this Actor</summary>
     public void SetMaterial(string materialPath, int? index = null, string? attachableId = null) =>
-        Invoke(SetMaterialSlot, ScriptArguments.Trim([materialPath, index, attachableId], 1));
+        Call(SetMaterialSlot, 1, materialPath, index, attachableId);
 
     /// <summary>Sets a Color parameter in this Actor's material</summary>
     public void SetMaterialColorParameter(
@@ -557,7 +557,7 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
         Color color,
         int? index = null,
         string? attachableId = null) =>
-        Invoke(SetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, color, index, attachableId], 2));
+        Call(SetMaterialColorParameterSlot, 2, parameterName, color, index, attachableId);
 
     /// <summary>Sets a Scalar parameter in this Actor's material</summary>
     public void SetMaterialScalarParameter(
@@ -565,7 +565,7 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
         float scalar,
         int? index = null,
         string? attachableId = null) =>
-        Invoke(SetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, scalar, index, attachableId], 2));
+        Call(SetMaterialScalarParameterSlot, 2, parameterName, scalar, index, attachableId);
 
     /// <summary>Sets a texture parameter in this Actor's material to an image</summary>
     public void SetMaterialTextureParameter(
@@ -573,7 +573,7 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
         string texturePath,
         int? index = null,
         string? attachableId = null) =>
-        Invoke(SetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, texturePath, index, attachableId], 2));
+        Call(SetMaterialTextureParameterSlot, 2, parameterName, texturePath, index, attachableId);
 
     /// <summary>Sets a Vector parameter in this Actor's material</summary>
     public void SetMaterialVectorParameter(
@@ -581,55 +581,54 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
         Vector vector,
         int? index = null,
         string? attachableId = null) =>
-        Invoke(SetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, vector, index, attachableId], 2));
+        Call(SetMaterialVectorParameterSlot, 2, parameterName, vector, index, attachableId);
 
     /// <summary>Sets the max acceleration of the movement</summary>
-    public void SetMaxAcceleration(ushort acceleration) => Invoke(SetMaxAccelerationSlot, acceleration);
+    public void SetMaxAcceleration(ushort acceleration) => Call(SetMaxAccelerationSlot, 1, acceleration);
 
     /// <summary>Sets the MaxHealth of this Entity</summary>
-    public void SetMaxHealth(uint maxHealth) => Invoke(SetMaxHealthSlot, maxHealth);
+    public void SetMaxHealth(uint maxHealth) => Call(SetMaxHealthSlot, 1, maxHealth);
 
     /// <summary>Changes the Character Mesh at runtime</summary>
-    public void SetMesh(string meshAsset, bool? argument2 = null) =>
-        Invoke(SetMeshSlot, ScriptArguments.Trim([meshAsset, argument2], 1));
+    public void SetMesh(string meshAsset, bool? argument2 = null) => Call(SetMeshSlot, 1, meshAsset, argument2);
 
     /// <summary>Configures the mesh attachment settings and visibility</summary>
     public void SetMeshSettings(
         Vector? relativeLocation = null,
         Rotator? relativeRotation = null,
         bool? isVisible = null) =>
-        Invoke(SetMeshSettingsSlot, ScriptArguments.Trim([relativeLocation, relativeRotation, isVisible], 0));
+        Call(SetMeshSettingsSlot, 0, relativeLocation, relativeRotation, isVisible);
 
     /// <summary>Sets the Pawn Settings of this Character</summary>
     public void SetPawnSettings(
         bool useControllerRotationPitch,
         bool useControllerRotationYaw,
         bool useControllerRotationRoll) =>
-        Invoke(SetPawnSettingsSlot, useControllerRotationPitch, useControllerRotationYaw, useControllerRotationRoll);
+        Call(SetPawnSettingsSlot, 3, useControllerRotationPitch, useControllerRotationYaw, useControllerRotationRoll);
 
     /// <summary>Overrides this Actor's Physical Material with a new one</summary>
     public void SetPhysicalMaterial(string physicalMaterialPath) =>
-        Invoke(SetPhysicalMaterialSlot, physicalMaterialPath);
+        Call(SetPhysicalMaterialSlot, 1, physicalMaterialPath);
 
     /// <summary>Sets the Physics Asset for the Character</summary>
-    public void SetPhysicsAsset(string physicsAsset) => Invoke(SetPhysicsAssetSlot, physicsAsset);
+    public void SetPhysicsAsset(string physicsAsset) => Call(SetPhysicsAssetSlot, 1, physicsAsset);
 
     /// <summary>Sets if the character will enter ragdoll mode when it dies. You can set it to false to apply custom Death animations</summary>
-    public void SetRagdollOnDeathEnabled(bool isEnabled) => Invoke(SetRagdollOnDeathEnabledSlot, isEnabled);
+    public void SetRagdollOnDeathEnabled(bool isEnabled) => Call(SetRagdollOnDeathEnabledSlot, 1, isEnabled);
 
     /// <summary>Sets the Rotation Settings of this Character</summary>
     public void SetRotationSettings(
         Rotator rotationRate,
         bool useControllerDesiredRotation,
         bool orientRotationToMovement) =>
-        Invoke(SetRotationSettingsSlot, rotationRate, useControllerDesiredRotation, orientRotationToMovement);
+        Call(SetRotationSettingsSlot, 3, rotationRate, useControllerDesiredRotation, orientRotationToMovement);
 
     /// <summary>Sets the Speed Settings of this Character</summary>
     public void SetSpeedSettings(
         ushort? maxWalkSpeed = null,
         ushort? maxWalkSpeedCrouched = null,
         ushort? maxFlySpeed = null) =>
-        Invoke(SetSpeedSettingsSlot, ScriptArguments.Trim([maxWalkSpeed, maxWalkSpeedCrouched, maxFlySpeed], 0));
+        Call(SetSpeedSettingsSlot, 0, maxWalkSpeed, maxWalkSpeedCrouched, maxFlySpeed);
 
     /// <summary>Sets the Spring Arm Settings of this Character</summary>
     public void SetSpringArmSettings(
@@ -639,26 +638,24 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
         bool? enableCameraLag = null,
         float? cameraLagSpeed = null,
         float? cameraLagMaxDistance = null) =>
-        Invoke(SetSpringArmSettingsSlot, ScriptArguments.Trim([relativeLocation, targetArmLength, socketOffset, enableCameraLag, cameraLagSpeed, cameraLagMaxDistance], 0));
+        Call(SetSpringArmSettingsSlot, 0, relativeLocation, targetArmLength, socketOffset, enableCameraLag, cameraLagSpeed, cameraLagMaxDistance);
 
     /// <summary>Sets a Static Mesh Attached location and rotation</summary>
     public void SetStaticMeshAttachedTransform(string id, Vector relativeLocation, Rotator relativeRotation) =>
-        Invoke(SetStaticMeshAttachedTransformSlot, id, relativeLocation, relativeRotation);
+        Call(SetStaticMeshAttachedTransformSlot, 3, id, relativeLocation, relativeRotation);
 
     /// <summary>Stops an Animation Montage on this character</summary>
-    public void StopAnimation(string? animationAsset = null) =>
-        Invoke(StopAnimationSlot, ScriptArguments.Trim([animationAsset], 0));
+    public void StopAnimation(string? animationAsset = null) => Call(StopAnimationSlot, 0, animationAsset);
 
     /// <summary>AI: Stops the movement, optionally zeroing the velocity as well</summary>
-    public void StopMovement(bool? stopsVelocity = null) =>
-        Invoke(StopMovementSlot, ScriptArguments.Trim([stopsVelocity], 0));
+    public void StopMovement(bool? stopsVelocity = null) => Call(StopMovementSlot, 0, stopsVelocity);
 
     /// <summary>Unhides a bone of this Pawn</summary>
-    public void UnHideBone(string boneName) => Invoke(UnHideBoneSlot, boneName);
+    public void UnHideBone(string boneName) => Call(UnHideBoneSlot, 1, boneName);
 
     /// <summary>Unbinds an Animation Blueprint Event Dispatcher</summary>
     public void UnbindAnimationBlueprintEventDispatcher(string dispatcherName, Delegate? callback = null) =>
-        Invoke(UnbindAnimationBlueprintEventDispatcherSlot, ScriptArguments.Trim([dispatcherName, ScriptCallback.From(callback)], 1));
+        Call(UnbindAnimationBlueprintEventDispatcherSlot, 1, dispatcherName, ScriptCallback.From(callback));
 
     /// <summary>Subscribes to the ClassRegister event of this entity only.</summary>
     public ScriptSubscription SubscribeClassRegister(ClassRegisterHandler handler) => Subscribe("ClassRegister", handler);

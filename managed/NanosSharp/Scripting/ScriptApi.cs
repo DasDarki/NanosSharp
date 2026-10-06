@@ -10,7 +10,7 @@ using NanosSharp.Threading;
 namespace NanosSharp.Scripting;
 
 /// <summary>Dynamic access to every scripting class and function exposed by nanos world.</summary>
-public static class ScriptApi
+public static partial class ScriptApi
 {
     /// <summary>Whether the scripting engine is currently running.</summary>
     public static bool IsAvailable => NativeRuntime.IsEngineAttached;

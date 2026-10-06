@@ -128,35 +128,35 @@ public partial class TextRender : Actor
     }
 
     /// <summary>Gets the current Text Color</summary>
-    public Color GetColor() => Invoke<Color>(GetColorSlot)!;
+    public Color GetColor() => CallResult<Color>(GetColorSlot, 0)!;
 
     /// <summary>Gets the current Text</summary>
-    public string GetText() => Invoke<string>(GetTextSlot)!;
+    public string GetText() => CallResult<string>(GetTextSlot, 0)!;
 
     /// <summary>Gets the current Word Size</summary>
-    public float GetWordSize() => Invoke<float>(GetWordSizeSlot)!;
+    public float GetWordSize() => CallResult<float>(GetWordSizeSlot, 0)!;
 
     /// <summary>Sets the Text alignment</summary>
     public void SetAlignment(
         TextRenderHorizontalAlignment horizontalAlignment,
         TextRenderVerticalAlignment verticalAlignment) =>
-        Invoke(SetAlignmentSlot, horizontalAlignment, verticalAlignment);
+        Call(SetAlignmentSlot, 2, horizontalAlignment, verticalAlignment);
 
     /// <summary>Sets the Text Color</summary>
-    public void SetColor(Color color) => Invoke(SetColorSlot, color);
+    public void SetColor(Color color) => Call(SetColorSlot, 1, color);
 
     /// <summary>Sets the Font. The font must be pre-cooked as an offline cached, distance field font.</summary>
-    public void SetFont(string fontAsset) => Invoke(SetFontSlot, fontAsset);
+    public void SetFont(string fontAsset) => Call(SetFontSlot, 1, fontAsset);
 
     /// <summary>Sets the horizontal and vertical spacing adjust values</summary>
     public void SetSpacingAdjust(float horizontalSpacing, float verticalSpacing) =>
-        Invoke(SetSpacingAdjustSlot, horizontalSpacing, verticalSpacing);
+        Call(SetSpacingAdjustSlot, 2, horizontalSpacing, verticalSpacing);
 
     /// <summary>Sets the Text</summary>
-    public void SetText(string text) => Invoke(SetTextSlot, text);
+    public void SetText(string text) => Call(SetTextSlot, 1, text);
 
     /// <summary>Sets the Word Size</summary>
-    public void SetWordSize(float wordSize) => Invoke(SetWordSizeSlot, wordSize);
+    public void SetWordSize(float wordSize) => Call(SetWordSizeSlot, 1, wordSize);
 
     /// <summary>Subscribes to the ClassRegister event of this entity only.</summary>
     public ScriptSubscription SubscribeClassRegister(ClassRegisterHandler handler) => Subscribe("ClassRegister", handler);

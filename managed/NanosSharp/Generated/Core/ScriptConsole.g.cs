@@ -36,13 +36,13 @@ public static partial class ScriptConsole
     private static readonly StaticMethodSlot WarnSlot = new("Console_I", "Warn");
 
     /// <summary>Logs a debug message in the console, with formatted arguments. Outputted only when the current log level is Debug or Verbose</summary>
-    public static void Debug(string message) => ScriptApi.Invoke(DebugSlot, message);
+    public static void Debug(string message) => ScriptApi.Call(DebugSlot, 1, message);
 
     /// <summary>Logs a red error in the console with stack information</summary>
-    public static void Error(string message) => ScriptApi.Invoke(ErrorSlot, message);
+    public static void Error(string message) => ScriptApi.Call(ErrorSlot, 1, message);
 
     /// <summary>Logs and formats a message in the console</summary>
-    public static void Log(string message) => ScriptApi.Invoke(LogSlot, message);
+    public static void Log(string message) => ScriptApi.Call(LogSlot, 1, message);
 
     /// <summary>Registers a new Console Command</summary>
     public static void RegisterCommand(
@@ -50,13 +50,13 @@ public static partial class ScriptConsole
         Delegate callback,
         string? description = null,
         IEnumerable<string>? parameters = null) =>
-        ScriptApi.Invoke(RegisterCommandSlot, ScriptArguments.Trim([command, ScriptCallback.From(callback), description, parameters], 2));
+        ScriptApi.Call(RegisterCommandSlot, 2, command, ScriptCallback.From(callback), description, parameters);
 
     /// <summary>Runs a Console Command programmatically (only scripting-registered commands can be triggered)</summary>
-    public static void RunCommand(string command) => ScriptApi.Invoke(RunCommandSlot, command);
+    public static void RunCommand(string command) => ScriptApi.Call(RunCommandSlot, 1, command);
 
     /// <summary>Logs an orange warning in the console with stack information</summary>
-    public static void Warn(string message) => ScriptApi.Invoke(WarnSlot, message);
+    public static void Warn(string message) => ScriptApi.Call(WarnSlot, 1, message);
 
     /// <summary>Called when a log is received</summary>
     public delegate void LogEntryHandler(string? text, LogType type);

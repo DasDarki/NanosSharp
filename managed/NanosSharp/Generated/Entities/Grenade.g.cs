@@ -267,98 +267,97 @@ public partial class Grenade : Actor, IPaintable, IPickable
         Rotator? relativeRotation = null,
         bool? useParentBounds = null,
         string? attachableId = null) =>
-        Invoke(AddStaticMeshAttachedSlot, ScriptArguments.Trim([id, staticMeshPath, socket, relativeLocation, relativeRotation, useParentBounds, attachableId], 2));
+        Call(AddStaticMeshAttachedSlot, 2, id, staticMeshPath, socket, relativeLocation, relativeRotation, useParentBounds, attachableId);
 
     /// <summary>Forces this grenade to Explode</summary>
-    public void Explode() => Invoke(ExplodeSlot);
+    public void Explode() => Call(ExplodeSlot, 0);
 
     /// <summary>Gets all Skeletal Meshes attached to this entity</summary>
     public IReadOnlyDictionary<string, string> GetAllSkeletalMeshAttached() =>
-        Invoke<IReadOnlyDictionary<string, string>>(GetAllSkeletalMeshAttachedSlot)!;
+        CallResult<IReadOnlyDictionary<string, string>>(GetAllSkeletalMeshAttachedSlot, 0)!;
 
     /// <summary>Gets all Static Meshes attached to this entity</summary>
     public IReadOnlyDictionary<string, string> GetAllStaticMeshAttached() =>
-        Invoke<IReadOnlyDictionary<string, string>>(GetAllStaticMeshAttachedSlot)!;
+        CallResult<IReadOnlyDictionary<string, string>>(GetAllStaticMeshAttachedSlot, 0)!;
 
     /// <summary>Gets the max damage, applied within the inner radius</summary>
-    public uint GetBaseDamage() => Invoke<uint>(GetBaseDamageSlot)!;
+    public uint GetBaseDamage() => CallResult<uint>(GetBaseDamageSlot, 0)!;
 
     /// <summary>Gets the falloff exponent used to interpolate between the base and the minimum damage</summary>
-    public float GetDamageFalloff() => Invoke<float>(GetDamageFalloffSlot)!;
+    public float GetDamageFalloff() => CallResult<float>(GetDamageFalloffSlot, 0)!;
 
     /// <summary>Gets the radius within which the base damage is fully applied</summary>
-    public ushort GetDamageInnerRadius() => Invoke<ushort>(GetDamageInnerRadiusSlot)!;
+    public ushort GetDamageInnerRadius() => CallResult<ushort>(GetDamageInnerRadiusSlot, 0)!;
 
     /// <summary>Gets the radius at which the damage reaches the minimum damage</summary>
-    public ushort GetDamageOuterRadius() => Invoke<ushort>(GetDamageOuterRadiusSlot)!;
+    public ushort GetDamageOuterRadius() => CallResult<ushort>(GetDamageOuterRadiusSlot, 0)!;
 
     /// <summary>Gets the Character, if it exists, that's holding this Pickable</summary>
-    public Character? GetHandler() => Invoke<Character?>(GetHandlerSlot);
+    public Character? GetHandler() => CallResult<Character?>(GetHandlerSlot, 0);
 
     /// <summary>Gets the Handling Mode of this Pickable</summary>
-    public HandlingMode GetHandlingMode() => Invoke<HandlingMode>(GetHandlingModeSlot)!;
+    public HandlingMode GetHandlingMode() => CallResult<HandlingMode>(GetHandlingModeSlot, 0)!;
 
     /// <summary>Gets a Color parameter from this Actor's material</summary>
     public Color? GetMaterialColorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Color?>(GetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        CallResult<Color?, string, int?, string?>(GetMaterialColorParameterSlot, 1, parameterName, index, attachableId);
 
     /// <summary>Gets a Scalar parameter from this Actor's material</summary>
     public float? GetMaterialScalarParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<float?>(GetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        CallResult<float?, string, int?, string?>(GetMaterialScalarParameterSlot, 1, parameterName, index, attachableId);
 
     /// <summary>Gets a Texture parameter from this Actor's material</summary>
     public string? GetMaterialTextureParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<string?>(GetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        CallResult<string?, string, int?, string?>(GetMaterialTextureParameterSlot, 1, parameterName, index, attachableId);
 
     /// <summary>Gets a Vector parameter from this Actor's material</summary>
     public Vector? GetMaterialVectorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Vector?>(GetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        CallResult<Vector?, string, int?, string?>(GetMaterialVectorParameterSlot, 1, parameterName, index, attachableId);
 
     /// <summary>Gets the name of the asset this Pickable uses</summary>
-    public string GetMesh() => Invoke<string>(GetMeshSlot)!;
+    public string GetMesh() => CallResult<string>(GetMeshSlot, 0)!;
 
     /// <summary>Gets the min damage, applied at the outer radius</summary>
-    public uint GetMinimumDamage() => Invoke<uint>(GetMinimumDamageSlot)!;
+    public uint GetMinimumDamage() => CallResult<uint>(GetMinimumDamageSlot, 0)!;
 
     /// <summary>Gets the impulse applied when throwing</summary>
-    public ushort GetThrowForce() => Invoke<ushort>(GetThrowForceSlot)!;
+    public ushort GetThrowForce() => CallResult<ushort>(GetThrowForceSlot, 0)!;
 
     /// <summary>Gets the time until the explosion after throwing</summary>
-    public float GetTimeToExplode() => Invoke<float>(GetTimeToExplodeSlot)!;
+    public float GetTimeToExplode() => CallResult<float>(GetTimeToExplodeSlot, 0)!;
 
     /// <summary>Pulls the usage of this Pickable (will start firing if this is a weapon)</summary>
-    public void PullUse(float? releaseUseAfter = null) =>
-        Invoke(PullUseSlot, ScriptArguments.Trim([releaseUseAfter], 0));
+    public void PullUse(float? releaseUseAfter = null) => Call(PullUseSlot, 0, releaseUseAfter);
 
     /// <summary>Releases the usage of this Pickable (will stop firing if this is a weapon)</summary>
-    public void ReleaseUse() => Invoke(ReleaseUseSlot);
+    public void ReleaseUse() => Call(ReleaseUseSlot, 0);
 
     /// <summary>Removes all SkeletalMeshes attached</summary>
-    public void RemoveAllSkeletalMeshesAttached() => Invoke(RemoveAllSkeletalMeshesAttachedSlot);
+    public void RemoveAllSkeletalMeshesAttached() => Call(RemoveAllSkeletalMeshesAttachedSlot, 0);
 
     /// <summary>Removes all StaticMeshes attached</summary>
-    public void RemoveAllStaticMeshesAttached() => Invoke(RemoveAllStaticMeshesAttachedSlot);
+    public void RemoveAllStaticMeshesAttached() => Call(RemoveAllStaticMeshesAttachedSlot, 0);
 
     /// <summary>Removes, if it exists, a SkeletalMesh from this Pickable given its custom ID</summary>
-    public void RemoveSkeletalMeshAttached(string id) => Invoke(RemoveSkeletalMeshAttachedSlot, id);
+    public void RemoveSkeletalMeshAttached(string id) => Call(RemoveSkeletalMeshAttachedSlot, 1, id);
 
     /// <summary>Removes, if it exists, a StaticMesh from this Pickable given its custom ID</summary>
-    public void RemoveStaticMeshAttached(string id) => Invoke(RemoveStaticMeshAttachedSlot, id);
+    public void RemoveStaticMeshAttached(string id) => Call(RemoveStaticMeshAttachedSlot, 1, id);
 
     /// <summary>Resets the material from the specified index to the original one</summary>
     public void ResetMaterial(int? index = null, string? attachableId = null) =>
-        Invoke(ResetMaterialSlot, ScriptArguments.Trim([index, attachableId], 0));
+        Call(ResetMaterialSlot, 0, index, attachableId);
 
     /// <summary>Sets the Attachment Settings for this Pickable (how it attaches to the Character when Picking up)</summary>
     public void SetAttachmentSettings(
         Vector relativeLocation,
         Rotator? relativeRotation = null,
         string? socket = null) =>
-        Invoke(SetAttachmentSettingsSlot, ScriptArguments.Trim([relativeLocation, relativeRotation, socket], 1));
+        Call(SetAttachmentSettingsSlot, 1, relativeLocation, relativeRotation, socket);
 
     /// <summary>Sets the Buoyancy Pontoons used by the Water simulation</summary>
     public void SetBuoyancyPontoons(IEnumerable<IDictionary<string, object?>>? pontoons = null) =>
-        Invoke(SetBuoyancyPontoonsSlot, ScriptArguments.Trim([pontoons], 0));
+        Call(SetBuoyancyPontoonsSlot, 0, pontoons);
 
     /// <summary>Sets how this entity behaves on Water</summary>
     public void SetBuoyancySettings(
@@ -366,13 +365,13 @@ public partial class Grenade : Actor, IPaintable, IPickable
         float? buoyancyCoefficient = null,
         float? buoyancyDamp = null,
         float? maxBuoyantForce = null) =>
-        Invoke(SetBuoyancySettingsSlot, ScriptArguments.Trim([enabled, buoyancyCoefficient, buoyancyDamp, maxBuoyantForce], 0));
+        Call(SetBuoyancySettingsSlot, 0, enabled, buoyancyCoefficient, buoyancyDamp, maxBuoyantForce);
 
     /// <summary>Sets if this Pickable can be used by the player when held</summary>
-    public void SetCanUse(bool canUse) => Invoke(SetCanUseSlot, canUse);
+    public void SetCanUse(bool canUse) => Call(SetCanUseSlot, 1, canUse);
 
     /// <summary>Sets the crosshair material for this Pickable</summary>
-    public void SetCrosshairMaterial(string materialAsset) => Invoke(SetCrosshairMaterialSlot, materialAsset);
+    public void SetCrosshairMaterial(string materialAsset) => Call(SetCrosshairMaterialSlot, 1, materialAsset);
 
     /// <summary>Sets Damage parameters of this Grenade</summary>
     public void SetDamage(
@@ -381,11 +380,11 @@ public partial class Grenade : Actor, IPaintable, IPickable
         ushort? damageInnerRadius = null,
         ushort? damageOuterRadius = null,
         float? damageFalloff = null) =>
-        Invoke(SetDamageSlot, ScriptArguments.Trim([baseDamage, minimumDamage, damageInnerRadius, damageOuterRadius, damageFalloff], 0));
+        Call(SetDamageSlot, 0, baseDamage, minimumDamage, damageInnerRadius, damageOuterRadius, damageFalloff);
 
     /// <summary>Sets the material at the specified index of this Actor</summary>
     public void SetMaterial(string materialPath, int? index = null, string? attachableId = null) =>
-        Invoke(SetMaterialSlot, ScriptArguments.Trim([materialPath, index, attachableId], 1));
+        Call(SetMaterialSlot, 1, materialPath, index, attachableId);
 
     /// <summary>Sets a Color parameter in this Actor's material</summary>
     public void SetMaterialColorParameter(
@@ -393,7 +392,7 @@ public partial class Grenade : Actor, IPaintable, IPickable
         Color color,
         int? index = null,
         string? attachableId = null) =>
-        Invoke(SetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, color, index, attachableId], 2));
+        Call(SetMaterialColorParameterSlot, 2, parameterName, color, index, attachableId);
 
     /// <summary>Sets a Scalar parameter in this Actor's material</summary>
     public void SetMaterialScalarParameter(
@@ -401,7 +400,7 @@ public partial class Grenade : Actor, IPaintable, IPickable
         float scalar,
         int? index = null,
         string? attachableId = null) =>
-        Invoke(SetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, scalar, index, attachableId], 2));
+        Call(SetMaterialScalarParameterSlot, 2, parameterName, scalar, index, attachableId);
 
     /// <summary>Sets a texture parameter in this Actor's material to an image</summary>
     public void SetMaterialTextureParameter(
@@ -409,7 +408,7 @@ public partial class Grenade : Actor, IPaintable, IPickable
         string texturePath,
         int? index = null,
         string? attachableId = null) =>
-        Invoke(SetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, texturePath, index, attachableId], 2));
+        Call(SetMaterialTextureParameterSlot, 2, parameterName, texturePath, index, attachableId);
 
     /// <summary>Sets a Vector parameter in this Actor's material</summary>
     public void SetMaterialVectorParameter(
@@ -417,24 +416,24 @@ public partial class Grenade : Actor, IPaintable, IPickable
         Vector vector,
         int? index = null,
         string? attachableId = null) =>
-        Invoke(SetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, vector, index, attachableId], 2));
+        Call(SetMaterialVectorParameterSlot, 2, parameterName, vector, index, attachableId);
 
     /// <summary>Overrides this Actor's Physical Material with a new one</summary>
     public void SetPhysicalMaterial(string physicalMaterialPath) =>
-        Invoke(SetPhysicalMaterialSlot, physicalMaterialPath);
+        Call(SetPhysicalMaterialSlot, 1, physicalMaterialPath);
 
     /// <summary>Sets if this Pickable can be picked up from ground by the player</summary>
-    public void SetPickable(bool isPickable) => Invoke(SetPickableSlot, isPickable);
+    public void SetPickable(bool isPickable) => Call(SetPickableSlot, 1, isPickable);
 
     /// <summary>Sets a Static Mesh Attached location and rotation</summary>
     public void SetStaticMeshAttachedTransform(string id, Vector relativeLocation, Rotator relativeRotation) =>
-        Invoke(SetStaticMeshAttachedTransformSlot, id, relativeLocation, relativeRotation);
+        Call(SetStaticMeshAttachedTransformSlot, 3, id, relativeLocation, relativeRotation);
 
     /// <summary>Set Impulse applied when throwing</summary>
-    public void SetThrowForce(ushort throwForce) => Invoke(SetThrowForceSlot, throwForce);
+    public void SetThrowForce(ushort throwForce) => Call(SetThrowForceSlot, 1, throwForce);
 
     /// <summary>Set Time until Explosion after thrown</summary>
-    public void SetTimeToExplode(float time) => Invoke(SetTimeToExplodeSlot, time);
+    public void SetTimeToExplode(float time) => Call(SetTimeToExplodeSlot, 1, time);
 
     /// <summary>Subscribes to the ClassRegister event of this entity only.</summary>
     public ScriptSubscription SubscribeClassRegister(ClassRegisterHandler handler) => Subscribe("ClassRegister", handler);

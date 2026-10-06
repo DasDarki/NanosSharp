@@ -219,14 +219,14 @@ public static partial class Server
 
     /// <summary>Adds a spawn point to the current map's spawn points list</summary>
     public static void AddMapSpawnPoint(Vector location, Rotator? rotation = null) =>
-        ScriptApi.Invoke(AddMapSpawnPointSlot, ScriptArguments.Trim([location, rotation], 1));
+        ScriptApi.Call(AddMapSpawnPointSlot, 1, location, rotation);
 
     /// <summary>Ban the player from the server by its Account ID, ideal for banning from inside PlayerConnect event</summary>
     public static void BanByAccountID(string playerAccountId, string reason) =>
-        ScriptApi.Invoke(BanByAccountIDSlot, playerAccountId, reason);
+        ScriptApi.Call(BanByAccountIDSlot, 2, playerAccountId, reason);
 
     /// <summary>Restarts the server in a new Map, restarts all packages and reconnects all players</summary>
-    public static void ChangeMap(string mapPath) => ScriptApi.Invoke(ChangeMapSlot, mapPath);
+    public static void ChangeMap(string mapPath) => ScriptApi.Call(ChangeMapSlot, 1, mapPath);
 
     /// <summary>Returns the actors within the specified radius</summary>
     public static IReadOnlyList<object?> GetActorsInRadius(
@@ -234,151 +234,153 @@ public static partial class Server
         float radius,
         IEnumerable<string>? onlyClasses = null,
         uint? dimension = null) =>
-        ScriptApi.Invoke<IReadOnlyList<object?>>(GetActorsInRadiusSlot, ScriptArguments.Trim([location, radius, onlyClasses, dimension], 2))!;
+        ScriptApi.CallResult<IReadOnlyList<object?>, Vector, float, IEnumerable<string>?, uint?>(GetActorsInRadiusSlot, 2, location, radius, onlyClasses, dimension)!;
 
     /// <summary>Gets a list of all values keys</summary>
     public static IReadOnlyList<string> GetAllValuesKeys() =>
-        ScriptApi.Invoke<IReadOnlyList<string>>(GetAllValuesKeysSlot)!;
+        ScriptApi.CallResult<IReadOnlyList<string>>(GetAllValuesKeysSlot, 0)!;
 
     /// <summary>Returns the number of connected players (including players in the process of connecting)</summary>
-    public static int GetConnectionCount() => ScriptApi.Invoke<int>(GetConnectionCountSlot)!;
+    public static int GetConnectionCount() => ScriptApi.CallResult<int>(GetConnectionCountSlot, 0)!;
 
     /// <summary>Returns the Server Custom Settings passed as parameter or New Game screen</summary>
     public static IReadOnlyDictionary<string, object?> GetCustomSettings() =>
-        ScriptApi.Invoke<IReadOnlyDictionary<string, object?>>(GetCustomSettingsSlot)!;
+        ScriptApi.CallResult<IReadOnlyDictionary<string, object?>>(GetCustomSettingsSlot, 0)!;
 
     /// <summary>Returns the default entity dimension</summary>
-    public static uint GetDefaultEntityDimension() => ScriptApi.Invoke<uint>(GetDefaultEntityDimensionSlot)!;
+    public static uint GetDefaultEntityDimension() => ScriptApi.CallResult<uint>(GetDefaultEntityDimensionSlot, 0)!;
 
     /// <summary>Returns the default player dimension</summary>
-    public static uint GetDefaultPlayerDimension() => ScriptApi.Invoke<uint>(GetDefaultPlayerDimensionSlot)!;
+    public static uint GetDefaultPlayerDimension() => ScriptApi.CallResult<uint>(GetDefaultPlayerDimensionSlot, 0)!;
 
     /// <summary>Returns the Server Description</summary>
-    public static string GetDescription() => ScriptApi.Invoke<string>(GetDescriptionSlot)!;
+    public static string GetDescription() => ScriptApi.CallResult<string>(GetDescriptionSlot, 0)!;
 
     /// <summary>Returns the entity with the specified ID</summary>
-    public static object? GetEntityByID(uint entityId) => ScriptApi.Invoke<object?>(GetEntityByIDSlot, entityId);
+    public static object? GetEntityByID(uint entityId) =>
+        ScriptApi.CallResult<object?, uint>(GetEntityByIDSlot, 1, entityId);
 
     /// <summary>Returns the server Public IP</summary>
-    public static string GetIP() => ScriptApi.Invoke<string>(GetIPSlot)!;
+    public static string GetIP() => ScriptApi.CallResult<string>(GetIPSlot, 0)!;
 
     /// <summary>Returns the current log level</summary>
-    public static int GetLogLevel() => ScriptApi.Invoke<int>(GetLogLevelSlot)!;
+    public static int GetLogLevel() => ScriptApi.CallResult<int>(GetLogLevelSlot, 0)!;
 
     /// <summary>Returns the current Map Package name</summary>
-    public static string GetMap() => ScriptApi.Invoke<string>(GetMapSlot)!;
+    public static string GetMap() => ScriptApi.CallResult<string>(GetMapSlot, 0)!;
 
     /// <summary>Returns the current Map Asset reference</summary>
-    public static string GetMapAsset() => ScriptApi.Invoke<string>(GetMapAssetSlot)!;
+    public static string GetMapAsset() => ScriptApi.CallResult<string>(GetMapAssetSlot, 0)!;
 
     /// <summary>Returns a list of the Custom Config of the current map (defined in the map package's Package.toml)</summary>
     public static IReadOnlyDictionary<string, object?> GetMapConfig() =>
-        ScriptApi.Invoke<IReadOnlyDictionary<string, object?>>(GetMapConfigSlot)!;
+        ScriptApi.CallResult<IReadOnlyDictionary<string, object?>>(GetMapConfigSlot, 0)!;
 
     /// <summary>Returns a list of the Spawn Points of the current map (defined in the map package's Package.toml)</summary>
     public static IReadOnlyList<IReadOnlyDictionary<string, object?>> GetMapSpawnPoints() =>
-        ScriptApi.Invoke<IReadOnlyList<IReadOnlyDictionary<string, object?>>>(GetMapSpawnPointsSlot)!;
+        ScriptApi.CallResult<IReadOnlyList<IReadOnlyDictionary<string, object?>>>(GetMapSpawnPointsSlot, 0)!;
 
     /// <summary>Returns the Max Players configured</summary>
-    public static int GetMaxPlayers() => ScriptApi.Invoke<int>(GetMaxPlayersSlot)!;
+    public static int GetMaxPlayers() => ScriptApi.CallResult<int>(GetMaxPlayersSlot, 0)!;
 
     /// <summary>Returns the Server Name</summary>
-    public static string GetName() => ScriptApi.Invoke<string>(GetNameSlot)!;
+    public static string GetName() => ScriptApi.CallResult<string>(GetNameSlot, 0)!;
 
     /// <summary>Returns a list of Packages running, optionally returns all Packages installed in the server</summary>
     public static IReadOnlyList<IReadOnlyDictionary<string, object?>> GetPackages(
         bool? onlyLoaded = null,
         PackageType? packageTypeFilter = null) =>
-        ScriptApi.Invoke<IReadOnlyList<IReadOnlyDictionary<string, object?>>>(GetPackagesSlot, ScriptArguments.Trim([onlyLoaded, packageTypeFilter], 0))!;
+        ScriptApi.CallResult<IReadOnlyList<IReadOnlyDictionary<string, object?>>, bool?, PackageType?>(GetPackagesSlot, 0, onlyLoaded, packageTypeFilter)!;
 
     /// <summary>Returns the players within the specified radius</summary>
     public static IReadOnlyList<object?> GetPlayersInRadius(Vector location, float radius, uint? dimension = null) =>
-        ScriptApi.Invoke<IReadOnlyList<object?>>(GetPlayersInRadiusSlot, ScriptArguments.Trim([location, radius, dimension], 2))!;
+        ScriptApi.CallResult<IReadOnlyList<object?>, Vector, float, uint?>(GetPlayersInRadiusSlot, 2, location, radius, dimension)!;
 
     /// <summary>Returns the server Port</summary>
-    public static int GetPort() => ScriptApi.Invoke<int>(GetPortSlot)!;
+    public static int GetPort() => ScriptApi.CallResult<int>(GetPortSlot, 0)!;
 
     /// <summary>Returns the server QueryPort</summary>
-    public static int GetQueryPort() => ScriptApi.Invoke<int>(GetQueryPortSlot)!;
+    public static int GetQueryPort() => ScriptApi.CallResult<int>(GetQueryPortSlot, 0)!;
 
     /// <summary>Returns the Configured Tick Rate</summary>
-    public static int GetTickRate() => ScriptApi.Invoke<int>(GetTickRateSlot)!;
+    public static int GetTickRate() => ScriptApi.CallResult<int>(GetTickRateSlot, 0)!;
 
     /// <summary>Gets the Unix Epoch Time in milliseconds</summary>
-    public static ulong GetTime() => ScriptApi.Invoke<ulong>(GetTimeSlot)!;
+    public static ulong GetTime() => ScriptApi.CallResult<ulong>(GetTimeSlot, 0)!;
 
     /// <summary>Gets a value given a key</summary>
     public static object? GetValue(string key, object? fallback = null) =>
-        ScriptApi.Invoke<object?>(GetValueSlot, ScriptArguments.Trim([key, fallback], 1));
+        ScriptApi.CallResult<object?, string, object?>(GetValueSlot, 1, key, fallback);
 
     /// <summary>Returns the server version</summary>
-    public static string GetVersion() => ScriptApi.Invoke<string>(GetVersionSlot)!;
+    public static string GetVersion() => ScriptApi.CallResult<string>(GetVersionSlot, 0)!;
 
     /// <summary>Returns if the Server is announced in the Master List</summary>
-    public static bool IsAnnounced() => ScriptApi.Invoke<bool>(IsAnnouncedSlot)!;
+    public static bool IsAnnounced() => ScriptApi.CallResult<bool>(IsAnnouncedSlot, 0)!;
 
     /// <summary>Returns if a Package is currently loaded</summary>
-    public static bool IsPackageLoaded(string packageName) => ScriptApi.Invoke<bool>(IsPackageLoadedSlot, packageName)!;
+    public static bool IsPackageLoaded(string packageName) =>
+        ScriptApi.CallResult<bool, string>(IsPackageLoadedSlot, 1, packageName)!;
 
     /// <summary>Returns if the server was started with --enable_unsafe_libs</summary>
-    public static int IsUnsafeLibsEnabled() => ScriptApi.Invoke<int>(IsUnsafeLibsEnabledSlot)!;
+    public static int IsUnsafeLibsEnabled() => ScriptApi.CallResult<int>(IsUnsafeLibsEnabledSlot, 0)!;
 
     /// <summary>Kicks the player from the server by its Account ID, ideal for kicking from inside PlayerConnect event</summary>
     public static void KickByAccountID(string playerAccountId, string reason) =>
-        ScriptApi.Invoke(KickByAccountIDSlot, playerAccountId, reason);
+        ScriptApi.Call(KickByAccountIDSlot, 2, playerAccountId, reason);
 
     /// <summary>Loads a Package</summary>
     public static bool LoadPackage(string packageFolderName) =>
-        ScriptApi.Invoke<bool>(LoadPackageSlot, packageFolderName)!;
+        ScriptApi.CallResult<bool, string>(LoadPackageSlot, 1, packageFolderName)!;
 
     /// <summary>Reloads a Package on the next server tick</summary>
     public static bool ReloadPackage(string packageFolderName) =>
-        ScriptApi.Invoke<bool>(ReloadPackageSlot, packageFolderName)!;
+        ScriptApi.CallResult<bool, string>(ReloadPackageSlot, 1, packageFolderName)!;
 
     /// <summary>Restarts the server, reloading all Packages and reconnecting all Players</summary>
-    public static void Restart() => ScriptApi.Invoke(RestartSlot);
+    public static void Restart() => ScriptApi.Call(RestartSlot, 0);
 
     /// <summary>Sets the default server dimension that entities will spawn in</summary>
     public static void SetDefaultEntityDimension(uint defaultDimension) =>
-        ScriptApi.Invoke(SetDefaultEntityDimensionSlot, defaultDimension);
+        ScriptApi.Call(SetDefaultEntityDimensionSlot, 1, defaultDimension);
 
     /// <summary>Sets the default server dimension that players will spawn in</summary>
     public static void SetDefaultPlayerDimension(uint defaultDimension) =>
-        ScriptApi.Invoke(SetDefaultPlayerDimensionSlot, defaultDimension);
+        ScriptApi.Call(SetDefaultPlayerDimensionSlot, 1, defaultDimension);
 
     /// <summary>Sets the description of the server, optionally overrides Config.toml</summary>
     public static void SetDescription(string description, bool? persistToConfigFile = null) =>
-        ScriptApi.Invoke(SetDescriptionSlot, ScriptArguments.Trim([description, persistToConfigFile], 1));
+        ScriptApi.Call(SetDescriptionSlot, 1, description, persistToConfigFile);
 
     /// <summary>Sets the logo of the server, optionally overrides Config.toml</summary>
     public static void SetLogo(string logoUrl, bool? persistToConfigFile = null) =>
-        ScriptApi.Invoke(SetLogoSlot, ScriptArguments.Trim([logoUrl, persistToConfigFile], 1));
+        ScriptApi.Call(SetLogoSlot, 1, logoUrl, persistToConfigFile);
 
     /// <summary>Sets the maximum player slots of the server, optionally overrides Config.toml</summary>
     public static void SetMaxPlayers(uint maxPlayers, bool? persistToConfigFile = null) =>
-        ScriptApi.Invoke(SetMaxPlayersSlot, ScriptArguments.Trim([maxPlayers, persistToConfigFile], 1));
+        ScriptApi.Call(SetMaxPlayersSlot, 1, maxPlayers, persistToConfigFile);
 
     /// <summary>Sets the name of the server, optionally overrides Config.toml</summary>
     public static void SetName(string name, bool? persistToConfigFile = null) =>
-        ScriptApi.Invoke(SetNameSlot, ScriptArguments.Trim([name, persistToConfigFile], 1));
+        ScriptApi.Call(SetNameSlot, 1, name, persistToConfigFile);
 
     /// <summary>Sets the password of the server, optionally overrides Config.toml</summary>
     public static void SetPassword(string password, bool? persistToConfigFile = null) =>
-        ScriptApi.Invoke(SetPasswordSlot, ScriptArguments.Trim([password, persistToConfigFile], 1));
+        ScriptApi.Call(SetPasswordSlot, 1, password, persistToConfigFile);
 
     /// <summary>Sets a global value in the Server, which can be accessed from anywhere (server side)</summary>
     public static void SetValue(string key, object? value, bool? syncOnClient = null) =>
-        ScriptApi.Invoke(SetValueSlot, ScriptArguments.Trim([key, value, syncOnClient], 2));
+        ScriptApi.Call(SetValueSlot, 2, key, value, syncOnClient);
 
     /// <summary>Stops the server</summary>
-    public static void Stop() => ScriptApi.Invoke(StopSlot);
+    public static void Stop() => ScriptApi.Call(StopSlot, 0);
 
     /// <summary>Unbans a Player by its account ID</summary>
-    public static void Unban(string accountId) => ScriptApi.Invoke(UnbanSlot, accountId);
+    public static void Unban(string accountId) => ScriptApi.Call(UnbanSlot, 1, accountId);
 
     /// <summary>Unloads a Package</summary>
     public static bool UnloadPackage(string packageFolderName) =>
-        ScriptApi.Invoke<bool>(UnloadPackageSlot, packageFolderName)!;
+        ScriptApi.CallResult<bool, string>(UnloadPackageSlot, 1, packageFolderName)!;
 
     /// <summary>Called when the map changes</summary>
     public delegate void ChangeMapHandler(string? oldMap, string? newMap);

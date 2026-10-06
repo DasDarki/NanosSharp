@@ -24,10 +24,11 @@ public static partial class Chat
     private static readonly StaticMethodSlot SendMessageSlot = new("Chat", "SendMessage");
 
     /// <summary>Sends a chat message to all Players</summary>
-    public static void BroadcastMessage(string message) => ScriptApi.Invoke(BroadcastMessageSlot, message);
+    public static void BroadcastMessage(string message) => ScriptApi.Call(BroadcastMessageSlot, 1, message);
 
     /// <summary>Sends a chat message to a Player only</summary>
-    public static void SendMessage(Player player, string message) => ScriptApi.Invoke(SendMessageSlot, player, message);
+    public static void SendMessage(Player player, string message) =>
+        ScriptApi.Call(SendMessageSlot, 2, player, message);
 
     /// <summary>Called when a player submits a message in the chat</summary>
     public delegate bool PlayerSubmitHandler(string? message, Player? player);

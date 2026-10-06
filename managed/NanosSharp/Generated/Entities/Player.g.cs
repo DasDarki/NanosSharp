@@ -194,85 +194,85 @@ public partial class Player : Entity
 
     /// <summary>Attaches the Player's Camera to an Actor</summary>
     public void AttachCameraTo(Entity actor, Vector? socketOffset = null, float? blendSpeed = null) =>
-        Invoke(AttachCameraToSlot, ScriptArguments.Trim([actor, socketOffset, blendSpeed], 1));
+        Call(AttachCameraToSlot, 1, actor, socketOffset, blendSpeed);
 
     /// <summary>Bans the player from the server</summary>
-    public void Ban(string reason) => Invoke(BanSlot, reason);
+    public void Ban(string reason) => Call(BanSlot, 1, reason);
 
     /// <summary>Redirects the player to another server</summary>
-    public void Connect(string ip, string? password = null) =>
-        Invoke(ConnectSlot, ScriptArguments.Trim([ip, password], 1));
+    public void Connect(string ip, string? password = null) => Call(ConnectSlot, 1, ip, password);
 
     /// <summary>Gets the Player's nanos world account ID</summary>
-    public string GetAccountID() => Invoke<string>(GetAccountIDSlot)!;
+    public string GetAccountID() => CallResult<string>(GetAccountIDSlot, 0)!;
 
     /// <summary>Return a URL which can be used through WebUI and Widgets to display the Player's Steam Avatar (64x64)</summary>
-    public string GetAccountIconURL() => Invoke<string>(GetAccountIconURLSlot)!;
+    public string GetAccountIconURL() => CallResult<string>(GetAccountIconURLSlot, 0)!;
 
     /// <summary>Gets the Player's nanos world account name</summary>
-    public string GetAccountName() => Invoke<string>(GetAccountNameSlot)!;
+    public string GetAccountName() => CallResult<string>(GetAccountNameSlot, 0)!;
 
     /// <summary>Gets the Pawn (Character) this Player is currently possessing</summary>
-    public object? GetControlledCharacter() => Invoke<object?>(GetControlledCharacterSlot);
+    public object? GetControlledCharacter() => CallResult<object?>(GetControlledCharacterSlot, 0);
 
     /// <summary>Gets this Player's dimension</summary>
-    public uint GetDimension() => Invoke<uint>(GetDimensionSlot)!;
+    public uint GetDimension() => CallResult<uint>(GetDimensionSlot, 0)!;
 
     /// <summary>Gets the Player's IP address</summary>
-    public string GetIP() => Invoke<string>(GetIPSlot)!;
+    public string GetIP() => CallResult<string>(GetIPSlot, 0)!;
 
     /// <summary>Gets the Player's name</summary>
-    public string GetName() => Invoke<string>(GetNameSlot)!;
+    public string GetName() => CallResult<string>(GetNameSlot, 0)!;
 
     /// <summary>Gets the Player's ping</summary>
-    public int GetPing() => Invoke<int>(GetPingSlot)!;
+    public int GetPing() => CallResult<int>(GetPingSlot, 0)!;
 
     /// <summary>Gets the Player's Steam ID</summary>
-    public string GetSteamID() => Invoke<string>(GetSteamIDSlot)!;
+    public string GetSteamID() => CallResult<string>(GetSteamIDSlot, 0)!;
 
     /// <summary>Returns a list of VOIP channels this player is listening to</summary>
-    public IReadOnlyList<uint> GetVOIPListeningChannels() => Invoke<IReadOnlyList<uint>>(GetVOIPListeningChannelsSlot)!;
+    public IReadOnlyList<uint> GetVOIPListeningChannels() =>
+        CallResult<IReadOnlyList<uint>>(GetVOIPListeningChannelsSlot, 0)!;
 
     /// <summary>Returns a list of VOIP channels this player is currently speaking to</summary>
-    public IReadOnlyList<uint> GetVOIPSpeakingChannels() => Invoke<IReadOnlyList<uint>>(GetVOIPSpeakingChannelsSlot)!;
+    public IReadOnlyList<uint> GetVOIPSpeakingChannels() =>
+        CallResult<IReadOnlyList<uint>>(GetVOIPSpeakingChannelsSlot, 0)!;
 
     /// <summary>Gets if this Player is the host of a P2P (listen) server</summary>
-    public bool IsHost() => Invoke<bool>(IsHostSlot)!;
+    public bool IsHost() => CallResult<bool>(IsHostSlot, 0)!;
 
     /// <summary>Returns whether VOIP is muted for this player</summary>
-    public bool IsVOIPMuted() => Invoke<bool>(IsVOIPMutedSlot)!;
+    public bool IsVOIPMuted() => CallResult<bool>(IsVOIPMutedSlot, 0)!;
 
     /// <summary>Kicks the player from the server</summary>
-    public void Kick(string reason) => Invoke(KickSlot, reason);
+    public void Kick(string reason) => Call(KickSlot, 1, reason);
 
     /// <summary>Makes this Player possess and control a Pawn (Character)</summary>
     public void Possess(Entity newPawn, float? blendTime = null, float? exp = null) =>
-        Invoke(PossessSlot, ScriptArguments.Trim([newPawn, blendTime, exp], 1));
+        Call(PossessSlot, 1, newPawn, blendTime, exp);
 
     /// <summary>Resets the Camera to default state (Unspectate and Detaches)</summary>
-    public void ResetCamera() => Invoke(ResetCameraSlot);
+    public void ResetCamera() => Call(ResetCameraSlot, 0);
 
     /// <summary>Smoothly moves the Player's Camera Rotation</summary>
     public void RotateCameraTo(Rotator rotation, float? time = null, float? exp = null) =>
-        Invoke(RotateCameraToSlot, ScriptArguments.Trim([rotation, time, exp], 1));
+        Call(RotateCameraToSlot, 1, rotation, time, exp);
 
     /// <summary>Sets the Player's Camera Arm Length (Spring Arm length)</summary>
-    public void SetCameraArmLength(float length, bool? force = null) =>
-        Invoke(SetCameraArmLengthSlot, ScriptArguments.Trim([length, force], 1));
+    public void SetCameraArmLength(float length, bool? force = null) => Call(SetCameraArmLengthSlot, 1, length, force);
 
     /// <summary>Sets the Player's Camera FOV (if not possessing a Character)</summary>
-    public void SetCameraFOV(float? fov = null) => Invoke(SetCameraFOVSlot, ScriptArguments.Trim([fov], 0));
+    public void SetCameraFOV(float? fov = null) => Call(SetCameraFOVSlot, 0, fov);
 
     /// <summary>Sets the Player's Camera Location (only works if not possessing any Character)</summary>
     public void SetCameraLocation(Vector location, float? argument2 = null, float? argument3 = null) =>
-        Invoke(SetCameraLocationSlot, ScriptArguments.Trim([location, argument2, argument3], 1));
+        Call(SetCameraLocationSlot, 1, location, argument2, argument3);
 
     /// <summary>Sets the Player's Camera Rotation</summary>
     public void SetCameraRotation(Rotator rotation, float? argument2 = null, float? argument3 = null) =>
-        Invoke(SetCameraRotationSlot, ScriptArguments.Trim([rotation, argument2, argument3], 1));
+        Call(SetCameraRotationSlot, 1, rotation, argument2, argument3);
 
     /// <summary>Sets the Player's Camera Socket Offset (Spring Arm Offset)</summary>
-    public void SetCameraSocketOffset(Vector socketOffset) => Invoke(SetCameraSocketOffsetSlot, socketOffset);
+    public void SetCameraSocketOffset(Vector socketOffset) => Call(SetCameraSocketOffsetSlot, 1, socketOffset);
 
     /// <summary>Sets the Player's Camera Speed Settings (if not possessing a Character)</summary>
     public void SetCameraSpeedSettings(
@@ -280,54 +280,53 @@ public partial class Player : Entity
         float? acceleration = null,
         float? deceleration = null,
         float? turningBoost = null) =>
-        Invoke(SetCameraSpeedSettingsSlot, ScriptArguments.Trim([maxSpeed, acceleration, deceleration, turningBoost], 0));
+        Call(SetCameraSpeedSettingsSlot, 0, maxSpeed, acceleration, deceleration, turningBoost);
 
     /// <summary>Sets this Player's dimension</summary>
-    public void SetDimension(uint dimension) => Invoke(SetDimensionSlot, dimension);
+    public void SetDimension(uint dimension) => Call(SetDimensionSlot, 1, dimension);
 
     /// <summary>Sets the multiplier for how much this Player's is affected by distance optimization from other actors</summary>
     public void SetDistanceOptimizationMultiplier(float multiplier) =>
-        Invoke(SetDistanceOptimizationMultiplierSlot, multiplier);
+        Call(SetDistanceOptimizationMultiplierSlot, 1, multiplier);
 
     /// <summary>Turns on camera fading at the given opacity</summary>
     public void SetManualCameraFade(float inFadeAmount, Color color, bool inFadeAudio) =>
-        Invoke(SetManualCameraFadeSlot, inFadeAmount, color, inFadeAudio);
+        Call(SetManualCameraFadeSlot, 3, inFadeAmount, color, inFadeAudio);
 
     /// <summary>Sets the player's name</summary>
-    public void SetName(string playerName) => Invoke(SetNameSlot, playerName);
+    public void SetName(string playerName) => Call(SetNameSlot, 1, playerName);
 
     /// <summary>Sets the VOIP setting for all global channels</summary>
     public void SetVOIPGlobalAllChannelsSetting(VOIPSetting setting) =>
-        Invoke(SetVOIPGlobalAllChannelsSettingSlot, setting);
+        Call(SetVOIPGlobalAllChannelsSettingSlot, 1, setting);
 
     /// <summary>Sets the VOIP setting for a specific global channel</summary>
     public void SetVOIPGlobalChannelSetting(byte channel, VOIPSetting setting) =>
-        Invoke(SetVOIPGlobalChannelSettingSlot, channel, setting);
+        Call(SetVOIPGlobalChannelSettingSlot, 2, channel, setting);
 
     /// <summary>Sets the global VOIP high-pass filter threshold frequency</summary>
-    public void SetVOIPGlobalHighPassFilter(ushort threshold) => Invoke(SetVOIPGlobalHighPassFilterSlot, threshold);
+    public void SetVOIPGlobalHighPassFilter(ushort threshold) => Call(SetVOIPGlobalHighPassFilterSlot, 1, threshold);
 
     /// <summary>Sets the global VOIP low-pass filter threshold frequency</summary>
-    public void SetVOIPGlobalLowPassFilter(ushort threshold) => Invoke(SetVOIPGlobalLowPassFilterSlot, threshold);
+    public void SetVOIPGlobalLowPassFilter(ushort threshold) => Call(SetVOIPGlobalLowPassFilterSlot, 1, threshold);
 
     /// <summary>Sets the global VOIP volume. It only affects the global channels</summary>
-    public void SetVOIPGlobalVolume(float volume) => Invoke(SetVOIPGlobalVolumeSlot, volume);
+    public void SetVOIPGlobalVolume(float volume) => Call(SetVOIPGlobalVolumeSlot, 1, volume);
 
     /// <summary>Sets the local/proximity VOIP max distance. This also affects networking usage</summary>
-    public void SetVOIPLocalMaxDistance(ushort maxDistance) => Invoke(SetVOIPLocalMaxDistanceSlot, maxDistance);
+    public void SetVOIPLocalMaxDistance(ushort maxDistance) => Call(SetVOIPLocalMaxDistanceSlot, 1, maxDistance);
 
     /// <summary>Sets the VOIP setting for the local/proximity</summary>
-    public void SetVOIPLocalSetting(VOIPSetting setting) => Invoke(SetVOIPLocalSettingSlot, setting);
+    public void SetVOIPLocalSetting(VOIPSetting setting) => Call(SetVOIPLocalSettingSlot, 1, setting);
 
     /// <summary>Sets the local/proximity VOIP input/output volume. It only affects the local/proximity channel</summary>
-    public void SetVOIPLocalVolume(float volume) => Invoke(SetVOIPLocalVolumeSlot, volume);
+    public void SetVOIPLocalVolume(float volume) => Call(SetVOIPLocalVolumeSlot, 1, volume);
 
     /// <summary>Mutes or unmutes VOIP for this player</summary>
-    public void SetVOIPMuted(bool isMuted) => Invoke(SetVOIPMutedSlot, isMuted);
+    public void SetVOIPMuted(bool isMuted) => Call(SetVOIPMutedSlot, 1, isMuted);
 
     /// <summary>Makes this Player spectate another Player</summary>
-    public void Spectate(Player player, float? blendSpeed = null) =>
-        Invoke(SpectateSlot, ScriptArguments.Trim([player, blendSpeed], 1));
+    public void Spectate(Player player, float? blendSpeed = null) => Call(SpectateSlot, 1, player, blendSpeed);
 
     /// <summary>Does a camera fade to/from a solid color</summary>
     public void StartCameraFade(
@@ -337,17 +336,17 @@ public partial class Player : Entity
         Color toColor,
         bool? shouldFadeAudio = null,
         bool? holdWhenFinished = null) =>
-        Invoke(StartCameraFadeSlot, ScriptArguments.Trim([fromAlpha, toAlpha, duration, toColor, shouldFadeAudio, holdWhenFinished], 4));
+        Call(StartCameraFadeSlot, 4, fromAlpha, toAlpha, duration, toColor, shouldFadeAudio, holdWhenFinished);
 
     /// <summary>Stops camera fading.</summary>
-    public void StopCameraFade() => Invoke(StopCameraFadeSlot);
+    public void StopCameraFade() => Call(StopCameraFadeSlot, 0);
 
     /// <summary>Smoothly moves the Player's Camera Location (only works if not possessing any Character)</summary>
     public void TranslateCameraTo(Vector location, float? time = null, float? exp = null) =>
-        Invoke(TranslateCameraToSlot, ScriptArguments.Trim([location, time, exp], 1));
+        Call(TranslateCameraToSlot, 1, location, time, exp);
 
     /// <summary>Release the Player from the Character</summary>
-    public void UnPossess() => Invoke(UnPossessSlot);
+    public void UnPossess() => Call(UnPossessSlot, 0);
 
     /// <summary>Subscribes to the ClassRegister event of this entity only.</summary>
     public ScriptSubscription SubscribeClassRegister(ClassRegisterHandler handler) => Subscribe("ClassRegister", handler);

@@ -66,31 +66,31 @@ public abstract partial class Entity
         InvokeVariadic(CallRemotePlayersEventSlot, [eventName, players, reliability], args);
 
     /// <summary>Destroys this Entity</summary>
-    public void Destroy() => Invoke(DestroySlot);
+    public void Destroy() => Call(DestroySlot, 0);
 
     /// <summary>Finish the spawning process and send the entity to clients if it was spawned with a deferred <c>spawn_mode</c></summary>
-    public void FinishSpawn() => Invoke(FinishSpawnSlot);
+    public void FinishSpawn() => Call(FinishSpawnSlot, 0);
 
     /// <summary>Gets a list of all values keys</summary>
-    public IReadOnlyList<string> GetAllValuesKeys() => Invoke<IReadOnlyList<string>>(GetAllValuesKeysSlot)!;
+    public IReadOnlyList<string> GetAllValuesKeys() => CallResult<IReadOnlyList<string>>(GetAllValuesKeysSlot, 0)!;
 
     /// <summary>Gets the universal network ID of this Entity (same on both client and server)</summary>
-    public uint GetID() => Invoke<uint>(GetIDSlot)!;
+    public uint GetID() => CallResult<uint>(GetIDSlot, 0)!;
 
     /// <summary>Gets a Value stored on this Entity at the given key</summary>
     public object? GetValue(string key, object? fallback = null) =>
-        Invoke<object?>(GetValueSlot, ScriptArguments.Trim([key, fallback], 1));
+        CallResult<object?, string, object?>(GetValueSlot, 1, key, fallback);
 
     /// <summary>Returns true if this Entity is being destroyed</summary>
-    public bool IsBeingDestroyed() => Invoke<bool>(IsBeingDestroyedSlot)!;
+    public bool IsBeingDestroyed() => CallResult<bool>(IsBeingDestroyedSlot, 0)!;
 
     /// <summary>Gets if this Entity finished spawning</summary>
-    public bool IsSpawned() => Invoke<bool>(IsSpawnedSlot)!;
+    public bool IsSpawned() => CallResult<bool>(IsSpawnedSlot, 0)!;
 
     /// <summary>Overrides when this Entity finishes spawning, from the Constructor of an Inherited Class</summary>
-    public void SetSpawnMode(SpawnMode spawnMode) => Invoke(SetSpawnModeSlot, spawnMode);
+    public void SetSpawnMode(SpawnMode spawnMode) => Call(SetSpawnModeSlot, 1, spawnMode);
 
     /// <summary>Sets a Value in this Entity</summary>
     public void SetValue(string key, object? value, bool? syncOnClients = null) =>
-        Invoke(SetValueSlot, ScriptArguments.Trim([key, value, syncOnClients], 2));
+        Call(SetValueSlot, 2, key, value, syncOnClients);
 }

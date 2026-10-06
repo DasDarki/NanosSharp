@@ -30,49 +30,49 @@ public static partial class Assets
 
     /// <summary>Gets a list containing all Animation Assets Keys from an AssetPack</summary>
     public static IReadOnlyList<IReadOnlyDictionary<object?, object?>> GetAnimations(string assetPackPath) =>
-        ScriptApi.Invoke<IReadOnlyList<IReadOnlyDictionary<object?, object?>>>(GetAnimationsSlot, assetPackPath)!;
+        ScriptApi.CallResult<IReadOnlyList<IReadOnlyDictionary<object?, object?>>, string>(GetAnimationsSlot, 1, assetPackPath)!;
 
     /// <summary>Gets a list containing information about all loaded Asset Packs</summary>
     public static IReadOnlyList<IReadOnlyDictionary<string, string>> GetAssetPacks() =>
-        ScriptApi.Invoke<IReadOnlyList<IReadOnlyDictionary<string, string>>>(GetAssetPacksSlot)!;
+        ScriptApi.CallResult<IReadOnlyList<IReadOnlyDictionary<string, string>>>(GetAssetPacksSlot, 0)!;
 
     /// <summary>Gets the file path of an asset</summary>
     public static string GetAssetPath(string asset, AssetType assetType) =>
-        ScriptApi.Invoke<string>(GetAssetPathSlot, asset, assetType)!;
+        ScriptApi.CallResult<string, string, AssetType>(GetAssetPathSlot, 2, asset, assetType)!;
 
     /// <summary>Gets a list containing all Blueprints Assets Keys from an AssetPack</summary>
     public static IReadOnlyList<IReadOnlyDictionary<object?, object?>> GetBlueprints(string assetPackPath) =>
-        ScriptApi.Invoke<IReadOnlyList<IReadOnlyDictionary<object?, object?>>>(GetBlueprintsSlot, assetPackPath)!;
+        ScriptApi.CallResult<IReadOnlyList<IReadOnlyDictionary<object?, object?>>, string>(GetBlueprintsSlot, 1, assetPackPath)!;
 
     /// <summary>Gets a list containing all Map Asset Keys from an AssetPack</summary>
     public static IReadOnlyList<IReadOnlyDictionary<object?, object?>> GetMaps(string assetPackPath) =>
-        ScriptApi.Invoke<IReadOnlyList<IReadOnlyDictionary<object?, object?>>>(GetMapsSlot, assetPackPath)!;
+        ScriptApi.CallResult<IReadOnlyList<IReadOnlyDictionary<object?, object?>>, string>(GetMapsSlot, 1, assetPackPath)!;
 
     /// <summary>Gets a list containing all Materials Asset Keys from an AssetPack</summary>
     public static IReadOnlyList<IReadOnlyDictionary<object?, object?>> GetMaterials(string assetPackPath) =>
-        ScriptApi.Invoke<IReadOnlyList<IReadOnlyDictionary<object?, object?>>>(GetMaterialsSlot, assetPackPath)!;
+        ScriptApi.CallResult<IReadOnlyList<IReadOnlyDictionary<object?, object?>>, string>(GetMaterialsSlot, 1, assetPackPath)!;
 
     /// <summary>Gets a list containing all Other Assets Keys from an AssetPack</summary>
     public static IReadOnlyList<IReadOnlyDictionary<object?, object?>> GetOthers(string assetPackPath) =>
-        ScriptApi.Invoke<IReadOnlyList<IReadOnlyDictionary<object?, object?>>>(GetOthersSlot, assetPackPath)!;
+        ScriptApi.CallResult<IReadOnlyList<IReadOnlyDictionary<object?, object?>>, string>(GetOthersSlot, 1, assetPackPath)!;
 
     /// <summary>Gets a list containing all Particle Assets Keys from an AssetPack</summary>
     public static IReadOnlyList<IReadOnlyDictionary<object?, object?>> GetParticles(string assetPackPath) =>
-        ScriptApi.Invoke<IReadOnlyList<IReadOnlyDictionary<object?, object?>>>(GetParticlesSlot, assetPackPath)!;
+        ScriptApi.CallResult<IReadOnlyList<IReadOnlyDictionary<object?, object?>>, string>(GetParticlesSlot, 1, assetPackPath)!;
 
     /// <summary>Gets a list containing all Skeletal Mesh Asset Keys from an AssetPack</summary>
     public static IReadOnlyList<IReadOnlyDictionary<object?, object?>> GetSkeletalMeshes(string assetPackPath) =>
-        ScriptApi.Invoke<IReadOnlyList<IReadOnlyDictionary<object?, object?>>>(GetSkeletalMeshesSlot, assetPackPath)!;
+        ScriptApi.CallResult<IReadOnlyList<IReadOnlyDictionary<object?, object?>>, string>(GetSkeletalMeshesSlot, 1, assetPackPath)!;
 
     /// <summary>Gets a list containing all Sound Assets Keys from an AssetPack</summary>
     public static IReadOnlyList<IReadOnlyDictionary<object?, object?>> GetSounds(string assetPackPath) =>
-        ScriptApi.Invoke<IReadOnlyList<IReadOnlyDictionary<object?, object?>>>(GetSoundsSlot, assetPackPath)!;
+        ScriptApi.CallResult<IReadOnlyList<IReadOnlyDictionary<object?, object?>>, string>(GetSoundsSlot, 1, assetPackPath)!;
 
     /// <summary>Gets a list containing all Static Mesh Assets Keys from an AssetPack</summary>
     public static IReadOnlyList<IReadOnlyDictionary<object?, object?>> GetStaticMeshes(string assetPackPath) =>
-        ScriptApi.Invoke<IReadOnlyList<IReadOnlyDictionary<object?, object?>>>(GetStaticMeshesSlot, assetPackPath)!;
+        ScriptApi.CallResult<IReadOnlyList<IReadOnlyDictionary<object?, object?>>, string>(GetStaticMeshesSlot, 1, assetPackPath)!;
 
     /// <summary>Manually adds an Asset to be loaded during the Player's loading screen</summary>
     public static void Precache(string assetPath, AssetType assetType) =>
-        ScriptApi.Invoke(PrecacheSlot, assetPath, assetType);
+        ScriptApi.Call(PrecacheSlot, 2, assetPath, assetType);
 }

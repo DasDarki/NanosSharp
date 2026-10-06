@@ -188,15 +188,15 @@ public abstract partial class Actor : Entity
     public bool Visible => IsVisible();
 
     /// <summary>Adds an Unreal Actor Tag to this Actor</summary>
-    public void AddActorTag(string tag) => Invoke(AddActorTagSlot, tag);
+    public void AddActorTag(string tag) => Call(AddActorTagSlot, 1, tag);
 
     /// <summary>Add an angular impulse to this Actor. Good for one time instant burst</summary>
     public void AddAngularImpulse(Vector angularImpulse, bool? velocityChange = null) =>
-        Invoke(AddAngularImpulseSlot, ScriptArguments.Trim([angularImpulse, velocityChange], 1));
+        Call(AddAngularImpulseSlot, 1, angularImpulse, velocityChange);
 
     /// <summary>Add an impulse to this Actor. Good for one time instant burst</summary>
     public void AddImpulse(Vector impulse, bool? velocityChange = null) =>
-        Invoke(AddImpulseSlot, ScriptArguments.Trim([impulse, velocityChange], 1));
+        Call(AddImpulseSlot, 1, impulse, velocityChange);
 
     /// <summary>Attaches this Actor to any other Actor, optionally at a specific bone</summary>
     public bool AttachTo(
@@ -205,169 +205,167 @@ public abstract partial class Actor : Entity
         string? boneName = null,
         float? lifespanWhenDetached = null,
         bool? useAbsoluteRotation = null) =>
-        Invoke<bool>(AttachToSlot, ScriptArguments.Trim([other, attachmentRule, boneName, lifespanWhenDetached, useAbsoluteRotation], 1))!;
+        CallResult<bool, Entity, AttachmentRule?, string?, float?, bool?>(AttachToSlot, 1, other, attachmentRule, boneName, lifespanWhenDetached, useAbsoluteRotation)!;
 
     /// <summary>Detaches this Actor from AttachedTo Actor</summary>
-    public void Detach() => Invoke(DetachSlot);
+    public void Detach() => Call(DetachSlot, 0);
 
     /// <summary>Gets all Unreal Actor Tags on this Actor</summary>
-    public IReadOnlyList<string> GetActorTags() => Invoke<IReadOnlyList<string>>(GetActorTagsSlot)!;
+    public IReadOnlyList<string> GetActorTags() => CallResult<IReadOnlyList<string>>(GetActorTagsSlot, 0)!;
 
     /// <summary>Gets this Actor's angular force (set by <c>SetAngularForce()</c>)</summary>
-    public Vector GetAngularForce() => Invoke<Vector>(GetAngularForceSlot)!;
+    public Vector GetAngularForce() => CallResult<Vector>(GetAngularForceSlot, 0)!;
 
     /// <summary>Returns the angular velocity of this Actor</summary>
-    public Vector GetAngularVelocity() => Invoke<Vector>(GetAngularVelocitySlot)!;
+    public Vector GetAngularVelocity() => CallResult<Vector>(GetAngularVelocitySlot, 0)!;
 
     /// <summary>Gets all Actors attached to this Actor</summary>
     public IReadOnlyList<object?> GetAttachedEntities(bool? recursively = null) =>
-        Invoke<IReadOnlyList<object?>>(GetAttachedEntitiesSlot, ScriptArguments.Trim([recursively], 0))!;
+        CallResult<IReadOnlyList<object?>, bool?>(GetAttachedEntitiesSlot, 0, recursively)!;
 
     /// <summary>Gets the Actor this Actor is attached to</summary>
-    public Actor? GetAttachedTo() => Invoke<Actor?>(GetAttachedToSlot);
+    public Actor? GetAttachedTo() => CallResult<Actor?>(GetAttachedToSlot, 0);
 
     /// <summary>Gets the bone or socket name this Actor is attached to</summary>
-    public string GetAttachedToSocket() => Invoke<string>(GetAttachedToSocketSlot)!;
+    public string GetAttachedToSocket() => CallResult<string>(GetAttachedToSocketSlot, 0)!;
 
     /// <summary>Gets this Actor's bounds, useful to know its size in the world</summary>
     public IReadOnlyDictionary<string, object?> GetBounds() =>
-        Invoke<IReadOnlyDictionary<string, object?>>(GetBoundsSlot)!;
+        CallResult<IReadOnlyDictionary<string, object?>>(GetBoundsSlot, 0)!;
 
     /// <summary>Gets this Actor's collision type</summary>
-    public CollisionType GetCollision() => Invoke<CollisionType>(GetCollisionSlot)!;
+    public CollisionType GetCollision() => CallResult<CollisionType>(GetCollisionSlot, 0)!;
 
     /// <summary>Gets this Actor's dimension</summary>
-    public uint GetDimension() => Invoke<uint>(GetDimensionSlot)!;
+    public uint GetDimension() => CallResult<uint>(GetDimensionSlot, 0)!;
 
     /// <summary>Gets the distance of this Actor from the Camera</summary>
-    public float GetDistanceFromCamera() => Invoke<float>(GetDistanceFromCameraSlot)!;
+    public float GetDistanceFromCamera() => CallResult<float>(GetDistanceFromCameraSlot, 0)!;
 
     /// <summary>Gets this Actor's force (set by <c>SetForce()</c>)</summary>
-    public Vector GetForce() => Invoke<Vector>(GetForceSlot)!;
+    public Vector GetForce() => CallResult<Vector>(GetForceSlot, 0)!;
 
     /// <summary>Gets the time (in seconds) left before this Actor is destroyed</summary>
-    public float GetLifeSpan() => Invoke<float>(GetLifeSpanSlot)!;
+    public float GetLifeSpan() => CallResult<float>(GetLifeSpanSlot, 0)!;
 
     /// <summary>Gets this Actor's location in the game world</summary>
-    public Vector GetLocation() => Invoke<Vector>(GetLocationSlot)!;
+    public Vector GetLocation() => CallResult<Vector>(GetLocationSlot, 0)!;
 
     /// <summary>Returns the mass of this Actor</summary>
-    public float GetMass() => Invoke<float>(GetMassSlot)!;
+    public float GetMass() => CallResult<float>(GetMassSlot, 0)!;
 
     /// <summary>Gets this Actor's Network Authority Player</summary>
-    public Player? GetNetworkAuthority() => Invoke<Player?>(GetNetworkAuthoritySlot);
+    public Player? GetNetworkAuthority() => CallResult<Player?>(GetNetworkAuthoritySlot, 0);
 
     /// <summary>Gets this Actor's Relative Location if it's attached</summary>
-    public Vector GetRelativeLocation() => Invoke<Vector>(GetRelativeLocationSlot)!;
+    public Vector GetRelativeLocation() => CallResult<Vector>(GetRelativeLocationSlot, 0)!;
 
     /// <summary>Gets this Actor's Relative Rotation if it's attached</summary>
-    public Rotator GetRelativeRotation() => Invoke<Rotator>(GetRelativeRotationSlot)!;
+    public Rotator GetRelativeRotation() => CallResult<Rotator>(GetRelativeRotationSlot, 0)!;
 
     /// <summary>Gets this Actor's angle in the game world</summary>
-    public Rotator GetRotation() => Invoke<Rotator>(GetRotationSlot)!;
+    public Rotator GetRotation() => CallResult<Rotator>(GetRotationSlot, 0)!;
 
     /// <summary>Gets this Actor's scale</summary>
-    public Vector GetScale() => Invoke<Vector>(GetScaleSlot)!;
+    public Vector GetScale() => CallResult<Vector>(GetScaleSlot, 0)!;
 
     /// <summary>Gets the percentage of this Actor size in the screen</summary>
-    public float GetScreenPercentage() => Invoke<float>(GetScreenPercentageSlot)!;
+    public float GetScreenPercentage() => CallResult<float>(GetScreenPercentageSlot, 0)!;
 
     /// <summary>Gets a Socket Transform in world space given a bone or socket name</summary>
     public IReadOnlyDictionary<string, object?> GetSocketTransform(string socketName, string? attachableId = null) =>
-        Invoke<IReadOnlyDictionary<string, object?>>(GetSocketTransformSlot, ScriptArguments.Trim([socketName, attachableId], 1))!;
+        CallResult<IReadOnlyDictionary<string, object?>, string, string?>(GetSocketTransformSlot, 1, socketName, attachableId)!;
 
     /// <summary>Gets this Actor's current velocity</summary>
-    public Vector GetVelocity() => Invoke<Vector>(GetVelocitySlot)!;
+    public Vector GetVelocity() => CallResult<Vector>(GetVelocitySlot, 0)!;
 
     /// <summary>Returns true if the local Player is currently the Network Authority of this Actor</summary>
-    public bool HasNetworkAuthority() => Invoke<bool>(HasNetworkAuthoritySlot)!;
+    public bool HasNetworkAuthority() => CallResult<bool>(HasNetworkAuthoritySlot, 0)!;
 
     /// <summary>Returns true if gravity is enabled on this Actor</summary>
-    public bool IsGravityEnabled() => Invoke<bool>(IsGravityEnabledSlot)!;
+    public bool IsGravityEnabled() => CallResult<bool>(IsGravityEnabledSlot, 0)!;
 
     /// <summary>Returns true if this Actor is in water</summary>
-    public bool IsInWater() => Invoke<bool>(IsInWaterSlot)!;
+    public bool IsInWater() => CallResult<bool>(IsInWaterSlot, 0)!;
 
     /// <summary>Returns true if this Actor is currently network distributed</summary>
-    public bool IsNetworkDistributed() => Invoke<bool>(IsNetworkDistributedSlot)!;
+    public bool IsNetworkDistributed() => CallResult<bool>(IsNetworkDistributedSlot, 0)!;
 
     /// <summary>Returns true if this Actor is visible</summary>
-    public bool IsVisible() => Invoke<bool>(IsVisibleSlot)!;
+    public bool IsVisible() => CallResult<bool>(IsVisibleSlot, 0)!;
 
     /// <summary>Removes an Unreal Actor Tag from this Actor</summary>
-    public void RemoveActorTag(string tag) => Invoke(RemoveActorTagSlot, tag);
+    public void RemoveActorTag(string tag) => Call(RemoveActorTagSlot, 1, tag);
 
     /// <summary>Smoothly rotates this actor to an angle over a certain time</summary>
-    public void RotateTo(Rotator rotation, float time, float? exp = null) =>
-        Invoke(RotateToSlot, ScriptArguments.Trim([rotation, time, exp], 2));
+    public void RotateTo(Rotator rotation, float time, float? exp = null) => Call(RotateToSlot, 2, rotation, time, exp);
 
     /// <summary>Adds a permanent angular force to this Actor, set to Vector(0, 0, 0) to cancel</summary>
-    public void SetAngularForce(Vector angularForce) => Invoke(SetAngularForceSlot, angularForce);
+    public void SetAngularForce(Vector angularForce) => Call(SetAngularForceSlot, 1, angularForce);
 
     /// <summary>Sets this Actor's to cast shadows or not</summary>
-    public void SetCastShadow(bool castShadow) => Invoke(SetCastShadowSlot, castShadow);
+    public void SetCastShadow(bool castShadow) => Call(SetCastShadowSlot, 1, castShadow);
 
     /// <summary>Sets this Actor's collision type</summary>
-    public void SetCollision(CollisionType collisionType) => Invoke(SetCollisionSlot, collisionType);
+    public void SetCollision(CollisionType collisionType) => Call(SetCollisionSlot, 1, collisionType);
 
     /// <summary>Sets this Actor's Dimension. Actors only see and interact with entities in the same Dimension</summary>
-    public void SetDimension(uint dimension) => Invoke(SetDimensionSlot, dimension);
+    public void SetDimension(uint dimension) => Call(SetDimensionSlot, 1, dimension);
 
     /// <summary>Sets this Actor's distance optimization multiplier</summary>
     public void SetDistanceOptimizationMultiplier(float multiplier) =>
-        Invoke(SetDistanceOptimizationMultiplierSlot, multiplier);
+        Call(SetDistanceOptimizationMultiplierSlot, 1, multiplier);
 
     /// <summary>Adds a permanent force to this Actor, set to Vector(0, 0, 0) to cancel</summary>
-    public void SetForce(Vector force, bool? isLocal = null) =>
-        Invoke(SetForceSlot, ScriptArguments.Trim([force, isLocal], 1));
+    public void SetForce(Vector force, bool? isLocal = null) => Call(SetForceSlot, 1, force, isLocal);
 
     /// <summary>Sets whether gravity is enabled on this Actor</summary>
-    public void SetGravityEnabled(bool gravityEnabled) => Invoke(SetGravityEnabledSlot, gravityEnabled);
+    public void SetGravityEnabled(bool gravityEnabled) => Call(SetGravityEnabledSlot, 1, gravityEnabled);
 
     /// <summary>Sets whether the highlight is enabled on this Actor, and which highlight index to use</summary>
     public void SetHighlightEnabled(bool isEnabled, uint? index = null) =>
-        Invoke(SetHighlightEnabledSlot, ScriptArguments.Trim([isEnabled, index], 1));
+        Call(SetHighlightEnabledSlot, 1, isEnabled, index);
 
     /// <summary>Sets the time (in seconds) before this Actor is destroyed. After this time has passed, the actor will be automatically destroyed.</summary>
-    public void SetLifeSpan(float seconds) => Invoke(SetLifeSpanSlot, seconds);
+    public void SetLifeSpan(float seconds) => Call(SetLifeSpanSlot, 1, seconds);
 
     /// <summary>Sets this Actor's location in the game world</summary>
-    public void SetLocation(Vector location) => Invoke(SetLocationSlot, location);
+    public void SetLocation(Vector location) => Call(SetLocationSlot, 1, location);
 
     /// <summary>Sets the Player to have network authority over this Actor</summary>
     public void SetNetworkAuthority(Player? player = null, uint? argument2 = null) =>
-        Invoke(SetNetworkAuthoritySlot, ScriptArguments.Trim([player, argument2], 0));
+        Call(SetNetworkAuthoritySlot, 0, player, argument2);
 
     /// <summary>Sets if this Actor will auto distribute the network authority between players</summary>
     public void SetNetworkAuthorityAutoDistributed(bool autoDistribute) =>
-        Invoke(SetNetworkAuthorityAutoDistributedSlot, autoDistribute);
+        Call(SetNetworkAuthorityAutoDistributedSlot, 1, autoDistribute);
 
     /// <summary>Sets whether the outline is enabled on this Actor, and which outline index to use</summary>
     public void SetOutlineEnabled(bool isEnabled, uint? index = null) =>
-        Invoke(SetOutlineEnabledSlot, ScriptArguments.Trim([isEnabled, index], 1));
+        Call(SetOutlineEnabledSlot, 1, isEnabled, index);
 
     /// <summary>Sets this Actor's relative location in local space (only if this actor is attached)</summary>
-    public void SetRelativeLocation(Vector relativeLocation) => Invoke(SetRelativeLocationSlot, relativeLocation);
+    public void SetRelativeLocation(Vector relativeLocation) => Call(SetRelativeLocationSlot, 1, relativeLocation);
 
     /// <summary>Sets this Actor's relative rotation in local space (only if this actor is attached)</summary>
-    public void SetRelativeRotation(Rotator relativeRotation) => Invoke(SetRelativeRotationSlot, relativeRotation);
+    public void SetRelativeRotation(Rotator relativeRotation) => Call(SetRelativeRotationSlot, 1, relativeRotation);
 
     /// <summary>Sets this Actor's render cull distance</summary>
-    public void SetRenderCullDistance(uint maxDistance) => Invoke(SetRenderCullDistanceSlot, maxDistance);
+    public void SetRenderCullDistance(uint maxDistance) => Call(SetRenderCullDistanceSlot, 1, maxDistance);
 
     /// <summary>Sets this Actor's rotation in the game world</summary>
-    public void SetRotation(Rotator rotation) => Invoke(SetRotationSlot, rotation);
+    public void SetRotation(Rotator rotation) => Call(SetRotationSlot, 1, rotation);
 
     /// <summary>Sets this Actor's scale</summary>
-    public void SetScale(Vector scale) => Invoke(SetScaleSlot, scale);
+    public void SetScale(Vector scale) => Call(SetScaleSlot, 1, scale);
 
     /// <summary>Sets whether the actor is visible or not</summary>
-    public void SetVisibility(bool isVisible) => Invoke(SetVisibilitySlot, isVisible);
+    public void SetVisibility(bool isVisible) => Call(SetVisibilitySlot, 1, isVisible);
 
     /// <summary>Smoothly moves this actor to a location over a certain time</summary>
     public void TranslateTo(Vector location, float time, float? exp = null) =>
-        Invoke(TranslateToSlot, ScriptArguments.Trim([location, time, exp], 2));
+        Call(TranslateToSlot, 2, location, time, exp);
 
     /// <summary>Gets if this Actor was recently rendered on screen</summary>
-    public bool WasRecentlyRendered() => Invoke<bool>(WasRecentlyRenderedSlot)!;
+    public bool WasRecentlyRendered() => CallResult<bool>(WasRecentlyRenderedSlot, 0)!;
 }

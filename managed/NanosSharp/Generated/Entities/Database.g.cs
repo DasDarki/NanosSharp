@@ -29,7 +29,7 @@ public partial class Database : Entity
     }
 
     /// <summary>Closes the Database</summary>
-    public void Close() => Invoke(CloseSlot);
+    public void Close() => Call(CloseSlot, 0);
 
     /// <summary>Executes a query synchronously, blocking until it finishes. Prefer <c>ExecuteAsync</c> to avoid freezing the server</summary>
     public object?[] Execute(string query, params object?[] parameters) =>

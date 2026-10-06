@@ -112,26 +112,26 @@ public partial class Text3D : Actor, IPaintable
 
     /// <summary>Gets a Color parameter from this Actor's material</summary>
     public Color? GetMaterialColorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Color?>(GetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        CallResult<Color?, string, int?, string?>(GetMaterialColorParameterSlot, 1, parameterName, index, attachableId);
 
     /// <summary>Gets a Scalar parameter from this Actor's material</summary>
     public float? GetMaterialScalarParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<float?>(GetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        CallResult<float?, string, int?, string?>(GetMaterialScalarParameterSlot, 1, parameterName, index, attachableId);
 
     /// <summary>Gets a Texture parameter from this Actor's material</summary>
     public string? GetMaterialTextureParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<string?>(GetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        CallResult<string?, string, int?, string?>(GetMaterialTextureParameterSlot, 1, parameterName, index, attachableId);
 
     /// <summary>Gets a Vector parameter from this Actor's material</summary>
     public Vector? GetMaterialVectorParameter(string parameterName, int? index = null, string? attachableId = null) =>
-        Invoke<Vector?>(GetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, index, attachableId], 1));
+        CallResult<Vector?, string, int?, string?>(GetMaterialVectorParameterSlot, 1, parameterName, index, attachableId);
 
     /// <summary>Resets the material from the specified index to the original one</summary>
     public void ResetMaterial(int? index = null, string? attachableId = null) =>
-        Invoke(ResetMaterialSlot, ScriptArguments.Trim([index, attachableId], 0));
+        Call(ResetMaterialSlot, 0, index, attachableId);
 
     /// <summary>Sets the Font</summary>
-    public void SetFont(FontType fontType) => Invoke(SetFontSlot, fontType);
+    public void SetFont(FontType fontType) => Call(SetFontSlot, 1, fontType);
 
     /// <summary>Sets the Glyph representation settings to generate the 3D Mesh for this text render</summary>
     public void SetGlyphSettings(
@@ -140,11 +140,11 @@ public partial class Text3D : Actor, IPaintable
         Text3DBevelType? bevelType = null,
         uint? bevelSegments = null,
         bool? outline = null) =>
-        Invoke(SetGlyphSettingsSlot, ScriptArguments.Trim([extrude, level, bevelType, bevelSegments, outline], 0));
+        Call(SetGlyphSettingsSlot, 0, extrude, level, bevelType, bevelSegments, outline);
 
     /// <summary>Sets the material at the specified index of this Actor</summary>
     public void SetMaterial(string materialPath, int? index = null, string? attachableId = null) =>
-        Invoke(SetMaterialSlot, ScriptArguments.Trim([materialPath, index, attachableId], 1));
+        Call(SetMaterialSlot, 1, materialPath, index, attachableId);
 
     /// <summary>Sets a Color parameter in this Actor's material</summary>
     public void SetMaterialColorParameter(
@@ -152,7 +152,7 @@ public partial class Text3D : Actor, IPaintable
         Color color,
         int? index = null,
         string? attachableId = null) =>
-        Invoke(SetMaterialColorParameterSlot, ScriptArguments.Trim([parameterName, color, index, attachableId], 2));
+        Call(SetMaterialColorParameterSlot, 2, parameterName, color, index, attachableId);
 
     /// <summary>Sets a Scalar parameter in this Actor's material</summary>
     public void SetMaterialScalarParameter(
@@ -160,7 +160,7 @@ public partial class Text3D : Actor, IPaintable
         float scalar,
         int? index = null,
         string? attachableId = null) =>
-        Invoke(SetMaterialScalarParameterSlot, ScriptArguments.Trim([parameterName, scalar, index, attachableId], 2));
+        Call(SetMaterialScalarParameterSlot, 2, parameterName, scalar, index, attachableId);
 
     /// <summary>Sets a texture parameter in this Actor's material to an image</summary>
     public void SetMaterialTextureParameter(
@@ -168,7 +168,7 @@ public partial class Text3D : Actor, IPaintable
         string texturePath,
         int? index = null,
         string? attachableId = null) =>
-        Invoke(SetMaterialTextureParameterSlot, ScriptArguments.Trim([parameterName, texturePath, index, attachableId], 2));
+        Call(SetMaterialTextureParameterSlot, 2, parameterName, texturePath, index, attachableId);
 
     /// <summary>Sets a Vector parameter in this Actor's material</summary>
     public void SetMaterialVectorParameter(
@@ -176,18 +176,18 @@ public partial class Text3D : Actor, IPaintable
         Vector vector,
         int? index = null,
         string? attachableId = null) =>
-        Invoke(SetMaterialVectorParameterSlot, ScriptArguments.Trim([parameterName, vector, index, attachableId], 2));
+        Call(SetMaterialVectorParameterSlot, 2, parameterName, vector, index, attachableId);
 
     /// <summary>Sets the Max Size of the Text3D, optionally scaling it proportionally</summary>
     public void SetMaxSize(float? maxWidth = null, float? maxHeight = null, bool? scaleProportionally = null) =>
-        Invoke(SetMaxSizeSlot, ScriptArguments.Trim([maxWidth, maxHeight, scaleProportionally], 0));
+        Call(SetMaxSizeSlot, 0, maxWidth, maxHeight, scaleProportionally);
 
     /// <summary>Overrides this Actor's Physical Material with a new one</summary>
     public void SetPhysicalMaterial(string physicalMaterialPath) =>
-        Invoke(SetPhysicalMaterialSlot, physicalMaterialPath);
+        Call(SetPhysicalMaterialSlot, 1, physicalMaterialPath);
 
     /// <summary>Sets the Text</summary>
-    public void SetText(string text) => Invoke(SetTextSlot, text);
+    public void SetText(string text) => Call(SetTextSlot, 1, text);
 
     /// <summary>Sets the Text &amp; Font settings for this text render</summary>
     public void SetTextSettings(
@@ -196,7 +196,7 @@ public partial class Text3D : Actor, IPaintable
         float? wordSpacing = null,
         Text3DHorizontalAlignment? horizontalAlignment = null,
         Text3DVerticalAlignment? verticalAlignment = null) =>
-        Invoke(SetTextSettingsSlot, ScriptArguments.Trim([kerning, lineSpacing, wordSpacing, horizontalAlignment, verticalAlignment], 0));
+        Call(SetTextSettingsSlot, 0, kerning, lineSpacing, wordSpacing, horizontalAlignment, verticalAlignment);
 
     /// <summary>Subscribes to the ClassRegister event of this entity only.</summary>
     public ScriptSubscription SubscribeClassRegister(ClassRegisterHandler handler) => Subscribe("ClassRegister", handler);

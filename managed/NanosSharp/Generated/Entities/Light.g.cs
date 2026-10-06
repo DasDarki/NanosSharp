@@ -139,31 +139,31 @@ public partial class Light : Actor
     }
 
     /// <summary>Gets the distance this Light reaches</summary>
-    public float GetAttenuationRadius() => Invoke<float>(GetAttenuationRadiusSlot)!;
+    public float GetAttenuationRadius() => CallResult<float>(GetAttenuationRadiusSlot, 0)!;
 
     /// <summary>Gets if this Light casts shadows</summary>
-    public bool GetCastShadows() => Invoke<bool>(GetCastShadowsSlot)!;
+    public bool GetCastShadows() => CallResult<bool>(GetCastShadowsSlot, 0)!;
 
     /// <summary>Gets the color of this Light</summary>
-    public Color GetColor() => Invoke<Color>(GetColorSlot)!;
+    public Color GetColor() => CallResult<Color>(GetColorSlot, 0)!;
 
     /// <summary>Gets the brightness of this Light</summary>
-    public float GetIntensity() => Invoke<float>(GetIntensitySlot)!;
+    public float GetIntensity() => CallResult<float>(GetIntensitySlot, 0)!;
 
     /// <summary>Sets the distance this Light reaches</summary>
-    public void SetAttenuationRadius(float attenuationRadius) => Invoke(SetAttenuationRadiusSlot, attenuationRadius);
+    public void SetAttenuationRadius(float attenuationRadius) => Call(SetAttenuationRadiusSlot, 1, attenuationRadius);
 
     /// <summary>Sets if this Light casts shadows</summary>
-    public void SetCastShadows(bool isShadowsEnabled) => Invoke(SetCastShadowsSlot, isShadowsEnabled);
+    public void SetCastShadows(bool isShadowsEnabled) => Call(SetCastShadowsSlot, 1, isShadowsEnabled);
 
     /// <summary>Sets the light color</summary>
-    public void SetColor(Color color) => Invoke(SetColorSlot, color);
+    public void SetColor(Color color) => Call(SetColorSlot, 1, color);
 
     /// <summary>Sets the brightness of this Light</summary>
-    public void SetIntensity(float intensity) => Invoke(SetIntensitySlot, intensity);
+    public void SetIntensity(float intensity) => Call(SetIntensitySlot, 1, intensity);
 
     /// <summary>Sets the light Texture Profile</summary>
-    public void SetTextureLightProfile(LightProfile lightProfile) => Invoke(SetTextureLightProfileSlot, lightProfile);
+    public void SetTextureLightProfile(LightProfile lightProfile) => Call(SetTextureLightProfileSlot, 1, lightProfile);
 
     /// <summary>Subscribes to the ClassRegister event of this entity only.</summary>
     public ScriptSubscription SubscribeClassRegister(ClassRegisterHandler handler) => Subscribe("ClassRegister", handler);

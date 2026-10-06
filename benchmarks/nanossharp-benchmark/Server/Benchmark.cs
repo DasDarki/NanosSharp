@@ -20,8 +20,44 @@ public sealed class Benchmark : Package
         Measure("event roundtrip", () => Events.Call("csharp-benchmark", 1, "text"));
 
         prop.Destroy();
+        MeasureCompute();
         Log.Info("[TEST] SUMMARY passed=0 failed=0");
         MainThread.Post(Server.Stop);
+    }
+
+    private static void MeasureCompute()
+    {
+        var stopwatch = Stopwatch.StartNew();
+        const int limit = 2000000;
+        var composite = new bool[limit + 1];
+        var primes = 0;
+        for (var number = 2; number <= limit; number++)
+        {
+            if (composite[number])
+            {
+                continue;
+            }
+
+            primes++;
+            for (var multiple = (long)number * number; multiple <= limit; multiple += number)
+            {
+                composite[multiple] = true;
+            }
+        }
+
+        Log.Info($"[BENCH] csharp compute prime sieve: {stopwatch.Elapsed.TotalMilliseconds:F1} ms ({primes} primes)");
+
+        stopwatch.Restart();
+        var values = new long[200000];
+        long seed = 12345;
+        for (var index = 0; index < values.Length; index++)
+        {
+            seed = (seed * 1103515245 + 12345) % 2147483648;
+            values[index] = seed;
+        }
+
+        Array.Sort(values);
+        Log.Info($"[BENCH] csharp compute sort: {stopwatch.Elapsed.TotalMilliseconds:F1} ms");
     }
 
     private static void Measure(string name, Action operation)

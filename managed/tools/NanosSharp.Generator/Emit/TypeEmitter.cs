@@ -5,6 +5,7 @@ namespace NanosSharp.Generator.Emit;
 internal static class TypeEmitter
 {
     private const int MaximumLineLength = 116;
+    private const int MaximumTypedArguments = 8;
 
     private static readonly string[] Usings =
     [
@@ -233,8 +234,31 @@ internal static class TypeEmitter
 
     private static string FormatInvocation(TypeModel type, MethodModel method)
     {
-        var owner = type.Kind == TypeKind.StaticClass ? "ScriptApi." : string.Empty;
         var variadic = method.Parameters.FirstOrDefault(parameter => parameter.Type.Kind == CSharpTypeKind.Variadic);
+        return variadic is null && method.Parameters.Count <= MaximumTypedArguments
+            ? FormatTypedInvocation(type, method)
+            : FormatDynamicInvocation(type, method, variadic);
+    }
+
+    private static string FormatTypedInvocation(TypeModel type, MethodModel method)
+    {
+        var owner = type.Kind == TypeKind.StaticClass ? "ScriptApi." : string.Empty;
+        var arguments = method.Parameters.Select(FormatArgument).Prepend(method.RequiredParameterCount.ToString())
+            .Prepend(SlotName(method));
+        var invocation = string.Join(", ", arguments);
+        if (method.ReturnType.Kind == CSharpTypeKind.Void)
+        {
+            return $"{owner}Call({invocation})";
+        }
+
+        var typeArguments = method.Parameters.Select(ArgumentType).Prepend(method.ReturnType.Name);
+        var nullForgiving = method.ReturnType.IsNullable ? string.Empty : "!";
+        return $"{owner}CallResult<{string.Join(", ", typeArguments)}>({invocation}){nullForgiving}";
+    }
+
+    private static string FormatDynamicInvocation(TypeModel type, MethodModel method, ParameterModel? variadic)
+    {
+        var owner = type.Kind == TypeKind.StaticClass ? "ScriptApi." : string.Empty;
         var name = variadic is null ? "Invoke" : "InvokeVariadic";
         var generic = method.ReturnType.Kind == CSharpTypeKind.Void ? string.Empty : $"<{method.ReturnType}>";
         var arguments = variadic is null
@@ -244,6 +268,9 @@ internal static class TypeEmitter
         var nullForgiving = method.ReturnType.Kind == CSharpTypeKind.Void || method.ReturnType.IsNullable ? string.Empty : "!";
         return $"{owner}{name}{generic}({SlotName(method)}{separator}{arguments}){nullForgiving}";
     }
+
+    private static string ArgumentType(ParameterModel parameter) =>
+        parameter.Type.Kind == CSharpTypeKind.Callback ? "ScriptCallback?" : parameter.Type.Name;
 
     private static string FormatParameters(IEnumerable<ParameterModel> parameters) =>
         string.Join(", ", parameters.Select(FormatParameter));
