@@ -52,6 +52,7 @@ internal static class ValueConverter
             object?[] items when targetType.IsArray => ConvertArray(items, targetType.GetElementType()!),
             object?[] items when IsGenericOf(targetType, ListDefinitions) => ConvertList(items, targetType),
             Dictionary<object, object?> map when IsGenericOf(targetType, DictionaryDefinitions) => ConvertDictionary(map, targetType),
+            object?[] { Length: 0 } when IsGenericOf(targetType, DictionaryDefinitions) => ConvertDictionary([], targetType),
             _ => throw new InvalidCastException($"Cannot convert {value.GetType()} to {targetType}."),
         };
     }

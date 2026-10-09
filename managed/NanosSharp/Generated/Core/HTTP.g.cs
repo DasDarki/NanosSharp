@@ -31,14 +31,14 @@ public static partial class HTTP
     /// <summary>Makes an asynchronous HTTP Request</summary>
     public static void RequestAsync(
         string uri,
-        string? endpoint = null,
-        object? method = null,
-        string? data = null,
-        string? contentType = null,
-        bool? compress = null,
-        IDictionary<string, string>? headers = null,
-        Delegate? callback = null) =>
-        ScriptApi.Call(RequestAsyncSlot, 1, uri, endpoint, method, data, contentType, compress, headers, ScriptCallback.From(callback));
+        string? endpoint,
+        object? method,
+        string? data,
+        string? contentType,
+        bool? compress,
+        IDictionary<string, string>? headers,
+        Delegate callback) =>
+        ScriptApi.Call(RequestAsyncSlot, 8, uri, endpoint, method, data, contentType, compress, headers, ScriptCallback.From(callback));
 
     /// <summary>Sets the HTTP requests global Connection Timeout in seconds</summary>
     public static void SetConnectionTimeout(uint connectionTimeout) =>

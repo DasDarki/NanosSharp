@@ -36,7 +36,7 @@ public partial class Database : Entity
         InvokeVariadic<object?[]>(ExecuteSlot, [query], parameters)!;
 
     /// <summary>Execute a query asynchronously</summary>
-    public void ExecuteAsync(string query, Delegate? callback = null, params object?[] parameters) =>
+    public void ExecuteAsync(string query, Delegate callback, params object?[] parameters) =>
         InvokeVariadic(ExecuteAsyncSlot, [query, ScriptCallback.From(callback)], parameters);
 
     /// <summary>Runs a SELECT query synchronously, blocking until it finishes. Prefer <c>SelectAsync</c> to avoid freezing the server</summary>
@@ -44,6 +44,6 @@ public partial class Database : Entity
         InvokeVariadic<object?[]>(SelectSlot, [query], parameters)!;
 
     /// <summary>Execute a select query asynchronously</summary>
-    public void SelectAsync(string query, Delegate? callback = null, params object?[] parameters) =>
+    public void SelectAsync(string query, Delegate callback, params object?[] parameters) =>
         InvokeVariadic(SelectAsyncSlot, [query, ScriptCallback.From(callback)], parameters);
 }

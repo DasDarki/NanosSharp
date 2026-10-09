@@ -141,6 +141,21 @@ should look them up when it needs them instead of caching them across a hot relo
 for example as callbacks, are wrapped with `ScriptCallback.From`. Cache `ScriptFunction` values for hot paths, because
 `Get` converts a whole table each time.
 
+## Async
+
+Callback based functions of nanos world have `Task` overloads with the same name, their continuations run on the main
+thread, so the result can be used with the scripting API right away:
+
+```csharp
+var response = await HTTP.RequestAsync("https://api.example.com", "/status");
+var rows = await database.SelectAsync("SELECT name FROM players WHERE id = ?", playerId);
+var affected = await database.ExecuteAsync("DELETE FROM sessions");
+var content = await file.ReadAsync();
+await Scheduler.Delay(TimeSpan.FromSeconds(5));
+```
+
+Database errors are thrown as `DatabaseException`. The Lua style overloads taking a callback remain available.
+
 ## Hot reload
 
 Changing a `.cs` or `.dll` file in `Server/` rebuilds the package first. If the build fails, the running version stays active.

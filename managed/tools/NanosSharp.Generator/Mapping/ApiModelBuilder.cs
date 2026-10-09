@@ -10,6 +10,7 @@ internal sealed class ApiModelBuilder
     private const string CoreNamespace = "NanosSharp.Core";
     private const string EntityBaseName = "Entity";
     private const string ActorBaseName = "Actor";
+    private const string AsyncSuffix = "Async";
 
     private static readonly HashSet<string> SkippedClasses = ["Events", "Package", "Timer"];
 
@@ -248,7 +249,10 @@ internal sealed class ApiModelBuilder
         {
             var signature = NativeSignature.Parse(nativeMethod.Signature);
             var returnType = MapReturn(signature.ReturnType!, function.Return.FirstOrDefault()?.Type);
-            var parameters = signature.Parameters.Select((parameter, index) => BuildParameter(parameter, function, index)).ToList();
+            var parameters = signature.Parameters
+                .Select((parameter, index) => BuildParameter(parameter, function, index))
+                .Select(parameter => RequireCompletionCallback(nativeMethod.Name, parameter))
+                .ToList();
             if (signature.Parameters.Count != function.Parameters.Count)
             {
                 _report.Add("Parameter count differs from documentation",
@@ -291,6 +295,11 @@ internal sealed class ApiModelBuilder
         var type = ApplyDocumentedEnum(mapped.Type, docsParameter?.Type);
         return new ParameterModel(name, mapped.IsOptional ? type.AsNullable() : type, mapped.IsOptional, docsParameter?.Description);
     }
+
+    private static ParameterModel RequireCompletionCallback(string methodName, ParameterModel parameter) =>
+        methodName.EndsWith(AsyncSuffix, StringComparison.Ordinal) && parameter.Type.Kind == CSharpTypeKind.Callback
+            ? parameter with { Type = CSharpType.Callback, IsOptional = false }
+            : parameter;
 
     private CSharpType ApplyDocumentedEnum(CSharpType type, string? docsType)
     {
