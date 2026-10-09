@@ -6,12 +6,14 @@
 #include <cstring>
 #include <exception>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <typeinfo>
 #include <utility>
 #include <vector>
 
 #include "bridge/managed_function_ref.h"
+#include "game/lua.h"
 #include "host/isolated_libraries.h"
 #include "runtime.h"
 
@@ -425,6 +427,40 @@ uint8_t FunctionCall(FunctionHandle handle, EnvironmentHandle environment, const
   });
 }
 
+game::Engine& AttachedEngine() {
+  game::Engine* engine = Runtime::Instance().engine();
+  if (engine == nullptr) {
+    throw std::runtime_error("the scripting engine is not attached");
+  }
+  return *engine;
+}
+
+game::Environment& RequireEnvironment(EnvironmentHandle environment) {
+  if (environment == nullptr) {
+    throw std::runtime_error("Lua globals can only be accessed from a package");
+  }
+  return *environment;
+}
+
+ValueHandle LuaGetGlobal(EnvironmentHandle environment, const char* name, int32_t length,
+                         char** error) {
+  ValueHandle result = nullptr;
+  Guard(error, [&] {
+    result = NewValue(game::GetLuaGlobal(AttachedEngine(), RequireEnvironment(environment),
+                                         std::string(name, length))
+                          .value);
+  });
+  return result;
+}
+
+uint8_t LuaSetGlobal(EnvironmentHandle environment, const char* name, int32_t length,
+                     const ScriptValue* value, char** error) {
+  return Guard(error, [&] {
+    game::SetLuaGlobal(AttachedEngine(), RequireEnvironment(environment),
+                       std::string(name, length), *value);
+  });
+}
+
 uint8_t PackageReload(game::Package* package, char** error) {
   return Guard(error, [&] { game::GetSymbols().package_reload(package); });
 }
@@ -490,6 +526,8 @@ const NativeApi& GetNativeApi() {
       .library_load = &LibraryLoad,
       .package_get_entity = &PackageGetEntity,
       .function_call = &FunctionCall,
+      .lua_get_global = &LuaGetGlobal,
+      .lua_set_global = &LuaSetGlobal,
   };
   return api;
 }

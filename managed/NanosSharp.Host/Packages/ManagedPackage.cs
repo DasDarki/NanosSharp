@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Runtime.Loader;
+using NanosSharp.Core;
 using NanosSharp.Entities;
 using NanosSharp.Entities.Binding;
 using NanosSharp.Eventing;
@@ -63,6 +64,11 @@ internal sealed class ManagedPackage
             EntityFactory.Register(factoryType);
         }
 
+        foreach (var type in loadedTypes)
+        {
+            Exports.Register(type);
+        }
+
         foreach (var entry in _entries)
         {
             EventBus.Register(entry);
@@ -92,6 +98,7 @@ internal sealed class ManagedPackage
         }
 
         Scope.Events.Clear();
+        Exports.ReleaseScope(Scope);
         TimerScheduler.ReleaseScope(Scope);
         FunctionRegistry.ReleaseScope(Scope);
         EntityRegistry.ReleaseScope(Scope);

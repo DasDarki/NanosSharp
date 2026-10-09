@@ -15,7 +15,7 @@ using FunctionHandle = game::IFunction*;
 using PropertyHandle = game::IProperty*;
 using EnvironmentHandle = game::Environment*;
 
-inline constexpr int32_t kNativeApiVersion = 2;
+inline constexpr int32_t kNativeApiVersion = 3;
 
 struct ManagedCallbacks {
   void (*engine_attached)();
@@ -106,6 +106,10 @@ struct NativeApi {
   void* (*package_get_entity)(game::Package* package);
   uint8_t (*function_call)(FunctionHandle handle, EnvironmentHandle environment, const NativeArgument* args,
                            int32_t count, NativeArgument* result, char** error);
+  ValueHandle (*lua_get_global)(EnvironmentHandle environment, const char* name, int32_t length,
+                                char** error);
+  uint8_t (*lua_set_global)(EnvironmentHandle environment, const char* name, int32_t length,
+                            const game::ScriptValue* value, char** error);
 };
 
 const NativeApi& GetNativeApi();

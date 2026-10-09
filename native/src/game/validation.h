@@ -11,6 +11,7 @@ namespace nanossharp::game {
 const char* GetTypeName(const void* polymorphic_object);
 bool ValidateEngine(const Engine* engine, std::string& error);
 bool ValidatePackage(const Package* package, std::string& error);
+bool IsLuaEnvironment(const Environment* environment);
 
 }
 

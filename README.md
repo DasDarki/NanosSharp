@@ -11,6 +11,7 @@ NanosWorldServer
  └─ libnanossharp.so  (LD_PRELOAD, C++)
      ├─ hooks scripting engine lifecycle, server tick and package load/unload
      ├─ talks to the engine-agnostic reflection layer (IClass/IFunction/ScriptValue) instead of the Lua stack
+     ├─ reads and writes Lua globals for Package.Export interop and turns C# functions into Lua closures
      └─ hosts CoreCLR via hostfxr
          └─ NanosSharp.Host (C#)
              ├─ loads every package with C# code in Packages/<name>/Server
@@ -113,6 +114,32 @@ including transitive dependencies and native libraries, and cached in `NanosShar
 ```
 
 Every package gets its own copy of its libraries, so packages can use different versions of the same library.
+
+## Lua interop
+
+Lua packages share values through `Package.Export`, which writes a global visible to every package. `Exports` is the
+C# side of it:
+
+```csharp
+var sum = Exports.Call<long>("MyLuaLibrary.Add", 2, 3);
+var add = Exports.Get<ScriptFunction>("MyLuaLibrary.Add");
+Exports.Set("Greeting", (Func<string, string>)(name => $"hello {name}"));
+
+[Export("MathLibrary")]
+public static class MathLibrary
+{
+    public static int Multiply(int first, int second) => first * second;
+}
+
+[Export]
+public static string Shout(string text) => text.ToUpperInvariant();
+```
+
+Lua can then call `MathLibrary.Multiply(6, 7)` and `Shout("hi")`. `[Export]` on a static class exports a table of its
+public static methods, on a static method a single global function. Exports are removed when the package unloads, so Lua
+should look them up when it needs them instead of caching them across a hot reload. Delegates passed to Lua functions,
+for example as callbacks, are wrapped with `ScriptCallback.From`. Cache `ScriptFunction` values for hot paths, because
+`Get` converts a whole table each time.
 
 ## Hot reload
 

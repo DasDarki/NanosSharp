@@ -1,6 +1,8 @@
 #ifndef NANOSSHARP_GAME_SYMBOLS_H_
 #define NANOSSHARP_GAME_SYMBOLS_H_
 
+#include <dlfcn.h>
+
 #include <functional>
 #include <memory>
 #include <string>
@@ -52,6 +54,16 @@ struct Symbols {
 };
 
 Symbols& GetSymbols();
+
+template <typename T>
+bool ResolveSymbol(const char* name, T& target, std::string& error) {
+  target = reinterpret_cast<T>(dlsym(RTLD_DEFAULT, name));
+  if (target == nullptr) {
+    error = std::string("unable to resolve symbol ") + name;
+    return false;
+  }
+  return true;
+}
 
 }
 

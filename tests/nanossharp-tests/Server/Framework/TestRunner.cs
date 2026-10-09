@@ -22,6 +22,7 @@ public sealed class TestRunner : Package
         var tests = typeof(TestRunner).Assembly.GetTypes()
             .SelectMany(type => type.GetMethods(BindingFlags.Public | BindingFlags.Static))
             .Where(method => method.GetCustomAttribute<TestAttribute>() is not null)
+            .Where(MatchesFilter)
             .OrderBy(method => method.DeclaringType!.Name, StringComparer.Ordinal)
             .ThenBy(method => method.Name, StringComparer.Ordinal)
             .ToArray();
@@ -34,6 +35,10 @@ public sealed class TestRunner : Package
         Log.Info($"{Prefix} SUMMARY passed={_passed} failed={_failed}");
         MainThread.Post(Server.Stop);
     }
+
+    private static bool MatchesFilter(MethodInfo test) =>
+        Environment.GetEnvironmentVariable("NANOSSHARP_TEST_FILTER") is not { Length: > 0 } filter ||
+        $"{test.DeclaringType!.Name}.{test.Name}".Contains(filter, StringComparison.Ordinal);
 
     private async Task RunAsync(MethodInfo test)
     {

@@ -23,6 +23,8 @@ internal sealed class PackageScope(string name, string directory)
 
     public HashSet<ScriptSubscription> Subscriptions { get; } = [];
 
+    public HashSet<string> Exports { get; } = [];
+
     public EventDispatcher Events { get; } = new();
 
     public bool Owns(Delegate handler) =>

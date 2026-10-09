@@ -32,7 +32,7 @@ internal static unsafe class ValueMarshaller
             ScriptOpaque opaque => api.ValueClone(opaque.Handle),
             ScriptCallback callback => FunctionRegistry.CreateNative(callback.Handler),
             Delegate => throw new ArgumentException(
-                "Delegates cannot be passed as plain values because Lua packages cannot call them, use a Subscribe method instead."),
+                "Delegates must be wrapped with ScriptCallback.From to be passed as a function, or exported with Exports.Set."),
             IDictionary dictionary => CreateMap(dictionary),
             IEnumerable sequence => CreateArray(sequence),
             _ => throw new ArgumentException($"Values of type {value.GetType()} cannot be passed to nanos world."),

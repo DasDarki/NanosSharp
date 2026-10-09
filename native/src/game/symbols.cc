@@ -1,6 +1,6 @@
 #include "game/symbols.h"
 
-#include <dlfcn.h>
+#include "game/lua_symbols.h"
 
 namespace nanossharp::game {
 
@@ -21,16 +21,6 @@ constexpr char kPackageReloadSymbol[] = "_ZN2nw4core7Package6ReloadEv";
 constexpr char kEntityFetcherSymbol[] = "_ZN2nw9scripting6Bridge13EntityFetcherE";
 constexpr char kPackagesPathSymbol[] = "_ZN2nw4core7Package12PackagesPathE";
 
-template <typename T>
-bool ResolveSymbol(const char* name, T& target, std::string& error) {
-  target = reinterpret_cast<T>(dlsym(RTLD_DEFAULT, name));
-  if (target == nullptr) {
-    error = std::string("unable to resolve symbol ") + name;
-    return false;
-  }
-  return true;
-}
-
 }
 
 bool Symbols::Resolve(std::string& error) {
@@ -43,7 +33,8 @@ bool Symbols::Resolve(std::string& error) {
          ResolveSymbol(kPackageUnloadSymbol, package_unload, error) &&
          ResolveSymbol(kPackageReloadSymbol, package_reload, error) &&
          ResolveSymbol(kPackagesPathSymbol, packages_path, error) &&
-         ResolveSymbol(kEntityFetcherSymbol, entity_fetcher, error);
+         ResolveSymbol(kEntityFetcherSymbol, entity_fetcher, error) &&
+         GetLuaSymbols().Resolve(error);
 }
 
 Symbols& GetSymbols() {

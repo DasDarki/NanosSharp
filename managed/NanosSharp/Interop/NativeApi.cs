@@ -6,7 +6,7 @@ namespace NanosSharp.Interop;
 [StructLayout(LayoutKind.Sequential)]
 internal unsafe struct NativeApi
 {
-    public const int SupportedVersion = 2;
+    public const int SupportedVersion = 3;
 
     public int Version;
 
@@ -71,4 +71,6 @@ internal unsafe struct NativeApi
     public delegate* unmanaged<byte*, byte**, nint> LibraryLoad;
     public delegate* unmanaged<nint, nint> PackageGetEntity;
     public delegate* unmanaged<nint, nint, NativeArgument*, int, NativeArgument*, byte**, byte> FunctionCall;
+    public delegate* unmanaged<nint, byte*, int, byte**, nint> LuaGetGlobal;
+    public delegate* unmanaged<nint, byte*, int, nint, byte**, byte> LuaSetGlobal;
 }

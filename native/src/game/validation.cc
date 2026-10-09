@@ -77,4 +77,8 @@ bool ValidatePackage(const Package* package, std::string& error) {
   return true;
 }
 
+bool IsLuaEnvironment(const Environment* environment) {
+  return HasTypeName(environment, kEnvironmentTypeName);
+}
+
 }

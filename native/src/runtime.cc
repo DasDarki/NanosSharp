@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "bridge/native_api.h"
+#include "game/lua.h"
 #include "game/validation.h"
 #include "host/isolated_libraries.h"
 
@@ -79,7 +80,8 @@ bool Runtime::InstallHooks(std::string& error) {
       hooks_->Prepare(original_engine_release_, &Runtime::OnEngineRelease) &&
       hooks_->Prepare(original_server_tick_, &Runtime::OnServerTick) &&
       hooks_->Prepare(original_package_load_, &Runtime::OnPackageLoad) &&
-      hooks_->Prepare(original_package_unload_, &Runtime::OnPackageUnload);
+      hooks_->Prepare(original_package_unload_, &Runtime::OnPackageUnload) &&
+      hooks_->Prepare(game::GetLuaSymbols().push_value, &game::PushValueDetour);
   if (!prepared || !hooks_->Install()) {
     error = hooks_->error();
     return false;
