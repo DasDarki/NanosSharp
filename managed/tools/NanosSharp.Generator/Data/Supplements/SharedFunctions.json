@@ -1,0 +1,202 @@
+{
+	"name": "SharedFunctions",
+	"description": "Documentation for native functions that nanos world does not document in any class.",
+	"functions": [
+		{
+			"authority": "both",
+			"name": "CallEvent",
+			"description": "Calls a custom event on this entity, received by Subscribe of this entity",
+			"parameters": [
+				{
+					"type": "string",
+					"name": "event_name",
+					"description": "The event name"
+				},
+				{
+					"type": "any",
+					"name": "arguments...",
+					"default": "nil",
+					"description": "Arguments passed to the subscribers"
+				}
+			]
+		},
+		{
+			"authority": "both",
+			"name": "GetAssetName",
+			"description": "Gets the asset path the entity was spawned with",
+			"return": [
+				{
+					"type": "string",
+					"description": "The asset path"
+				}
+			]
+		},
+		{
+			"authority": "both",
+			"name": "GetBoneTransform",
+			"description": "Gets the world transform of a bone, a table with location and rotation",
+			"parameters": [
+				{
+					"type": "string",
+					"name": "bone_name",
+					"description": "The bone name"
+				}
+			],
+			"return": [
+				{
+					"type": "table",
+					"description": "The transform with location and rotation"
+				}
+			]
+		},
+		{
+			"authority": "both",
+			"name": "GetInitialLocation",
+			"description": "Gets the location the entity was spawned at",
+			"return": [
+				{
+					"type": "Vector",
+					"description": "The initial location"
+				}
+			]
+		},
+		{
+			"authority": "both",
+			"name": "GetVOIPChannel",
+			"description": "Gets the voice channel of the Player",
+			"return": [
+				{
+					"type": "integer",
+					"description": "The voice channel"
+				}
+			]
+		},
+		{
+			"authority": "both",
+			"name": "GetVOIPSetting",
+			"description": "Gets the voice setting of the Player",
+			"return": [
+				{
+					"type": "VOIPSetting",
+					"description": "The voice setting"
+				}
+			]
+		},
+		{
+			"authority": "both",
+			"name": "IsGrabbable",
+			"description": "Gets whether Characters can grab the Prop",
+			"return": [
+				{
+					"type": "boolean",
+					"description": "Whether the Prop is grabbable"
+				}
+			]
+		},
+		{
+			"authority": "both",
+			"name": "IsMovementEnabled",
+			"description": "Gets whether the Character can move",
+			"return": [
+				{
+					"type": "boolean",
+					"description": "Whether movement is enabled"
+				}
+			]
+		},
+		{
+			"authority": "server",
+			"name": "RecreatePhysics",
+			"description": "Recreates the physics state of the vehicle"
+		},
+		{
+			"authority": "server",
+			"name": "Reset",
+			"description": "Restarts the Particle effect"
+		},
+		{
+			"authority": "server",
+			"name": "SetGrabbable",
+			"description": "Sets whether Characters can grab the Prop",
+			"parameters": [
+				{
+					"type": "boolean",
+					"name": "grabbable",
+					"description": "Whether the Prop is grabbable"
+				}
+			]
+		},
+		{
+			"authority": "server",
+			"name": "SetInitialLocation",
+			"description": "Sets the location the entity returns to, for example when it falls out of the world",
+			"parameters": [
+				{
+					"type": "Vector",
+					"name": "location",
+					"description": "The new initial location"
+				}
+			]
+		},
+		{
+			"authority": "server",
+			"name": "SetMovementEnabled",
+			"description": "Enables or disables the movement of the Character",
+			"parameters": [
+				{
+					"type": "boolean",
+					"name": "enabled",
+					"description": "Whether the Character can move"
+				}
+			]
+		},
+		{
+			"authority": "server",
+			"name": "SetRadius",
+			"description": "Sets the radius of a sphere Trigger",
+			"parameters": [
+				{
+					"type": "float",
+					"name": "radius",
+					"description": "The new radius"
+				}
+			]
+		},
+		{
+			"authority": "server",
+			"name": "SetVOIPChannel",
+			"description": "Sets the voice channel of the Player",
+			"parameters": [
+				{
+					"type": "integer",
+					"name": "channel",
+					"description": "The voice channel"
+				}
+			]
+		},
+		{
+			"authority": "server",
+			"name": "SetVOIPSetting",
+			"description": "Sets the voice setting of the Player",
+			"parameters": [
+				{
+					"type": "VOIPSetting",
+					"name": "setting",
+					"description": "The voice setting"
+				}
+			]
+		},
+		{
+			"authority": "server",
+			"name": "SetVOIPVolume",
+			"description": "Sets the voice volume of the Player",
+			"parameters": [
+				{
+					"type": "float",
+					"name": "volume",
+					"description": "The voice volume"
+				}
+			]
+		}
+	]
+}

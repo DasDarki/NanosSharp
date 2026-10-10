@@ -13,13 +13,13 @@ internal static class Program
         if (!options.TryGetValue("native", out var nativePath) || !options.TryGetValue("docs", out var docsDirectory) ||
             !options.TryGetValue("output", out var outputDirectory))
         {
-            Console.Error.WriteLine("usage: NanosSharp.Generator --native <api.json> --docs <api repository> --output <directory> [--report <file>] [--revision <commit>]");
+            Console.Error.WriteLine("usage: NanosSharp.Generator --native <api.json> --docs <api repository> --output <directory> [--supplements <directory>] [--report <file>] [--revision <commit>]");
             return 1;
         }
 
         var report = new GeneratorReport();
         var native = NativeDump.Load(nativePath);
-        var model = new ApiModelBuilder(native, DocsCatalog.Load(docsDirectory), report).Build();
+        var model = new ApiModelBuilder(native, DocsCatalog.Load(docsDirectory, options.GetValueOrDefault("supplements")), report).Build();
         var fileCount = OutputWriter.Write(model, outputDirectory);
 
         if (options.TryGetValue("report", out var reportPath))

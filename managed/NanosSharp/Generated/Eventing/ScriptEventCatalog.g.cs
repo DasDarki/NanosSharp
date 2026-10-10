@@ -260,6 +260,180 @@ internal static partial class ScriptEventCatalog
             Key = ScriptEventArguments.Get<string?>(arguments, 1),
             Value = ScriptEventArguments.Get<object?>(arguments, 2),
         }),
+        [typeof(CharacterGASPAttackEvent)] = new("CharacterGASP", "Attack", arguments => new CharacterGASPAttackEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            Melee = ScriptEventArguments.Get<Melee?>(arguments, 1),
+        }),
+        [typeof(CharacterGASPAttemptEnterVehicleEvent)] = new("CharacterGASP", "AttemptEnterVehicle", arguments => new CharacterGASPAttemptEnterVehicleEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            Vehicle = ScriptEventArguments.Get<Entity?>(arguments, 1),
+            SeatIndex = ScriptEventArguments.Get<int>(arguments, 2)!,
+        }),
+        [typeof(CharacterGASPAttemptLeaveVehicleEvent)] = new("CharacterGASP", "AttemptLeaveVehicle", arguments => new CharacterGASPAttemptLeaveVehicleEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            Vehicle = ScriptEventArguments.Get<Entity?>(arguments, 1),
+        }),
+        [typeof(CharacterGASPAttemptReloadEvent)] = new("CharacterGASP", "AttemptReload", arguments => new CharacterGASPAttemptReloadEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            Weapon = ScriptEventArguments.Get<Weapon?>(arguments, 1),
+        }),
+        [typeof(CharacterGASPClassRegisterEvent)] = new("CharacterGASP", "ClassRegister", arguments => new CharacterGASPClassRegisterEvent
+        {
+            Class = ScriptEventArguments.Get<object?>(arguments, 0),
+        }),
+        [typeof(CharacterGASPDeathEvent)] = new("CharacterGASP", "Death", arguments => new CharacterGASPDeathEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            LastDamageTaken = ScriptEventArguments.Get<int>(arguments, 1)!,
+            LastBoneDamaged = ScriptEventArguments.Get<string?>(arguments, 2),
+            DamageTypeReason = ScriptEventArguments.Get<DamageType>(arguments, 3)!,
+            HitFromDirection = ScriptEventArguments.Get<Vector>(arguments, 4)!,
+            Instigator = ScriptEventArguments.Get<Player?>(arguments, 5),
+            Causer = ScriptEventArguments.Get<Actor?>(arguments, 6),
+        }),
+        [typeof(CharacterGASPDestroyEvent)] = new("CharacterGASP", "Destroy", arguments => new CharacterGASPDestroyEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+        }),
+        [typeof(CharacterGASPDimensionChangeEvent)] = new("CharacterGASP", "DimensionChange", arguments => new CharacterGASPDimensionChangeEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            OldDimension = ScriptEventArguments.Get<int>(arguments, 1)!,
+            NewDimension = ScriptEventArguments.Get<int>(arguments, 2)!,
+        }),
+        [typeof(CharacterGASPDropEvent)] = new("CharacterGASP", "Drop", arguments => new CharacterGASPDropEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            Object = ScriptEventArguments.Get<Entity?>(arguments, 1),
+            TriggeredByPlayer = ScriptEventArguments.Get<bool>(arguments, 2)!,
+        }),
+        [typeof(CharacterGASPEnterVehicleEvent)] = new("CharacterGASP", "EnterVehicle", arguments => new CharacterGASPEnterVehicleEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            Vehicle = ScriptEventArguments.Get<Entity?>(arguments, 1),
+            SeatIndex = ScriptEventArguments.Get<int>(arguments, 2)!,
+        }),
+        [typeof(CharacterGASPEnterWaterEvent)] = new("CharacterGASP", "EnterWater", arguments => new CharacterGASPEnterWaterEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+        }),
+        [typeof(CharacterGASPGrabPropEvent)] = new("CharacterGASP", "GrabProp", arguments => new CharacterGASPGrabPropEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            Prop = ScriptEventArguments.Get<Prop?>(arguments, 1),
+        }),
+        [typeof(CharacterGASPHealthChangeEvent)] = new("CharacterGASP", "HealthChange", arguments => new CharacterGASPHealthChangeEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            OldHealth = ScriptEventArguments.Get<int>(arguments, 1)!,
+            NewHealth = ScriptEventArguments.Get<int>(arguments, 2)!,
+        }),
+        [typeof(CharacterGASPHighlightEvent)] = new("CharacterGASP", "Highlight", arguments => new CharacterGASPHighlightEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            IsHighlighted = ScriptEventArguments.Get<bool>(arguments, 1)!,
+            Object = ScriptEventArguments.Get<Prop?>(arguments, 2),
+        }),
+        [typeof(CharacterGASPInteractEvent)] = new("CharacterGASP", "Interact", arguments => new CharacterGASPInteractEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            Object = ScriptEventArguments.Get<Prop?>(arguments, 1),
+        }),
+        [typeof(CharacterGASPLeaveVehicleEvent)] = new("CharacterGASP", "LeaveVehicle", arguments => new CharacterGASPLeaveVehicleEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            Vehicle = ScriptEventArguments.Get<Entity?>(arguments, 1),
+            SeatIndex = ScriptEventArguments.Get<int>(arguments, 2)!,
+        }),
+        [typeof(CharacterGASPLeaveWaterEvent)] = new("CharacterGASP", "LeaveWater", arguments => new CharacterGASPLeaveWaterEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+        }),
+        [typeof(CharacterGASPMoveCompleteEvent)] = new("CharacterGASP", "MoveComplete", arguments => new CharacterGASPMoveCompleteEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            Succeeded = ScriptEventArguments.Get<bool>(arguments, 1)!,
+        }),
+        [typeof(CharacterGASPNetworkAuthorityChangeEvent)] = new("CharacterGASP", "NetworkAuthorityChange", arguments => new CharacterGASPNetworkAuthorityChangeEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            OldNetworkAuthority = ScriptEventArguments.Get<Player?>(arguments, 1),
+            NewNetworkAuthority = ScriptEventArguments.Get<Player?>(arguments, 2),
+        }),
+        [typeof(CharacterGASPPickUpEvent)] = new("CharacterGASP", "PickUp", arguments => new CharacterGASPPickUpEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            Object = ScriptEventArguments.Get<Entity?>(arguments, 1),
+        }),
+        [typeof(CharacterGASPPossessEvent)] = new("CharacterGASP", "Possess", arguments => new CharacterGASPPossessEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            Player = ScriptEventArguments.Get<Player?>(arguments, 1),
+        }),
+        [typeof(CharacterGASPPullUseEvent)] = new("CharacterGASP", "PullUse", arguments => new CharacterGASPPullUseEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            Pickable = ScriptEventArguments.Get<Entity?>(arguments, 1),
+        }),
+        [typeof(CharacterGASPPunchEvent)] = new("CharacterGASP", "Punch", arguments => new CharacterGASPPunchEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+        }),
+        [typeof(CharacterGASPRagdollModeChangeEvent)] = new("CharacterGASP", "RagdollModeChange", arguments => new CharacterGASPRagdollModeChangeEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            OldState = ScriptEventArguments.Get<bool>(arguments, 1)!,
+            NewState = ScriptEventArguments.Get<bool>(arguments, 2)!,
+        }),
+        [typeof(CharacterGASPReleaseUseEvent)] = new("CharacterGASP", "ReleaseUse", arguments => new CharacterGASPReleaseUseEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            Pickable = ScriptEventArguments.Get<Entity?>(arguments, 1),
+        }),
+        [typeof(CharacterGASPReloadEvent)] = new("CharacterGASP", "Reload", arguments => new CharacterGASPReloadEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            Weapon = ScriptEventArguments.Get<Weapon?>(arguments, 1),
+            AmmoToReload = ScriptEventArguments.Get<int>(arguments, 2)!,
+        }),
+        [typeof(CharacterGASPRespawnEvent)] = new("CharacterGASP", "Respawn", arguments => new CharacterGASPRespawnEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+        }),
+        [typeof(CharacterGASPSpawnEvent)] = new("CharacterGASP", "Spawn", arguments => new CharacterGASPSpawnEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+        }),
+        [typeof(CharacterGASPTakeDamageEvent)] = new("CharacterGASP", "TakeDamage", arguments => new CharacterGASPTakeDamageEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            Damage = ScriptEventArguments.Get<int>(arguments, 1)!,
+            Bone = ScriptEventArguments.Get<string?>(arguments, 2),
+            Type = ScriptEventArguments.Get<DamageType>(arguments, 3)!,
+            FromDirection = ScriptEventArguments.Get<Vector>(arguments, 4)!,
+            Instigator = ScriptEventArguments.Get<Player?>(arguments, 5),
+            Causer = ScriptEventArguments.Get<object?>(arguments, 6),
+        }),
+        [typeof(CharacterGASPUnGrabPropEvent)] = new("CharacterGASP", "UnGrabProp", arguments => new CharacterGASPUnGrabPropEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            Prop = ScriptEventArguments.Get<Prop?>(arguments, 1),
+        }),
+        [typeof(CharacterGASPUnPossessEvent)] = new("CharacterGASP", "UnPossess", arguments => new CharacterGASPUnPossessEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            OldPlayer = ScriptEventArguments.Get<Player?>(arguments, 1),
+        }),
+        [typeof(CharacterGASPValueChangeEvent)] = new("CharacterGASP", "ValueChange", arguments => new CharacterGASPValueChangeEvent
+        {
+            CharacterGASP = ScriptEventArguments.Get<CharacterGASP>(arguments, 0)!,
+            Key = ScriptEventArguments.Get<string?>(arguments, 1),
+            Value = ScriptEventArguments.Get<object?>(arguments, 2),
+        }),
         [typeof(CharacterSimpleClassRegisterEvent)] = new("CharacterSimple", "ClassRegister", arguments => new CharacterSimpleClassRegisterEvent
         {
             Class = ScriptEventArguments.Get<object?>(arguments, 0),
@@ -838,6 +1012,26 @@ internal static partial class ScriptEventCatalog
             Key = ScriptEventArguments.Get<string?>(arguments, 1),
             Value = ScriptEventArguments.Get<object?>(arguments, 2),
         }),
+        [typeof(TebexOfflineCommandEvent)] = new("Tebex", "OfflineCommand", arguments => new TebexOfflineCommandEvent
+        {
+            CommandId = ScriptEventArguments.Get<long>(arguments, 0)!,
+            PaymentId = ScriptEventArguments.Get<long>(arguments, 1)!,
+            PackageId = ScriptEventArguments.Get<long>(arguments, 2)!,
+            Command = ScriptEventArguments.Get<string?>(arguments, 3),
+            PlayerId = ScriptEventArguments.Get<string?>(arguments, 4),
+            PlayerName = ScriptEventArguments.Get<string?>(arguments, 5),
+            PlayerSteamId = ScriptEventArguments.Get<string?>(arguments, 6),
+        }),
+        [typeof(TebexOnlineCommandEvent)] = new("Tebex", "OnlineCommand", arguments => new TebexOnlineCommandEvent
+        {
+            CommandId = ScriptEventArguments.Get<long>(arguments, 0)!,
+            PaymentId = ScriptEventArguments.Get<long>(arguments, 1)!,
+            PackageId = ScriptEventArguments.Get<long>(arguments, 2)!,
+            Command = ScriptEventArguments.Get<string?>(arguments, 3),
+            PlayerId = ScriptEventArguments.Get<string?>(arguments, 4),
+            PlayerName = ScriptEventArguments.Get<string?>(arguments, 5),
+            PlayerSteamId = ScriptEventArguments.Get<string?>(arguments, 6),
+        }),
         [typeof(Text3DClassRegisterEvent)] = new("Text3D", "ClassRegister", arguments => new Text3DClassRegisterEvent
         {
             Class = ScriptEventArguments.Get<object?>(arguments, 0),
@@ -1273,6 +1467,15 @@ internal static partial class ScriptEventCatalog
             Weapon = ScriptEventArguments.Get<Weapon>(arguments, 0)!,
             Key = ScriptEventArguments.Get<string?>(arguments, 1),
             Value = ScriptEventArguments.Get<object?>(arguments, 2),
+        }),
+        [typeof(WebSocketCloseEvent)] = new("WebSocket", "Close", arguments => new WebSocketCloseEvent
+        {
+            WebSocket = ScriptEventArguments.Get<WebSocket>(arguments, 0)!,
+        }),
+        [typeof(WebSocketReceiveMessageEvent)] = new("WebSocket", "ReceiveMessage", arguments => new WebSocketReceiveMessageEvent
+        {
+            WebSocket = ScriptEventArguments.Get<WebSocket>(arguments, 0)!,
+            Message = ScriptEventArguments.Get<string?>(arguments, 1),
         }),
     };
 }

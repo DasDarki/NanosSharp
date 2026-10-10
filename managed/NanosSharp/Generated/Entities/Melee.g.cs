@@ -135,20 +135,26 @@ public partial class Melee : Actor, IPaintable, IPickable
     private static readonly MethodSlot AddAnimationCharacterUseSlot = new("AddAnimationCharacterUse");
     private static readonly MethodSlot AddSkeletalMeshAttachedSlot = new("AddSkeletalMeshAttached");
     private static readonly MethodSlot AddStaticMeshAttachedSlot = new("AddStaticMeshAttached");
+    private static readonly MethodSlot CallEventSlot = new("CallEvent");
     private static readonly MethodSlot ClearAnimationsCharacterUseSlot = new("ClearAnimationsCharacterUse");
     private static readonly MethodSlot GetAllSkeletalMeshAttachedSlot = new("GetAllSkeletalMeshAttached");
     private static readonly MethodSlot GetAllStaticMeshAttachedSlot = new("GetAllStaticMeshAttached");
     private static readonly MethodSlot GetAnimationsCharacterUseSlot = new("GetAnimationsCharacterUse");
+    private static readonly MethodSlot GetAssetNameSlot = new("GetAssetName");
     private static readonly MethodSlot GetBaseDamageSlot = new("GetBaseDamage");
+    private static readonly MethodSlot GetBoneTransformSlot = new("GetBoneTransform");
     private static readonly MethodSlot GetCooldownSlot = new("GetCooldown");
     private static readonly MethodSlot GetHandlerSlot = new("GetHandler");
     private static readonly MethodSlot GetHandlingModeSlot = new("GetHandlingMode");
+    private static readonly MethodSlot GetInitialLocationSlot = new("GetInitialLocation");
     private static readonly MethodSlot GetMaterialColorParameterSlot = new("GetMaterialColorParameter");
     private static readonly MethodSlot GetMaterialScalarParameterSlot = new("GetMaterialScalarParameter");
     private static readonly MethodSlot GetMaterialTextureParameterSlot = new("GetMaterialTextureParameter");
     private static readonly MethodSlot GetMaterialVectorParameterSlot = new("GetMaterialVectorParameter");
     private static readonly MethodSlot GetMeshSlot = new("GetMesh");
     private static readonly MethodSlot GetSoundUseSlot = new("GetSoundUse");
+    private static readonly MethodSlot HideBoneSlot = new("HideBone");
+    private static readonly MethodSlot IsBoneHiddenSlot = new("IsBoneHidden");
     private static readonly MethodSlot PullUseSlot = new("PullUse");
     private static readonly MethodSlot ReleaseUseSlot = new("ReleaseUse");
     private static readonly MethodSlot RemoveAllSkeletalMeshesAttachedSlot = new("RemoveAllSkeletalMeshesAttached");
@@ -165,6 +171,7 @@ public partial class Melee : Actor, IPaintable, IPickable
     private static readonly MethodSlot SetCrosshairMaterialSlot = new("SetCrosshairMaterial");
     private static readonly MethodSlot SetDamageSettingsSlot = new("SetDamageSettings");
     private static readonly MethodSlot SetImpactSoundSlot = new("SetImpactSound");
+    private static readonly MethodSlot SetInitialLocationSlot = new("SetInitialLocation");
     private static readonly MethodSlot SetMaterialSlot = new("SetMaterial");
     private static readonly MethodSlot SetMaterialColorParameterSlot = new("SetMaterialColorParameter");
     private static readonly MethodSlot SetMaterialScalarParameterSlot = new("SetMaterialScalarParameter");
@@ -174,6 +181,7 @@ public partial class Melee : Actor, IPaintable, IPickable
     private static readonly MethodSlot SetPickableSlot = new("SetPickable");
     private static readonly MethodSlot SetSoundUseSlot = new("SetSoundUse");
     private static readonly MethodSlot SetStaticMeshAttachedTransformSlot = new("SetStaticMeshAttachedTransform");
+    private static readonly MethodSlot UnHideBoneSlot = new("UnHideBone");
 
     /// <summary>Gets all Skeletal Meshes attached to this entity</summary>
     public IReadOnlyDictionary<string, string> AllSkeletalMeshAttached => GetAllSkeletalMeshAttached();
@@ -183,6 +191,9 @@ public partial class Melee : Actor, IPaintable, IPickable
 
     /// <summary>Gets the Animations when Character uses it</summary>
     public IReadOnlyList<string> AnimationsCharacterUse => GetAnimationsCharacterUse();
+
+    /// <summary>Gets the asset path the entity was spawned with</summary>
+    public string AssetName => GetAssetName();
 
     /// <summary>Gets the Base Damage</summary>
     public uint BaseDamage
@@ -203,6 +214,13 @@ public partial class Melee : Actor, IPaintable, IPickable
 
     /// <summary>Gets the Handling Mode of this Pickable</summary>
     public HandlingMode HandlingMode => GetHandlingMode();
+
+    /// <summary>Gets the location the entity was spawned at</summary>
+    public Vector InitialLocation
+    {
+        get => GetInitialLocation();
+        set => SetInitialLocation(value);
+    }
 
     /// <summary>Gets the name of the asset this Pickable uses</summary>
     public string Mesh => GetMesh();
@@ -264,6 +282,10 @@ public partial class Melee : Actor, IPaintable, IPickable
         string? attachableId = null) =>
         Call(AddStaticMeshAttachedSlot, 2, id, staticMeshPath, socket, relativeLocation, relativeRotation, useParentBounds, attachableId);
 
+    /// <summary>Calls a custom event on this entity, received by Subscribe of this entity</summary>
+    public void CallEvent(string eventName, params object?[] arguments) =>
+        InvokeVariadic(CallEventSlot, [eventName], arguments);
+
     /// <summary>Clears the Character Attack Animation list</summary>
     public void ClearAnimationsCharacterUse() => Call(ClearAnimationsCharacterUseSlot, 0);
 
@@ -279,8 +301,15 @@ public partial class Melee : Actor, IPaintable, IPickable
     public IReadOnlyList<string> GetAnimationsCharacterUse() =>
         CallResult<IReadOnlyList<string>>(GetAnimationsCharacterUseSlot, 0)!;
 
+    /// <summary>Gets the asset path the entity was spawned with</summary>
+    public string GetAssetName() => CallResult<string>(GetAssetNameSlot, 0)!;
+
     /// <summary>Gets the Base Damage</summary>
     public uint GetBaseDamage() => CallResult<uint>(GetBaseDamageSlot, 0)!;
+
+    /// <summary>Gets the world transform of a bone, a table with location and rotation</summary>
+    public IReadOnlyDictionary<string, object?> GetBoneTransform(string boneName) =>
+        CallResult<IReadOnlyDictionary<string, object?>, string>(GetBoneTransformSlot, 1, boneName)!;
 
     /// <summary>Gets the Cooldown between usages</summary>
     public float GetCooldown() => CallResult<float>(GetCooldownSlot, 0)!;
@@ -290,6 +319,9 @@ public partial class Melee : Actor, IPaintable, IPickable
 
     /// <summary>Gets the Handling Mode of this Pickable</summary>
     public HandlingMode GetHandlingMode() => CallResult<HandlingMode>(GetHandlingModeSlot, 0)!;
+
+    /// <summary>Gets the location the entity was spawned at</summary>
+    public Vector GetInitialLocation() => CallResult<Vector>(GetInitialLocationSlot, 0)!;
 
     /// <summary>Gets a Color parameter from this Actor's material</summary>
     public Color? GetMaterialColorParameter(string parameterName, int? index = null, string? attachableId = null) =>
@@ -312,6 +344,12 @@ public partial class Melee : Actor, IPaintable, IPickable
 
     /// <summary>Gets the Sound when Character uses it</summary>
     public string GetSoundUse() => CallResult<string>(GetSoundUseSlot, 0)!;
+
+    /// <summary>Hides a bone of this Pawn</summary>
+    public void HideBone(string boneName) => Call(HideBoneSlot, 1, boneName);
+
+    /// <summary>Gets if a bone is hidden</summary>
+    public bool IsBoneHidden(string boneName) => CallResult<bool, string>(IsBoneHiddenSlot, 1, boneName)!;
 
     /// <summary>Pulls the usage of this Pickable (will start firing if this is a weapon)</summary>
     public void PullUse(float? releaseUseAfter = null) => Call(PullUseSlot, 0, releaseUseAfter);
@@ -374,6 +412,9 @@ public partial class Melee : Actor, IPaintable, IPickable
     public void SetImpactSound(SurfaceType surfaceType, string assetPath, float? volume = null, float? pitch = null) =>
         Call(SetImpactSoundSlot, 2, surfaceType, assetPath, volume, pitch);
 
+    /// <summary>Sets the location the entity returns to, for example when it falls out of the world</summary>
+    public void SetInitialLocation(Vector location) => Call(SetInitialLocationSlot, 1, location);
+
     /// <summary>Sets the material at the specified index of this Actor</summary>
     public void SetMaterial(string materialPath, int? index = null, string? attachableId = null) =>
         Call(SetMaterialSlot, 1, materialPath, index, attachableId);
@@ -424,6 +465,9 @@ public partial class Melee : Actor, IPaintable, IPickable
     /// <summary>Sets a Static Mesh Attached location and rotation</summary>
     public void SetStaticMeshAttachedTransform(string id, Vector relativeLocation, Rotator relativeRotation) =>
         Call(SetStaticMeshAttachedTransformSlot, 3, id, relativeLocation, relativeRotation);
+
+    /// <summary>Unhides a bone of this Pawn</summary>
+    public void UnHideBone(string boneName) => Call(UnHideBoneSlot, 1, boneName);
 
     /// <summary>Subscribes to the Attack event of this entity only.</summary>
     public ScriptSubscription SubscribeAttack(AttackHandler handler) => Subscribe("Attack", handler);

@@ -7,10 +7,13 @@ internal sealed class DocsTypeMapper(
     IReadOnlySet<string> enumNames,
     IReadOnlyDictionary<string, string> renamedTypes)
 {
+    private const string TablePrefix = "table<";
+
     private static readonly Dictionary<string, string> PrimitiveTypes = new(StringComparer.Ordinal)
     {
         ["boolean"] = "bool",
         ["integer"] = "int",
+        ["integer64"] = "long",
         ["float"] = "float",
         ["number"] = "double",
         ["string"] = "string",
@@ -29,6 +32,12 @@ internal sealed class DocsTypeMapper(
         if (type.EndsWith("[]", StringComparison.Ordinal))
         {
             return new CSharpType($"IEnumerable<{Map(type[..^2])}>");
+        }
+
+        if (type.StartsWith(TablePrefix, StringComparison.Ordinal) && type.EndsWith('>'))
+        {
+            var arguments = type[TablePrefix.Length..^1].Split(',', 2);
+            return new CSharpType($"IDictionary<{Map(arguments[0]).Name}, {Map(arguments[1]).Name}>?");
         }
 
         if (type == "function")

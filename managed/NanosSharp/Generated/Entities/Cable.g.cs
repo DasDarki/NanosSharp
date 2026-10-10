@@ -78,6 +78,7 @@ public partial class Cable : Actor, IPaintable
     private static readonly ClassEvent<ValueChangeHandler> ValueChangeEvent = new("Cable", "ValueChange");
     private static readonly MethodSlot AttachEndToSlot = new("AttachEndTo");
     private static readonly MethodSlot AttachStartToSlot = new("AttachStartTo");
+    private static readonly MethodSlot CallEventSlot = new("CallEvent");
     private static readonly MethodSlot DetachEndSlot = new("DetachEnd");
     private static readonly MethodSlot DetachStartSlot = new("DetachStart");
     private static readonly MethodSlot GetAttachedEndToSlot = new("GetAttachedEndTo");
@@ -133,6 +134,10 @@ public partial class Cable : Actor, IPaintable
     /// <summary>Attaches the beginning of this cable to another Actor at a specific bone or relative location</summary>
     public bool AttachStartTo(Entity other, Vector? relativeLocation = null, string? boneName = null) =>
         CallResult<bool, Entity, Vector?, string?>(AttachStartToSlot, 1, other, relativeLocation, boneName)!;
+
+    /// <summary>Calls a custom event on this entity, received by Subscribe of this entity</summary>
+    public void CallEvent(string eventName, params object?[] arguments) =>
+        InvokeVariadic(CallEventSlot, [eventName], arguments);
 
     /// <summary>Detaches the End of this Cable</summary>
     public void DetachEnd() => Call(DetachEndSlot, 0);

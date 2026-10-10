@@ -1,0 +1,46 @@
+{
+	"name": "Tebex",
+	"description": "Tebex store integration, configured in the server Config.toml.",
+	"authority": "server",
+	"static_functions": [
+		{
+			"authority": "server",
+			"name": "OpenCheckoutOverlay",
+			"description": "Opens the Tebex checkout for a package on the client of a player",
+			"parameters": [
+				{ "type": "Player", "name": "player", "description": "The player that buys the package" },
+				{ "type": "integer", "name": "package_id", "description": "The Tebex package identifier" }
+			]
+		}
+	],
+	"events": [
+		{
+			"name": "OnlineCommand",
+			"authority": "server",
+			"description": "Triggered for a queued Tebex command of a connected player",
+			"arguments": [
+				{ "name": "command_id", "type": "integer64", "description": "The Tebex command identifier" },
+				{ "name": "payment_id", "type": "integer64", "description": "The Tebex payment identifier" },
+				{ "name": "package_id", "type": "integer64", "description": "The Tebex package identifier" },
+				{ "name": "command", "type": "string", "description": "The command configured in Tebex" },
+				{ "name": "player_id", "type": "string", "description": "The Tebex player identifier" },
+				{ "name": "player_name", "type": "string", "description": "The player name" },
+				{ "name": "player_steam_id", "type": "string", "description": "The Steam ID of the player" }
+			]
+		},
+		{
+			"name": "OfflineCommand",
+			"authority": "server",
+			"description": "Triggered for a queued Tebex command that does not require the player to be online",
+			"arguments": [
+				{ "name": "command_id", "type": "integer64", "description": "The Tebex command identifier" },
+				{ "name": "payment_id", "type": "integer64", "description": "The Tebex payment identifier" },
+				{ "name": "package_id", "type": "integer64", "description": "The Tebex package identifier" },
+				{ "name": "command", "type": "string", "description": "The command configured in Tebex" },
+				{ "name": "player_id", "type": "string", "description": "The Tebex player identifier" },
+				{ "name": "player_name", "type": "string", "description": "The player name" },
+				{ "name": "player_steam_id", "type": "string", "description": "The Steam ID of the player" }
+			]
+		}
+	]
+}

@@ -137,10 +137,12 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
     private static readonly MethodSlot ApplyDamageSlot = new("ApplyDamage");
     private static readonly MethodSlot BindAnimationBlueprintEventDispatcherSlot = new("BindAnimationBlueprintEventDispatcher");
     private static readonly MethodSlot CallAnimationBlueprintEventSlot = new("CallAnimationBlueprintEvent");
+    private static readonly MethodSlot CallEventSlot = new("CallEvent");
     private static readonly MethodSlot FollowSlot = new("Follow");
     private static readonly MethodSlot GetAllSkeletalMeshAttachedSlot = new("GetAllSkeletalMeshAttached");
     private static readonly MethodSlot GetAllStaticMeshAttachedSlot = new("GetAllStaticMeshAttached");
     private static readonly MethodSlot GetAnimationBlueprintPropertyValueSlot = new("GetAnimationBlueprintPropertyValue");
+    private static readonly MethodSlot GetBoneTransformSlot = new("GetBoneTransform");
     private static readonly MethodSlot GetCanCrouchSlot = new("GetCanCrouch");
     private static readonly MethodSlot GetCanJumpSlot = new("GetCanJump");
     private static readonly MethodSlot GetCapsuleSizeSlot = new("GetCapsuleSize");
@@ -149,6 +151,7 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
     private static readonly MethodSlot GetFlyingModeSlot = new("GetFlyingMode");
     private static readonly MethodSlot GetGravityScaleSlot = new("GetGravityScale");
     private static readonly MethodSlot GetHealthSlot = new("GetHealth");
+    private static readonly MethodSlot GetInitialLocationSlot = new("GetInitialLocation");
     private static readonly MethodSlot GetJumpZVelocitySlot = new("GetJumpZVelocity");
     private static readonly MethodSlot GetMaterialColorParameterSlot = new("GetMaterialColorParameter");
     private static readonly MethodSlot GetMaterialScalarParameterSlot = new("GetMaterialScalarParameter");
@@ -158,10 +161,13 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
     private static readonly MethodSlot GetMeshSlot = new("GetMesh");
     private static readonly MethodSlot GetMovingToSlot = new("GetMovingTo");
     private static readonly MethodSlot GetPlayerSlot = new("GetPlayer");
+    private static readonly MethodSlot GetRadialDamageToRagdollSlot = new("GetRadialDamageToRagdoll");
+    private static readonly MethodSlot GetTeamSlot = new("GetTeam");
     private static readonly MethodSlot HideBoneSlot = new("HideBone");
     private static readonly MethodSlot IsBoneHiddenSlot = new("IsBoneHidden");
     private static readonly MethodSlot IsCrouchingSlot = new("IsCrouching");
     private static readonly MethodSlot IsDeadSlot = new("IsDead");
+    private static readonly MethodSlot IsInvulnerableSlot = new("IsInvulnerable");
     private static readonly MethodSlot JumpSlot = new("Jump");
     private static readonly MethodSlot MoveToSlot = new("MoveTo");
     private static readonly MethodSlot PlayAnimationSlot = new("PlayAnimation");
@@ -186,6 +192,8 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
     private static readonly MethodSlot SetGravityScaleSlot = new("SetGravityScale");
     private static readonly MethodSlot SetHealthSlot = new("SetHealth");
     private static readonly MethodSlot SetHitReactionEnabledSlot = new("SetHitReactionEnabled");
+    private static readonly MethodSlot SetInitialLocationSlot = new("SetInitialLocation");
+    private static readonly MethodSlot SetInvulnerableSlot = new("SetInvulnerable");
     private static readonly MethodSlot SetJumpZVelocitySlot = new("SetJumpZVelocity");
     private static readonly MethodSlot SetMaterialSlot = new("SetMaterial");
     private static readonly MethodSlot SetMaterialColorParameterSlot = new("SetMaterialColorParameter");
@@ -199,7 +207,9 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
     private static readonly MethodSlot SetPawnSettingsSlot = new("SetPawnSettings");
     private static readonly MethodSlot SetPhysicalMaterialSlot = new("SetPhysicalMaterial");
     private static readonly MethodSlot SetPhysicsAssetSlot = new("SetPhysicsAsset");
+    private static readonly MethodSlot SetRadialDamageToRagdollSlot = new("SetRadialDamageToRagdoll");
     private static readonly MethodSlot SetRagdollOnDeathEnabledSlot = new("SetRagdollOnDeathEnabled");
+    private static readonly MethodSlot SetRagdollStandUpCooldownSlot = new("SetRagdollStandUpCooldown");
     private static readonly MethodSlot SetRotationSettingsSlot = new("SetRotationSettings");
     private static readonly MethodSlot SetSpeedSettingsSlot = new("SetSpeedSettings");
     private static readonly MethodSlot SetSpringArmSettingsSlot = new("SetSpringArmSettings");
@@ -260,6 +270,13 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
         set => SetHealth(value);
     }
 
+    /// <summary>Gets the location the entity was spawned at</summary>
+    public Vector InitialLocation
+    {
+        get => GetInitialLocation();
+        set => SetInitialLocation(value);
+    }
+
     /// <summary>Gets the initial vertical velocity when jumping, which defines the jump height</summary>
     public ushort JumpZVelocity
     {
@@ -287,6 +304,16 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
     /// <summary>Gets the possessing Player</summary>
     public Player? Player => GetPlayer();
 
+    /// <summary>Gets the minimum radial damage (e.g. explosions) taken to enter in ragdoll mode</summary>
+    public short RadialDamageToRagdoll
+    {
+        get => GetRadialDamageToRagdoll();
+        set => SetRadialDamageToRagdoll(value);
+    }
+
+    /// <summary>Gets the Team of this Character</summary>
+    public uint Team => GetTeam();
+
     /// <summary>Gets if this Character is crouching</summary>
     public bool Crouching
     {
@@ -296,6 +323,13 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
 
     /// <summary>Returns if the entity is dead</summary>
     public bool Dead => IsDead();
+
+    /// <summary>Gets if this Character is invulnerable</summary>
+    public bool Invulnerable
+    {
+        get => IsInvulnerable();
+        set => SetInvulnerable(value);
+    }
 
     /// <summary>Spawns a new CharacterSimple.</summary>
     public CharacterSimple(
@@ -356,6 +390,10 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
     public object?[] CallAnimationBlueprintEvent(string eventName, params object?[] arguments) =>
         InvokeVariadic<object?[]>(CallAnimationBlueprintEventSlot, [eventName], arguments)!;
 
+    /// <summary>Calls a custom event on this entity, received by Subscribe of this entity</summary>
+    public void CallEvent(string eventName, params object?[] arguments) =>
+        InvokeVariadic(CallEventSlot, [eventName], arguments);
+
     /// <summary>AI: Makes this Pawn follow another actor</summary>
     public void Follow(
         Entity actor,
@@ -376,6 +414,10 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
     /// <summary>Gets an Animation Blueprint Property/Variable value directly</summary>
     public object? GetAnimationBlueprintPropertyValue(string propertyName) =>
         CallResult<object?, string>(GetAnimationBlueprintPropertyValueSlot, 1, propertyName);
+
+    /// <summary>Gets the world transform of a bone, a table with location and rotation</summary>
+    public IReadOnlyDictionary<string, object?> GetBoneTransform(string boneName) =>
+        CallResult<IReadOnlyDictionary<string, object?>, string>(GetBoneTransformSlot, 1, boneName)!;
 
     /// <summary>Gets if this Pawn is allowed to Crouch</summary>
     public bool GetCanCrouch() => CallResult<bool>(GetCanCrouchSlot, 0)!;
@@ -402,6 +444,9 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
 
     /// <summary>Gets the current health</summary>
     public uint GetHealth() => CallResult<uint>(GetHealthSlot, 0)!;
+
+    /// <summary>Gets the location the entity was spawned at</summary>
+    public Vector GetInitialLocation() => CallResult<Vector>(GetInitialLocationSlot, 0)!;
 
     /// <summary>Gets the initial vertical velocity when jumping, which defines the jump height</summary>
     public ushort GetJumpZVelocity() => CallResult<ushort>(GetJumpZVelocitySlot, 0)!;
@@ -434,6 +479,12 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
     /// <summary>Gets the possessing Player</summary>
     public Player? GetPlayer() => CallResult<Player?>(GetPlayerSlot, 0);
 
+    /// <summary>Gets the minimum radial damage (e.g. explosions) taken to enter in ragdoll mode</summary>
+    public short GetRadialDamageToRagdoll() => CallResult<short>(GetRadialDamageToRagdollSlot, 0)!;
+
+    /// <summary>Gets the Team of this Character</summary>
+    public uint GetTeam() => CallResult<uint>(GetTeamSlot, 0)!;
+
     /// <summary>Hides a bone of this Pawn</summary>
     public void HideBone(string boneName) => Call(HideBoneSlot, 1, boneName);
 
@@ -445,6 +496,9 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
 
     /// <summary>Returns if the entity is dead</summary>
     public bool IsDead() => CallResult<bool>(IsDeadSlot, 0)!;
+
+    /// <summary>Gets if this Character is invulnerable</summary>
+    public bool IsInvulnerable() => CallResult<bool>(IsInvulnerableSlot, 0)!;
 
     /// <summary>Triggers this Pawn to jump</summary>
     public void Jump() => Call(JumpSlot, 0);
@@ -544,6 +598,12 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
     /// <summary>Sets if the character will react to damage by applying small dynamic ragdoll effect to local bones damaged</summary>
     public void SetHitReactionEnabled(bool isEnabled) => Call(SetHitReactionEnabledSlot, 1, isEnabled);
 
+    /// <summary>Sets the location the entity returns to, for example when it falls out of the world</summary>
+    public void SetInitialLocation(Vector location) => Call(SetInitialLocationSlot, 1, location);
+
+    /// <summary>Sets if the Character can receive any damage</summary>
+    public void SetInvulnerable(bool isInvulnerable) => Call(SetInvulnerableSlot, 1, isInvulnerable);
+
     /// <summary>Sets the velocity of the jump</summary>
     public void SetJumpZVelocity(ushort jumpZVelocity) => Call(SetJumpZVelocitySlot, 1, jumpZVelocity);
 
@@ -613,8 +673,14 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
     /// <summary>Sets the Physics Asset for the Character</summary>
     public void SetPhysicsAsset(string physicsAsset) => Call(SetPhysicsAssetSlot, 1, physicsAsset);
 
+    /// <summary>Set the minimum radial damage (e.g. explosions) taken to enter in ragdoll mode</summary>
+    public void SetRadialDamageToRagdoll(short damage) => Call(SetRadialDamageToRagdollSlot, 1, damage);
+
     /// <summary>Sets if the character will enter ragdoll mode when it dies. You can set it to false to apply custom Death animations</summary>
     public void SetRagdollOnDeathEnabled(bool isEnabled) => Call(SetRagdollOnDeathEnabledSlot, 1, isEnabled);
+
+    /// <summary>Sets the cooldown time (in seconds) before this Character can stand up from ragdoll</summary>
+    public void SetRagdollStandUpCooldown(float time) => Call(SetRagdollStandUpCooldownSlot, 1, time);
 
     /// <summary>Sets the Rotation Settings of this Character</summary>
     public void SetRotationSettings(

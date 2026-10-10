@@ -176,6 +176,17 @@ xmake generate    # combine it with github.com/nanos-world/api at the pinned rev
 Native signatures decide types and availability, the API definitions provide names, documentation, events and enums.
 The output is deterministic, `build/generator/report.md` lists everything that could not be mapped.
 
+Classes and functions nanos world does not document, like `HTTPServer`, `WebSocket`, `Tebex` and `CharacterGASP`, are
+described in `managed/tools/NanosSharp.Generator/Data/Supplements` in the same format. Their events and callback
+parameters were taken from the server binary and verified by tests where possible. A function that is only documented in
+another class borrows that documentation when the parameter count matches.
+
+Routes of the built in HTTP server need `--enable_http_server` and are served below `/scripting`:
+
+```csharp
+using var route = HTTPServer.Route(HTTPMethod.GET, "/status", request => HttpServerResponse.Json("{\"online\":true}"));
+```
+
 ## Performance
 
 `xmake test -d benchmarks` runs the same operations from C# and Lua inside the server, measured after a warmup of

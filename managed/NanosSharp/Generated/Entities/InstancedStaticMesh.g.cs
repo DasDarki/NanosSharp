@@ -78,7 +78,10 @@ public partial class InstancedStaticMesh : Actor, IPaintable
     private static readonly ClassEvent<ValueChangeHandler> ValueChangeEvent = new("InstancedStaticMesh", "ValueChange");
     private static readonly MethodSlot AddInstanceSlot = new("AddInstance");
     private static readonly MethodSlot AddInstancesSlot = new("AddInstances");
+    private static readonly MethodSlot CallEventSlot = new("CallEvent");
     private static readonly MethodSlot ClearInstancesSlot = new("ClearInstances");
+    private static readonly MethodSlot GetBoneTransformSlot = new("GetBoneTransform");
+    private static readonly MethodSlot GetInitialLocationSlot = new("GetInitialLocation");
     private static readonly MethodSlot GetInstanceCountSlot = new("GetInstanceCount");
     private static readonly MethodSlot GetInstanceTransformSlot = new("GetInstanceTransform");
     private static readonly MethodSlot GetMaterialColorParameterSlot = new("GetMaterialColorParameter");
@@ -88,6 +91,7 @@ public partial class InstancedStaticMesh : Actor, IPaintable
     private static readonly MethodSlot GetMeshSlot = new("GetMesh");
     private static readonly MethodSlot RemoveInstanceSlot = new("RemoveInstance");
     private static readonly MethodSlot ResetMaterialSlot = new("ResetMaterial");
+    private static readonly MethodSlot SetInitialLocationSlot = new("SetInitialLocation");
     private static readonly MethodSlot SetInstanceTransformSlot = new("SetInstanceTransform");
     private static readonly MethodSlot SetMaterialSlot = new("SetMaterial");
     private static readonly MethodSlot SetMaterialColorParameterSlot = new("SetMaterialColorParameter");
@@ -95,6 +99,13 @@ public partial class InstancedStaticMesh : Actor, IPaintable
     private static readonly MethodSlot SetMaterialTextureParameterSlot = new("SetMaterialTextureParameter");
     private static readonly MethodSlot SetMaterialVectorParameterSlot = new("SetMaterialVectorParameter");
     private static readonly MethodSlot SetPhysicalMaterialSlot = new("SetPhysicalMaterial");
+
+    /// <summary>Gets the location the entity was spawned at</summary>
+    public Vector InitialLocation
+    {
+        get => GetInitialLocation();
+        set => SetInitialLocation(value);
+    }
 
     /// <summary>Returns the number of instances currently stored</summary>
     public ulong InstanceCount => GetInstanceCount();
@@ -126,8 +137,19 @@ public partial class InstancedStaticMesh : Actor, IPaintable
     public void AddInstances(IEnumerable<IDictionary<string, object?>> instances) =>
         Call(AddInstancesSlot, 1, instances);
 
+    /// <summary>Calls a custom event on this entity, received by Subscribe of this entity</summary>
+    public void CallEvent(string eventName, params object?[] arguments) =>
+        InvokeVariadic(CallEventSlot, [eventName], arguments);
+
     /// <summary>Removes all instances.</summary>
     public void ClearInstances() => Call(ClearInstancesSlot, 0);
+
+    /// <summary>Gets the world transform of a bone, a table with location and rotation</summary>
+    public IReadOnlyDictionary<string, object?> GetBoneTransform(string boneName) =>
+        CallResult<IReadOnlyDictionary<string, object?>, string>(GetBoneTransformSlot, 1, boneName)!;
+
+    /// <summary>Gets the location the entity was spawned at</summary>
+    public Vector GetInitialLocation() => CallResult<Vector>(GetInitialLocationSlot, 0)!;
 
     /// <summary>Returns the number of instances currently stored</summary>
     public ulong GetInstanceCount() => CallResult<ulong>(GetInstanceCountSlot, 0)!;
@@ -161,6 +183,9 @@ public partial class InstancedStaticMesh : Actor, IPaintable
     /// <summary>Resets the material from the specified index to the original one</summary>
     public void ResetMaterial(int? index = null, string? attachableId = null) =>
         Call(ResetMaterialSlot, 0, index, attachableId);
+
+    /// <summary>Sets the location the entity returns to, for example when it falls out of the world</summary>
+    public void SetInitialLocation(Vector location) => Call(SetInitialLocationSlot, 1, location);
 
     /// <summary>Changes the transform of an existing instance. You can pass all other parameters as nil to modify only a single property</summary>
     public void SetInstanceTransform(

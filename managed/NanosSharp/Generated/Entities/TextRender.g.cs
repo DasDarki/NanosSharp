@@ -76,12 +76,16 @@ public partial class TextRender : Actor
     private static readonly ClassEvent<NetworkAuthorityChangeHandler> NetworkAuthorityChangeEvent = new("TextRender", "NetworkAuthorityChange");
     private static readonly ClassEvent<SpawnHandler> SpawnEvent = new("TextRender", "Spawn");
     private static readonly ClassEvent<ValueChangeHandler> ValueChangeEvent = new("TextRender", "ValueChange");
+    private static readonly MethodSlot CallEventSlot = new("CallEvent");
+    private static readonly MethodSlot GetBoneTransformSlot = new("GetBoneTransform");
     private static readonly MethodSlot GetColorSlot = new("GetColor");
+    private static readonly MethodSlot GetInitialLocationSlot = new("GetInitialLocation");
     private static readonly MethodSlot GetTextSlot = new("GetText");
     private static readonly MethodSlot GetWordSizeSlot = new("GetWordSize");
     private static readonly MethodSlot SetAlignmentSlot = new("SetAlignment");
     private static readonly MethodSlot SetColorSlot = new("SetColor");
     private static readonly MethodSlot SetFontSlot = new("SetFont");
+    private static readonly MethodSlot SetInitialLocationSlot = new("SetInitialLocation");
     private static readonly MethodSlot SetSpacingAdjustSlot = new("SetSpacingAdjust");
     private static readonly MethodSlot SetTextSlot = new("SetText");
     private static readonly MethodSlot SetWordSizeSlot = new("SetWordSize");
@@ -91,6 +95,13 @@ public partial class TextRender : Actor
     {
         get => GetColor();
         set => SetColor(value);
+    }
+
+    /// <summary>Gets the location the entity was spawned at</summary>
+    public Vector InitialLocation
+    {
+        get => GetInitialLocation();
+        set => SetInitialLocation(value);
     }
 
     /// <summary>Gets the current Text</summary>
@@ -127,8 +138,19 @@ public partial class TextRender : Actor
     {
     }
 
+    /// <summary>Calls a custom event on this entity, received by Subscribe of this entity</summary>
+    public void CallEvent(string eventName, params object?[] arguments) =>
+        InvokeVariadic(CallEventSlot, [eventName], arguments);
+
+    /// <summary>Gets the world transform of a bone, a table with location and rotation</summary>
+    public IReadOnlyDictionary<string, object?> GetBoneTransform(string boneName) =>
+        CallResult<IReadOnlyDictionary<string, object?>, string>(GetBoneTransformSlot, 1, boneName)!;
+
     /// <summary>Gets the current Text Color</summary>
     public Color GetColor() => CallResult<Color>(GetColorSlot, 0)!;
+
+    /// <summary>Gets the location the entity was spawned at</summary>
+    public Vector GetInitialLocation() => CallResult<Vector>(GetInitialLocationSlot, 0)!;
 
     /// <summary>Gets the current Text</summary>
     public string GetText() => CallResult<string>(GetTextSlot, 0)!;
@@ -147,6 +169,9 @@ public partial class TextRender : Actor
 
     /// <summary>Sets the Font. The font must be pre-cooked as an offline cached, distance field font.</summary>
     public void SetFont(string fontAsset) => Call(SetFontSlot, 1, fontAsset);
+
+    /// <summary>Sets the location the entity returns to, for example when it falls out of the world</summary>
+    public void SetInitialLocation(Vector location) => Call(SetInitialLocationSlot, 1, location);
 
     /// <summary>Sets the horizontal and vertical spacing adjust values</summary>
     public void SetSpacingAdjust(float horizontalSpacing, float verticalSpacing) =>

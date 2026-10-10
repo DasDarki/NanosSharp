@@ -92,10 +92,22 @@ public partial class Trigger : Actor
     private static readonly ClassEvent<NetworkAuthorityChangeHandler> NetworkAuthorityChangeEvent = new("Trigger", "NetworkAuthorityChange");
     private static readonly ClassEvent<SpawnHandler> SpawnEvent = new("Trigger", "Spawn");
     private static readonly ClassEvent<ValueChangeHandler> ValueChangeEvent = new("Trigger", "ValueChange");
+    private static readonly MethodSlot CallEventSlot = new("CallEvent");
     private static readonly MethodSlot ForceOverlapCheckingSlot = new("ForceOverlapChecking");
+    private static readonly MethodSlot GetBoneTransformSlot = new("GetBoneTransform");
+    private static readonly MethodSlot GetInitialLocationSlot = new("GetInitialLocation");
     private static readonly MethodSlot SetColorSlot = new("SetColor");
     private static readonly MethodSlot SetExtentSlot = new("SetExtent");
+    private static readonly MethodSlot SetInitialLocationSlot = new("SetInitialLocation");
     private static readonly MethodSlot SetOverlapOnlyClassesSlot = new("SetOverlapOnlyClasses");
+    private static readonly MethodSlot SetRadiusSlot = new("SetRadius");
+
+    /// <summary>Gets the location the entity was spawned at</summary>
+    public Vector InitialLocation
+    {
+        get => GetInitialLocation();
+        set => SetInitialLocation(value);
+    }
 
     /// <summary>Spawns a new Trigger.</summary>
     public Trigger(
@@ -114,8 +126,19 @@ public partial class Trigger : Actor
     {
     }
 
+    /// <summary>Calls a custom event on this entity, received by Subscribe of this entity</summary>
+    public void CallEvent(string eventName, params object?[] arguments) =>
+        InvokeVariadic(CallEventSlot, [eventName], arguments);
+
     /// <summary>Forces an Overlap check to occur, will immediately trigger overlaps</summary>
     public void ForceOverlapChecking() => Call(ForceOverlapCheckingSlot, 0);
+
+    /// <summary>Gets the world transform of a bone, a table with location and rotation</summary>
+    public IReadOnlyDictionary<string, object?> GetBoneTransform(string boneName) =>
+        CallResult<IReadOnlyDictionary<string, object?>, string>(GetBoneTransformSlot, 1, boneName)!;
+
+    /// <summary>Gets the location the entity was spawned at</summary>
+    public Vector GetInitialLocation() => CallResult<Vector>(GetInitialLocationSlot, 0)!;
 
     /// <summary>Sets the Trigger color (if visible)</summary>
     public void SetColor(Color color) => Call(SetColorSlot, 1, color);
@@ -123,9 +146,15 @@ public partial class Trigger : Actor
     /// <summary>Sets the extent size of this trigger (sphere triggers can receive as float for radius)</summary>
     public void SetExtent(Vector extent) => Call(SetExtentSlot, 1, extent);
 
+    /// <summary>Sets the location the entity returns to, for example when it falls out of the world</summary>
+    public void SetInitialLocation(Vector location) => Call(SetInitialLocationSlot, 1, location);
+
     /// <summary>Sets the filter to Trigger to only overlap specific Classes. Leave it empty for all Classes</summary>
     public void SetOverlapOnlyClasses(IEnumerable<string> overlapOnlyClasses) =>
         Call(SetOverlapOnlyClassesSlot, 1, overlapOnlyClasses);
+
+    /// <summary>Sets the radius of a sphere Trigger</summary>
+    public void SetRadius(float radius) => Call(SetRadiusSlot, 1, radius);
 
     /// <summary>Subscribes to the BeginOverlap event of this entity only.</summary>
     public ScriptSubscription SubscribeBeginOverlap(BeginOverlapHandler handler) => Subscribe("BeginOverlap", handler);

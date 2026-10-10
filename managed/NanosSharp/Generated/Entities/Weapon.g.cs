@@ -150,6 +150,7 @@ public partial class Weapon : Actor, IPaintable, IPickable
     private static readonly ClassEvent<ValueChangeHandler> ValueChangeEvent = new("Weapon", "ValueChange");
     private static readonly MethodSlot AddSkeletalMeshAttachedSlot = new("AddSkeletalMeshAttached");
     private static readonly MethodSlot AddStaticMeshAttachedSlot = new("AddStaticMeshAttached");
+    private static readonly MethodSlot CallEventSlot = new("CallEvent");
     private static readonly MethodSlot GetAllSkeletalMeshAttachedSlot = new("GetAllSkeletalMeshAttached");
     private static readonly MethodSlot GetAllStaticMeshAttachedSlot = new("GetAllStaticMeshAttached");
     private static readonly MethodSlot GetAmmoBagSlot = new("GetAmmoBag");
@@ -158,6 +159,8 @@ public partial class Weapon : Actor, IPaintable, IPickable
     private static readonly MethodSlot GetAnimationCharacterFireSlot = new("GetAnimationCharacterFire");
     private static readonly MethodSlot GetAnimationFireSlot = new("GetAnimationFire");
     private static readonly MethodSlot GetAnimationReloadSlot = new("GetAnimationReload");
+    private static readonly MethodSlot GetAssetNameSlot = new("GetAssetName");
+    private static readonly MethodSlot GetBoneTransformSlot = new("GetBoneTransform");
     private static readonly MethodSlot GetBulletColorSlot = new("GetBulletColor");
     private static readonly MethodSlot GetBulletCountSlot = new("GetBulletCount");
     private static readonly MethodSlot GetCadenceSlot = new("GetCadence");
@@ -167,6 +170,7 @@ public partial class Weapon : Actor, IPaintable, IPickable
     private static readonly MethodSlot GetHandlerSlot = new("GetHandler");
     private static readonly MethodSlot GetHandlingModeSlot = new("GetHandlingMode");
     private static readonly MethodSlot GetHoldReleaseUseSlot = new("GetHoldReleaseUse");
+    private static readonly MethodSlot GetInitialLocationSlot = new("GetInitialLocation");
     private static readonly MethodSlot GetLeftHandLocationSlot = new("GetLeftHandLocation");
     private static readonly MethodSlot GetLeftHandRotationSlot = new("GetLeftHandRotation");
     private static readonly MethodSlot GetMagazineMeshSlot = new("GetMagazineMesh");
@@ -192,6 +196,8 @@ public partial class Weapon : Actor, IPaintable, IPickable
     private static readonly MethodSlot GetSpreadSlot = new("GetSpread");
     private static readonly MethodSlot GetWallbangDamageMultiplierSlot = new("GetWallbangDamageMultiplier");
     private static readonly MethodSlot GetWallbangMaxDistanceSlot = new("GetWallbangMaxDistance");
+    private static readonly MethodSlot HideBoneSlot = new("HideBone");
+    private static readonly MethodSlot IsBoneHiddenSlot = new("IsBoneHidden");
     private static readonly MethodSlot PlayAnimationSlot = new("PlayAnimation");
     private static readonly MethodSlot PullUseSlot = new("PullUse");
     private static readonly MethodSlot ReleaseUseSlot = new("ReleaseUse");
@@ -219,6 +225,7 @@ public partial class Weapon : Actor, IPaintable, IPickable
     private static readonly MethodSlot SetCrosshairMaterialSlot = new("SetCrosshairMaterial");
     private static readonly MethodSlot SetDamageSlot = new("SetDamage");
     private static readonly MethodSlot SetHandlingModeSlot = new("SetHandlingMode");
+    private static readonly MethodSlot SetInitialLocationSlot = new("SetInitialLocation");
     private static readonly MethodSlot SetLeftHandTransformSlot = new("SetLeftHandTransform");
     private static readonly MethodSlot SetMagazineMeshSlot = new("SetMagazineMesh");
     private static readonly MethodSlot SetMaterialSlot = new("SetMaterial");
@@ -247,6 +254,7 @@ public partial class Weapon : Actor, IPaintable, IPickable
     private static readonly MethodSlot SetUsageSettingsSlot = new("SetUsageSettings");
     private static readonly MethodSlot SetWallbangSettingsSlot = new("SetWallbangSettings");
     private static readonly MethodSlot StopAnimationSlot = new("StopAnimation");
+    private static readonly MethodSlot UnHideBoneSlot = new("UnHideBone");
 
     /// <summary>Gets all Skeletal Meshes attached to this entity</summary>
     public IReadOnlyDictionary<string, string> AllSkeletalMeshAttached => GetAllSkeletalMeshAttached();
@@ -291,6 +299,9 @@ public partial class Weapon : Actor, IPaintable, IPickable
         get => GetAnimationReload();
         set => SetAnimationReload(value);
     }
+
+    /// <summary>Gets the asset path the entity was spawned with</summary>
+    public string AssetName => GetAssetName();
 
     /// <summary>Gets the color of the bullet trail</summary>
     public Color BulletColor
@@ -338,6 +349,13 @@ public partial class Weapon : Actor, IPaintable, IPickable
 
     /// <summary>Gets if the weapon is triggered/fired when releasing the use button</summary>
     public bool HoldReleaseUse => GetHoldReleaseUse();
+
+    /// <summary>Gets the location the entity was spawned at</summary>
+    public Vector InitialLocation
+    {
+        get => GetInitialLocation();
+        set => SetInitialLocation(value);
+    }
 
     /// <summary>Gets the location offset of the left hand</summary>
     public Vector LeftHandLocation => GetLeftHandLocation();
@@ -498,6 +516,10 @@ public partial class Weapon : Actor, IPaintable, IPickable
         string? attachableId = null) =>
         Call(AddStaticMeshAttachedSlot, 2, id, staticMeshPath, socket, relativeLocation, relativeRotation, useParentBounds, attachableId);
 
+    /// <summary>Calls a custom event on this entity, received by Subscribe of this entity</summary>
+    public void CallEvent(string eventName, params object?[] arguments) =>
+        InvokeVariadic(CallEventSlot, [eventName], arguments);
+
     /// <summary>Gets all Skeletal Meshes attached to this entity</summary>
     public IReadOnlyDictionary<string, string> GetAllSkeletalMeshAttached() =>
         CallResult<IReadOnlyDictionary<string, string>>(GetAllSkeletalMeshAttachedSlot, 0)!;
@@ -523,6 +545,13 @@ public partial class Weapon : Actor, IPaintable, IPickable
 
     /// <summary>Gets the reload animation</summary>
     public string GetAnimationReload() => CallResult<string>(GetAnimationReloadSlot, 0)!;
+
+    /// <summary>Gets the asset path the entity was spawned with</summary>
+    public string GetAssetName() => CallResult<string>(GetAssetNameSlot, 0)!;
+
+    /// <summary>Gets the world transform of a bone, a table with location and rotation</summary>
+    public IReadOnlyDictionary<string, object?> GetBoneTransform(string boneName) =>
+        CallResult<IReadOnlyDictionary<string, object?>, string>(GetBoneTransformSlot, 1, boneName)!;
 
     /// <summary>Gets the color of the bullet trail</summary>
     public Color GetBulletColor() => CallResult<Color>(GetBulletColorSlot, 0)!;
@@ -550,6 +579,9 @@ public partial class Weapon : Actor, IPaintable, IPickable
 
     /// <summary>Gets if the weapon is triggered/fired when releasing the use button</summary>
     public bool GetHoldReleaseUse() => CallResult<bool>(GetHoldReleaseUseSlot, 0)!;
+
+    /// <summary>Gets the location the entity was spawned at</summary>
+    public Vector GetInitialLocation() => CallResult<Vector>(GetInitialLocationSlot, 0)!;
 
     /// <summary>Gets the location offset of the left hand</summary>
     public Vector GetLeftHandLocation() => CallResult<Vector>(GetLeftHandLocationSlot, 0)!;
@@ -629,6 +661,12 @@ public partial class Weapon : Actor, IPaintable, IPickable
 
     /// <summary>Gets the max distance a bullet can pass through walls</summary>
     public float GetWallbangMaxDistance() => CallResult<float>(GetWallbangMaxDistanceSlot, 0)!;
+
+    /// <summary>Hides a bone of this Pawn</summary>
+    public void HideBone(string boneName) => Call(HideBoneSlot, 1, boneName);
+
+    /// <summary>Gets if a bone is hidden</summary>
+    public bool IsBoneHidden(string boneName) => CallResult<bool, string>(IsBoneHiddenSlot, 1, boneName)!;
 
     /// <summary>Plays an Animation on this Weapon</summary>
     public void PlayAnimation(
@@ -734,6 +772,9 @@ public partial class Weapon : Actor, IPaintable, IPickable
 
     /// <summary>Sets how the Character grabs this Weapon</summary>
     public void SetHandlingMode(HandlingMode handlingMode) => Call(SetHandlingModeSlot, 1, handlingMode);
+
+    /// <summary>Sets the location the entity returns to, for example when it falls out of the world</summary>
+    public void SetInitialLocation(Vector location) => Call(SetInitialLocationSlot, 1, location);
 
     /// <summary>Sets where the Character's left hand holds this Weapon, relative to the Weapon</summary>
     public void SetLeftHandTransform(Vector leftHandLocation, Rotator leftHandRotation) =>
@@ -856,6 +897,9 @@ public partial class Weapon : Actor, IPaintable, IPickable
 
     /// <summary>Stops an Animation Montage on this Weapon</summary>
     public void StopAnimation(string? animationAsset = null) => Call(StopAnimationSlot, 0, animationAsset);
+
+    /// <summary>Unhides a bone of this Pawn</summary>
+    public void UnHideBone(string boneName) => Call(UnHideBoneSlot, 1, boneName);
 
     /// <summary>Subscribes to the AmmoBagChange event of this entity only.</summary>
     public ScriptSubscription SubscribeAmmoBagChange(AmmoBagChangeHandler handler) => Subscribe("AmmoBagChange", handler);

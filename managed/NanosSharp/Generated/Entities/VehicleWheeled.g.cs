@@ -177,12 +177,16 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
     private static readonly MethodSlot ApplyDamageSlot = new("ApplyDamage");
     private static readonly MethodSlot BindAnimationBlueprintEventDispatcherSlot = new("BindAnimationBlueprintEventDispatcher");
     private static readonly MethodSlot CallAnimationBlueprintEventSlot = new("CallAnimationBlueprintEvent");
+    private static readonly MethodSlot CallEventSlot = new("CallEvent");
     private static readonly MethodSlot GetAllSkeletalMeshAttachedSlot = new("GetAllSkeletalMeshAttached");
     private static readonly MethodSlot GetAllStaticMeshAttachedSlot = new("GetAllStaticMeshAttached");
     private static readonly MethodSlot GetAnimationBlueprintPropertyValueSlot = new("GetAnimationBlueprintPropertyValue");
+    private static readonly MethodSlot GetAssetNameSlot = new("GetAssetName");
+    private static readonly MethodSlot GetBoneTransformSlot = new("GetBoneTransform");
     private static readonly MethodSlot GetDamageMultiplierSlot = new("GetDamageMultiplier");
     private static readonly MethodSlot GetDoorsSlot = new("GetDoors");
     private static readonly MethodSlot GetHealthSlot = new("GetHealth");
+    private static readonly MethodSlot GetInitialLocationSlot = new("GetInitialLocation");
     private static readonly MethodSlot GetMaterialColorParameterSlot = new("GetMaterialColorParameter");
     private static readonly MethodSlot GetMaterialScalarParameterSlot = new("GetMaterialScalarParameter");
     private static readonly MethodSlot GetMaterialTextureParameterSlot = new("GetMaterialTextureParameter");
@@ -196,7 +200,9 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
     private static readonly MethodSlot IsBoneHiddenSlot = new("IsBoneHidden");
     private static readonly MethodSlot IsDeadSlot = new("IsDead");
     private static readonly MethodSlot IsEngineStartedSlot = new("IsEngineStarted");
+    private static readonly MethodSlot IsInvulnerableSlot = new("IsInvulnerable");
     private static readonly MethodSlot PlayAnimationSlot = new("PlayAnimation");
+    private static readonly MethodSlot RecreatePhysicsSlot = new("RecreatePhysics");
     private static readonly MethodSlot RemoveAllSkeletalMeshesAttachedSlot = new("RemoveAllSkeletalMeshesAttached");
     private static readonly MethodSlot RemoveAllStaticMeshesAttachedSlot = new("RemoveAllStaticMeshesAttached");
     private static readonly MethodSlot RemoveSkeletalMeshAttachedSlot = new("RemoveSkeletalMeshAttached");
@@ -220,6 +226,8 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
     private static readonly MethodSlot SetHeadlightsSetupSlot = new("SetHeadlightsSetup");
     private static readonly MethodSlot SetHealthSlot = new("SetHealth");
     private static readonly MethodSlot SetHornSoundSlot = new("SetHornSound");
+    private static readonly MethodSlot SetInitialLocationSlot = new("SetInitialLocation");
+    private static readonly MethodSlot SetInvulnerableSlot = new("SetInvulnerable");
     private static readonly MethodSlot SetMaterialSlot = new("SetMaterial");
     private static readonly MethodSlot SetMaterialColorParameterSlot = new("SetMaterialColorParameter");
     private static readonly MethodSlot SetMaterialScalarParameterSlot = new("SetMaterialScalarParameter");
@@ -245,6 +253,9 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
     /// <summary>Gets all Static Meshes attached to this entity</summary>
     public IReadOnlyDictionary<string, string> AllStaticMeshAttached => GetAllStaticMeshAttached();
 
+    /// <summary>Gets the asset path the entity was spawned with</summary>
+    public string AssetName => GetAssetName();
+
     /// <summary>Gets all configured Doors</summary>
     public IReadOnlyList<IReadOnlyDictionary<string, object?>> Doors => GetDoors();
 
@@ -253,6 +264,13 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
     {
         get => GetHealth();
         set => SetHealth(value);
+    }
+
+    /// <summary>Gets the location the entity was spawned at</summary>
+    public Vector InitialLocation
+    {
+        get => GetInitialLocation();
+        set => SetInitialLocation(value);
     }
 
     /// <summary>Gets the Max Health</summary>
@@ -276,6 +294,13 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
     {
         get => IsEngineStarted();
         set => SetEngineStarted(value);
+    }
+
+    /// <summary>Gets if this Character is invulnerable</summary>
+    public bool Invulnerable
+    {
+        get => IsInvulnerable();
+        set => SetInvulnerable(value);
     }
 
     /// <summary>Spawns a new VehicleWheeled.</summary>
@@ -344,6 +369,10 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
     public object?[] CallAnimationBlueprintEvent(string eventName, params object?[] arguments) =>
         InvokeVariadic<object?[]>(CallAnimationBlueprintEventSlot, [eventName], arguments)!;
 
+    /// <summary>Calls a custom event on this entity, received by Subscribe of this entity</summary>
+    public void CallEvent(string eventName, params object?[] arguments) =>
+        InvokeVariadic(CallEventSlot, [eventName], arguments);
+
     /// <summary>Gets all Skeletal Meshes attached to this entity</summary>
     public IReadOnlyDictionary<string, string> GetAllSkeletalMeshAttached() =>
         CallResult<IReadOnlyDictionary<string, string>>(GetAllSkeletalMeshAttachedSlot, 0)!;
@@ -356,6 +385,13 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
     public object? GetAnimationBlueprintPropertyValue(string propertyName) =>
         CallResult<object?, string>(GetAnimationBlueprintPropertyValueSlot, 1, propertyName);
 
+    /// <summary>Gets the asset path the entity was spawned with</summary>
+    public string GetAssetName() => CallResult<string>(GetAssetNameSlot, 0)!;
+
+    /// <summary>Gets the world transform of a bone, a table with location and rotation</summary>
+    public IReadOnlyDictionary<string, object?> GetBoneTransform(string boneName) =>
+        CallResult<IReadOnlyDictionary<string, object?>, string>(GetBoneTransformSlot, 1, boneName)!;
+
     /// <summary>Gets the Damage Multiplier of a bone</summary>
     public float GetDamageMultiplier(string boneName) =>
         CallResult<float, string>(GetDamageMultiplierSlot, 1, boneName)!;
@@ -366,6 +402,9 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
 
     /// <summary>Gets the current health</summary>
     public uint GetHealth() => CallResult<uint>(GetHealthSlot, 0)!;
+
+    /// <summary>Gets the location the entity was spawned at</summary>
+    public Vector GetInitialLocation() => CallResult<Vector>(GetInitialLocationSlot, 0)!;
 
     /// <summary>Gets a Color parameter from this Actor's material</summary>
     public Color? GetMaterialColorParameter(string parameterName, int? index = null, string? attachableId = null) =>
@@ -410,6 +449,9 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
     /// <summary>Checks if the engine is started</summary>
     public bool IsEngineStarted() => CallResult<bool>(IsEngineStartedSlot, 0)!;
 
+    /// <summary>Gets if this Character is invulnerable</summary>
+    public bool IsInvulnerable() => CallResult<bool>(IsInvulnerableSlot, 0)!;
+
     /// <summary>Plays an Animation on this Vehicle</summary>
     public void PlayAnimation(
         string animationPath,
@@ -420,6 +462,9 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
         float? playRate = null,
         bool? stopAllMontages = null) =>
         Call(PlayAnimationSlot, 1, animationPath, slotName, loopIndefinitely, blendInTime, blendOutTime, playRate, stopAllMontages);
+
+    /// <summary>Recreates the physics state of the vehicle</summary>
+    public void RecreatePhysics() => Call(RecreatePhysicsSlot, 0);
 
     /// <summary>Removes all SkeletalMeshes attached</summary>
     public void RemoveAllSkeletalMeshesAttached() => Call(RemoveAllSkeletalMeshesAttachedSlot, 0);
@@ -526,6 +571,12 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
 
     /// <summary>Sets the sound asset used by the vehicle horn</summary>
     public void SetHornSound(string soundAsset) => Call(SetHornSoundSlot, 1, soundAsset);
+
+    /// <summary>Sets the location the entity returns to, for example when it falls out of the world</summary>
+    public void SetInitialLocation(Vector location) => Call(SetInitialLocationSlot, 1, location);
+
+    /// <summary>Sets if the Character can receive any damage</summary>
+    public void SetInvulnerable(bool isInvulnerable) => Call(SetInvulnerableSlot, 1, isInvulnerable);
 
     /// <summary>Sets the material at the specified index of this Actor</summary>
     public void SetMaterial(string materialPath, int? index = null, string? attachableId = null) =>

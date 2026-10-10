@@ -84,6 +84,10 @@ internal unsafe ref struct ArgumentPacker
         {
             AddInteger(Unsafe.As<T, long>(ref value));
         }
+        else if (typeof(T) == typeof(ulong))
+        {
+            AddInteger(unchecked((long)Unsafe.As<T, ulong>(ref value)));
+        }
         else if (typeof(T) == typeof(float))
         {
             AddNumber(Unsafe.As<T, float>(ref value));

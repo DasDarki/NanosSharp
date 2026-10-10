@@ -12,7 +12,7 @@ internal sealed class TypeModel
 
     public string? BaseType { get; init; }
 
-    public IReadOnlyList<string> Interfaces { get; init; } = [];
+    public IReadOnlyList<string> Interfaces { get; set; } = [];
 
     public string? Description { get; init; }
 

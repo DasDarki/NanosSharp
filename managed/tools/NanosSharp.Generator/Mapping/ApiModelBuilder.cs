@@ -22,7 +22,7 @@ internal sealed class ApiModelBuilder
 
     private static readonly HashSet<string> ExcludedFunctions =
     [
-        "Equals", "GetHashCode", "GetType", "IsValid", "Subscribe", "SubscribeRemote", "ToString", "Unsubscribe",
+        "Create", "Equals", "GetHashCode", "GetType", "IsValid", "Subscribe", "SubscribeRemote", "ToString", "Unsubscribe",
         "UnsubscribeRemote",
     ];
 
@@ -66,6 +66,11 @@ internal sealed class ApiModelBuilder
             BuildClass(nativeClass);
         }
 
+        foreach (var type in _types.Values.Where(type => type.Kind == TypeKind.Entity).ToArray())
+        {
+            RemoveIncompleteMixins(type);
+        }
+
         var types = _types.Values.OrderBy(type => type.Name, StringComparer.Ordinal).ToArray();
         foreach (var type in types)
         {
@@ -74,6 +79,20 @@ internal sealed class ApiModelBuilder
         }
 
         return new ApiModel(types, BuildEnums());
+    }
+
+    private void RemoveIncompleteMixins(TypeModel type)
+    {
+        var methods = type.Methods.Select(method => method.Name).ToHashSet(StringComparer.Ordinal);
+        var complete = type.Interfaces
+            .Where(name => !_types.TryGetValue(name, out var mixin) || mixin.Methods.All(method => methods.Contains(method.Name)))
+            .ToArray();
+        foreach (var removed in type.Interfaces.Except(complete))
+        {
+            _report.Add("Mixins that are not implemented completely", $"{type.Name}: {removed}");
+        }
+
+        type.Interfaces = complete;
     }
 
     private void BuildClass(NativeClassDump nativeClass)
@@ -149,8 +168,15 @@ internal sealed class ApiModelBuilder
         {
             if (!owners.TryGetValue(nativeMethod.Name, out var owner))
             {
-                _report.Add("Native functions without documentation", $"{name}.{nativeMethod.Name}");
-                continue;
+                var borrowed = _docs.FindBorrowedFunction(nativeMethod.Name, NativeParameterCount(nativeMethod));
+                if (borrowed is null)
+                {
+                    _report.Add("Native functions without documentation", $"{name}.{nativeMethod.Name}");
+                    continue;
+                }
+
+                _report.Add("Functions documented through other classes", $"{name}.{nativeMethod.Name}");
+                owner = (borrowed, name);
             }
 
             var method = BuildMethod(name, nativeMethod, owner.Function, false);
@@ -170,6 +196,18 @@ internal sealed class ApiModelBuilder
         if (nativeClass.Constructor is not null && constructor is not null)
         {
             type.Constructor = BuildConstructor(constructor, type.Name);
+        }
+    }
+
+    private static int NativeParameterCount(NativeMethodDump nativeMethod)
+    {
+        try
+        {
+            return NativeSignature.Parse(nativeMethod.Signature).Parameters.Count;
+        }
+        catch (FormatException)
+        {
+            return -1;
         }
     }
 

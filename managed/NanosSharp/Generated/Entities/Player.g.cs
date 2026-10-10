@@ -94,6 +94,7 @@ public partial class Player : Entity
     private static readonly ClassEvent<ValueChangeHandler> ValueChangeEvent = new("Player", "ValueChange");
     private static readonly MethodSlot AttachCameraToSlot = new("AttachCameraTo");
     private static readonly MethodSlot BanSlot = new("Ban");
+    private static readonly MethodSlot CallEventSlot = new("CallEvent");
     private static readonly MethodSlot ConnectSlot = new("Connect");
     private static readonly MethodSlot GetAccountIDSlot = new("GetAccountID");
     private static readonly MethodSlot GetAccountIconURLSlot = new("GetAccountIconURL");
@@ -104,7 +105,9 @@ public partial class Player : Entity
     private static readonly MethodSlot GetNameSlot = new("GetName");
     private static readonly MethodSlot GetPingSlot = new("GetPing");
     private static readonly MethodSlot GetSteamIDSlot = new("GetSteamID");
+    private static readonly MethodSlot GetVOIPChannelSlot = new("GetVOIPChannel");
     private static readonly MethodSlot GetVOIPListeningChannelsSlot = new("GetVOIPListeningChannels");
+    private static readonly MethodSlot GetVOIPSettingSlot = new("GetVOIPSetting");
     private static readonly MethodSlot GetVOIPSpeakingChannelsSlot = new("GetVOIPSpeakingChannels");
     private static readonly MethodSlot IsHostSlot = new("IsHost");
     private static readonly MethodSlot IsVOIPMutedSlot = new("IsVOIPMuted");
@@ -122,6 +125,7 @@ public partial class Player : Entity
     private static readonly MethodSlot SetDistanceOptimizationMultiplierSlot = new("SetDistanceOptimizationMultiplier");
     private static readonly MethodSlot SetManualCameraFadeSlot = new("SetManualCameraFade");
     private static readonly MethodSlot SetNameSlot = new("SetName");
+    private static readonly MethodSlot SetVOIPChannelSlot = new("SetVOIPChannel");
     private static readonly MethodSlot SetVOIPGlobalAllChannelsSettingSlot = new("SetVOIPGlobalAllChannelsSetting");
     private static readonly MethodSlot SetVOIPGlobalChannelSettingSlot = new("SetVOIPGlobalChannelSetting");
     private static readonly MethodSlot SetVOIPGlobalHighPassFilterSlot = new("SetVOIPGlobalHighPassFilter");
@@ -131,6 +135,8 @@ public partial class Player : Entity
     private static readonly MethodSlot SetVOIPLocalSettingSlot = new("SetVOIPLocalSetting");
     private static readonly MethodSlot SetVOIPLocalVolumeSlot = new("SetVOIPLocalVolume");
     private static readonly MethodSlot SetVOIPMutedSlot = new("SetVOIPMuted");
+    private static readonly MethodSlot SetVOIPSettingSlot = new("SetVOIPSetting");
+    private static readonly MethodSlot SetVOIPVolumeSlot = new("SetVOIPVolume");
     private static readonly MethodSlot SpectateSlot = new("Spectate");
     private static readonly MethodSlot StartCameraFadeSlot = new("StartCameraFade");
     private static readonly MethodSlot StopCameraFadeSlot = new("StopCameraFade");
@@ -172,8 +178,22 @@ public partial class Player : Entity
     /// <summary>Gets the Player's Steam ID</summary>
     public string SteamID => GetSteamID();
 
+    /// <summary>Gets the voice channel of the Player</summary>
+    public uint VOIPChannel
+    {
+        get => GetVOIPChannel();
+        set => SetVOIPChannel(value);
+    }
+
     /// <summary>Returns a list of VOIP channels this player is listening to</summary>
     public IReadOnlyList<uint> VOIPListeningChannels => GetVOIPListeningChannels();
+
+    /// <summary>Gets the voice setting of the Player</summary>
+    public VOIPSetting VOIPSetting
+    {
+        get => GetVOIPSetting();
+        set => SetVOIPSetting(value);
+    }
 
     /// <summary>Returns a list of VOIP channels this player is currently speaking to</summary>
     public IReadOnlyList<uint> VOIPSpeakingChannels => GetVOIPSpeakingChannels();
@@ -198,6 +218,10 @@ public partial class Player : Entity
 
     /// <summary>Bans the player from the server</summary>
     public void Ban(string reason) => Call(BanSlot, 1, reason);
+
+    /// <summary>Calls a custom event on this entity, received by Subscribe of this entity</summary>
+    public void CallEvent(string eventName, params object?[] arguments) =>
+        InvokeVariadic(CallEventSlot, [eventName], arguments);
 
     /// <summary>Redirects the player to another server</summary>
     public void Connect(string ip, string? password = null) => Call(ConnectSlot, 1, ip, password);
@@ -229,9 +253,15 @@ public partial class Player : Entity
     /// <summary>Gets the Player's Steam ID</summary>
     public string GetSteamID() => CallResult<string>(GetSteamIDSlot, 0)!;
 
+    /// <summary>Gets the voice channel of the Player</summary>
+    public uint GetVOIPChannel() => CallResult<uint>(GetVOIPChannelSlot, 0)!;
+
     /// <summary>Returns a list of VOIP channels this player is listening to</summary>
     public IReadOnlyList<uint> GetVOIPListeningChannels() =>
         CallResult<IReadOnlyList<uint>>(GetVOIPListeningChannelsSlot, 0)!;
+
+    /// <summary>Gets the voice setting of the Player</summary>
+    public VOIPSetting GetVOIPSetting() => CallResult<VOIPSetting>(GetVOIPSettingSlot, 0)!;
 
     /// <summary>Returns a list of VOIP channels this player is currently speaking to</summary>
     public IReadOnlyList<uint> GetVOIPSpeakingChannels() =>
@@ -296,6 +326,9 @@ public partial class Player : Entity
     /// <summary>Sets the player's name</summary>
     public void SetName(string playerName) => Call(SetNameSlot, 1, playerName);
 
+    /// <summary>Sets the voice channel of the Player</summary>
+    public void SetVOIPChannel(uint channel) => Call(SetVOIPChannelSlot, 1, channel);
+
     /// <summary>Sets the VOIP setting for all global channels</summary>
     public void SetVOIPGlobalAllChannelsSetting(VOIPSetting setting) =>
         Call(SetVOIPGlobalAllChannelsSettingSlot, 1, setting);
@@ -324,6 +357,12 @@ public partial class Player : Entity
 
     /// <summary>Mutes or unmutes VOIP for this player</summary>
     public void SetVOIPMuted(bool isMuted) => Call(SetVOIPMutedSlot, 1, isMuted);
+
+    /// <summary>Sets the voice setting of the Player</summary>
+    public void SetVOIPSetting(VOIPSetting setting) => Call(SetVOIPSettingSlot, 1, setting);
+
+    /// <summary>Sets the voice volume of the Player</summary>
+    public void SetVOIPVolume(float volume) => Call(SetVOIPVolumeSlot, 1, volume);
 
     /// <summary>Makes this Player spectate another Player</summary>
     public void Spectate(Player player, float? blendSpeed = null) => Call(SpectateSlot, 1, player, blendSpeed);

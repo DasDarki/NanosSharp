@@ -1,0 +1,50 @@
+{
+	"name": "HTTPServer",
+	"description": "Routes on the built in HTTP server, served below /scripting/ when the server runs with --enable_http_server.",
+	"authority": "server",
+	"static_functions": [
+		{
+			"authority": "server",
+			"name": "RegisterRoute",
+			"description": "Registers a route, every request has to be answered with Respond",
+			"parameters": [
+				{ "type": "HTTPMethod", "name": "method", "description": "The HTTP method of the route" },
+				{ "type": "string", "name": "path", "description": "The path below /scripting, it must start with /" },
+				{
+					"type": "function",
+					"name": "callback",
+					"description": "Called on the main thread for every request",
+					"function_parameters": [
+						{ "name": "request_id", "type": "integer", "description": "Identifier to pass to Respond" },
+						{ "name": "body", "type": "string", "description": "The request body" },
+						{ "name": "query", "type": "table", "description": "The query parameters" },
+						{ "name": "headers", "type": "table", "description": "The request headers" },
+						{ "name": "remote_address", "type": "string", "description": "The address of the client" },
+						{ "name": "remote_port", "type": "integer", "description": "The port of the client" }
+					]
+				}
+			]
+		},
+		{
+			"authority": "server",
+			"name": "UnregisterRoute",
+			"description": "Removes a route",
+			"parameters": [
+				{ "type": "HTTPMethod", "name": "method", "description": "The HTTP method of the route" },
+				{ "type": "string", "name": "path", "description": "The path of the route" }
+			]
+		},
+		{
+			"authority": "server",
+			"name": "Respond",
+			"description": "Answers a request received by a route",
+			"parameters": [
+				{ "type": "integer", "name": "request_id", "description": "The identifier passed to the route callback" },
+				{ "type": "integer", "name": "status", "description": "The HTTP status code" },
+				{ "type": "string", "name": "data", "default": "", "description": "The response body" },
+				{ "type": "string", "name": "content_type", "default": "text/plain", "description": "The content type of the body" },
+				{ "type": "table", "name": "headers", "default": "{}", "description": "Additional response headers" }
+			]
+		}
+	]
+}

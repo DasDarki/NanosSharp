@@ -1,0 +1,51 @@
+{
+	"name": "WebSocket",
+	"description": "A WebSocket client connection to an external server.",
+	"authority": "server",
+	"constructors": [
+		{
+			"name": "Default Constructor",
+			"parameters": [
+				{ "type": "string", "name": "url", "description": "The WebSocket URL, for example ws://localhost:8080" },
+				{ "type": "table<string,string>", "name": "headers", "default": "{}", "description": "Headers sent with the handshake" }
+			]
+		}
+	],
+	"functions": [
+		{
+			"authority": "server",
+			"name": "Send",
+			"description": "Sends a text message, returns false if the connection is not open",
+			"parameters": [
+				{ "type": "string", "name": "message", "description": "The text message" }
+			],
+			"return": [
+				{ "type": "boolean", "description": "Whether the message was sent" }
+			]
+		},
+		{
+			"authority": "server",
+			"name": "Close",
+			"description": "Closes the connection and destroys the WebSocket"
+		}
+	],
+	"events": [
+		{
+			"name": "ReceiveMessage",
+			"authority": "server",
+			"description": "Triggered when a text message was received",
+			"arguments": [
+				{ "name": "self", "type": "WebSocket", "description": "The WebSocket" },
+				{ "name": "message", "type": "string", "description": "The received text message" }
+			]
+		},
+		{
+			"name": "Close",
+			"authority": "server",
+			"description": "Triggered when the connection was closed",
+			"arguments": [
+				{ "name": "self", "type": "WebSocket", "description": "The WebSocket" }
+			]
+		}
+	]
+}

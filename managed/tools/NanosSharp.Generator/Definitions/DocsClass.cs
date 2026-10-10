@@ -6,6 +6,8 @@ internal sealed class DocsClass
 
     public string? Description { get; set; }
 
+    public string? DocumentationOf { get; set; }
+
     public bool IsBase { get; set; }
 
     public List<string> Inheritance { get; set; } = [];

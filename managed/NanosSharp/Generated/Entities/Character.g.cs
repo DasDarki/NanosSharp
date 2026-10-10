@@ -271,12 +271,14 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
     private static readonly MethodSlot AddSkeletalMeshAttachedSlot = new("AddSkeletalMeshAttached");
     private static readonly MethodSlot AddStaticMeshAttachedSlot = new("AddStaticMeshAttached");
     private static readonly MethodSlot ApplyDamageSlot = new("ApplyDamage");
+    private static readonly MethodSlot CallEventSlot = new("CallEvent");
     private static readonly MethodSlot ClearMorphTargetsSlot = new("ClearMorphTargets");
     private static readonly MethodSlot DropSlot = new("Drop");
     private static readonly MethodSlot EnterVehicleSlot = new("EnterVehicle");
     private static readonly MethodSlot FollowSlot = new("Follow");
     private static readonly MethodSlot GetAllSkeletalMeshAttachedSlot = new("GetAllSkeletalMeshAttached");
     private static readonly MethodSlot GetAllStaticMeshAttachedSlot = new("GetAllStaticMeshAttached");
+    private static readonly MethodSlot GetBoneTransformSlot = new("GetBoneTransform");
     private static readonly MethodSlot GetCameraModeSlot = new("GetCameraMode");
     private static readonly MethodSlot GetCanAimSlot = new("GetCanAim");
     private static readonly MethodSlot GetCanCrouchSlot = new("GetCanCrouch");
@@ -301,6 +303,7 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
     private static readonly MethodSlot GetGravityScaleSlot = new("GetGravityScale");
     private static readonly MethodSlot GetHealthSlot = new("GetHealth");
     private static readonly MethodSlot GetImpactDamageTakenSlot = new("GetImpactDamageTaken");
+    private static readonly MethodSlot GetInitialLocationSlot = new("GetInitialLocation");
     private static readonly MethodSlot GetJumpZVelocitySlot = new("GetJumpZVelocity");
     private static readonly MethodSlot GetMaterialColorParameterSlot = new("GetMaterialColorParameter");
     private static readonly MethodSlot GetMaterialScalarParameterSlot = new("GetMaterialScalarParameter");
@@ -330,6 +333,7 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
     private static readonly MethodSlot IsInRagdollModeSlot = new("IsInRagdollMode");
     private static readonly MethodSlot IsInputEnabledSlot = new("IsInputEnabled");
     private static readonly MethodSlot IsInvulnerableSlot = new("IsInvulnerable");
+    private static readonly MethodSlot IsMovementEnabledSlot = new("IsMovementEnabled");
     private static readonly MethodSlot JumpSlot = new("Jump");
     private static readonly MethodSlot LeaveVehicleSlot = new("LeaveVehicle");
     private static readonly MethodSlot LookAtSlot = new("LookAt");
@@ -378,6 +382,7 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
     private static readonly MethodSlot SetHighFallingTimeSlot = new("SetHighFallingTime");
     private static readonly MethodSlot SetHitReactionEnabledSlot = new("SetHitReactionEnabled");
     private static readonly MethodSlot SetImpactDamageTakenSlot = new("SetImpactDamageTaken");
+    private static readonly MethodSlot SetInitialLocationSlot = new("SetInitialLocation");
     private static readonly MethodSlot SetInputEnabledSlot = new("SetInputEnabled");
     private static readonly MethodSlot SetInvulnerableSlot = new("SetInvulnerable");
     private static readonly MethodSlot SetJumpZVelocitySlot = new("SetJumpZVelocity");
@@ -390,6 +395,7 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
     private static readonly MethodSlot SetMeshSlot = new("SetMesh");
     private static readonly MethodSlot SetMeshSettingsSlot = new("SetMeshSettings");
     private static readonly MethodSlot SetMorphTargetSlot = new("SetMorphTarget");
+    private static readonly MethodSlot SetMovementEnabledSlot = new("SetMovementEnabled");
     private static readonly MethodSlot SetPainSoundSlot = new("SetPainSound");
     private static readonly MethodSlot SetParachuteTextureSlot = new("SetParachuteTexture");
     private static readonly MethodSlot SetPhysicalAnimationSettingsSlot = new("SetPhysicalAnimationSettings");
@@ -569,6 +575,13 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
         set => SetImpactDamageTaken(value);
     }
 
+    /// <summary>Gets the location the entity was spawned at</summary>
+    public Vector InitialLocation
+    {
+        get => GetInitialLocation();
+        set => SetInitialLocation(value);
+    }
+
     /// <summary>Gets the initial vertical velocity when jumping, which defines the jump height</summary>
     public ushort JumpZVelocity
     {
@@ -684,6 +697,13 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
         set => SetInvulnerable(value);
     }
 
+    /// <summary>Gets whether the Character can move</summary>
+    public bool MovementEnabled
+    {
+        get => IsMovementEnabled();
+        set => SetMovementEnabled(value);
+    }
+
     /// <summary>Spawns a new Character.</summary>
     public Character(
         Vector location,
@@ -737,6 +757,10 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
         Entity? causer = null) =>
         CallResult<uint, uint, string?, DamageType?, Vector?, Player?, Entity?>(ApplyDamageSlot, 1, damage, boneName, damageType, fromDirection, instigator, causer)!;
 
+    /// <summary>Calls a custom event on this entity, received by Subscribe of this entity</summary>
+    public void CallEvent(string eventName, params object?[] arguments) =>
+        InvokeVariadic(CallEventSlot, [eventName], arguments);
+
     /// <summary>Clear all Morph Target that are set to this Mesh</summary>
     public void ClearMorphTargets() => Call(ClearMorphTargetsSlot, 0);
 
@@ -762,6 +786,10 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
     /// <summary>Gets all Static Meshes attached to this entity</summary>
     public IReadOnlyDictionary<string, string> GetAllStaticMeshAttached() =>
         CallResult<IReadOnlyDictionary<string, string>>(GetAllStaticMeshAttachedSlot, 0)!;
+
+    /// <summary>Gets the world transform of a bone, a table with location and rotation</summary>
+    public IReadOnlyDictionary<string, object?> GetBoneTransform(string boneName) =>
+        CallResult<IReadOnlyDictionary<string, object?>, string>(GetBoneTransformSlot, 1, boneName)!;
 
     /// <summary>Gets the camera mode</summary>
     public CameraMode GetCameraMode() => CallResult<CameraMode>(GetCameraModeSlot, 0)!;
@@ -836,6 +864,9 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
 
     /// <summary>Gets the Impact Damage taken when being run over</summary>
     public ushort GetImpactDamageTaken() => CallResult<ushort>(GetImpactDamageTakenSlot, 0)!;
+
+    /// <summary>Gets the location the entity was spawned at</summary>
+    public Vector GetInitialLocation() => CallResult<Vector>(GetInitialLocationSlot, 0)!;
 
     /// <summary>Gets the initial vertical velocity when jumping, which defines the jump height</summary>
     public ushort GetJumpZVelocity() => CallResult<ushort>(GetJumpZVelocitySlot, 0)!;
@@ -927,6 +958,9 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
 
     /// <summary>Gets if this Character is invulnerable</summary>
     public bool IsInvulnerable() => CallResult<bool>(IsInvulnerableSlot, 0)!;
+
+    /// <summary>Gets whether the Character can move</summary>
+    public bool IsMovementEnabled() => CallResult<bool>(IsMovementEnabledSlot, 0)!;
 
     /// <summary>Triggers this Pawn to jump</summary>
     public void Jump() => Call(JumpSlot, 0);
@@ -1111,6 +1145,9 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
     /// <summary>Set the Impact Damage taken when being run over by things</summary>
     public void SetImpactDamageTaken(ushort impactDamage) => Call(SetImpactDamageTakenSlot, 1, impactDamage);
 
+    /// <summary>Sets the location the entity returns to, for example when it falls out of the world</summary>
+    public void SetInitialLocation(Vector location) => Call(SetInitialLocationSlot, 1, location);
+
     /// <summary>Enables/Disables Character's Input</summary>
     public void SetInputEnabled(bool isEnabled) => Call(SetInputEnabledSlot, 1, isEnabled);
 
@@ -1171,6 +1208,9 @@ public partial class Character : Actor, IDamageable, IPaintable, IPawn
 
     /// <summary>Sets the value of a Morph Target</summary>
     public void SetMorphTarget(string name, float value) => Call(SetMorphTargetSlot, 2, name, value);
+
+    /// <summary>Enables or disables the movement of the Character</summary>
+    public void SetMovementEnabled(bool enabled) => Call(SetMovementEnabledSlot, 1, enabled);
 
     /// <summary>Changes the Pain sound when Character takes damage</summary>
     public void SetPainSound(string soundAsset) => Call(SetPainSoundSlot, 1, soundAsset);

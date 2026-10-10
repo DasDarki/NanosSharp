@@ -139,7 +139,7 @@ task("test")
         local timeout = tostring(option.get("timeout"))
         local port = tonumber(option.get("port"))
         local server_arguments = {"-s", "INT", timeout, path.join(server_dir, "NanosSharp.sh"),
-            "--packages", table.concat(packages, ","), "--port", tostring(port), "--query_port", tostring(port + 1), "--announce", "0"}
+            "--packages", table.concat(packages, ","), "--port", tostring(port), "--query_port", tostring(port + 1), "--announce", "0", "--enable_http_server"}
         for _, argument in ipairs((option.get("arguments") or ""):split(" ")) do
             table.insert(server_arguments, argument)
         end
@@ -236,6 +236,7 @@ task("generate")
         os.execv("dotnet", {"run", "--project", generator, "-c", "Release", "--",
             "--native", path.join(generator, "Data", "native-api.json"),
             "--docs", definitions_dir,
+            "--supplements", path.join(generator, "Data", "Supplements"),
             "--output", path.join(root, "managed", "NanosSharp", "Generated"),
             "--report", path.join(root, "build", "generator", "report.md"),
             "--revision", api_definitions_revision})

@@ -116,8 +116,12 @@ public partial class Prop : Actor, IPaintable
     private static readonly ClassEvent<TakeDamageHandler> TakeDamageEvent = new("Prop", "TakeDamage");
     private static readonly ClassEvent<UnGrabHandler> UnGrabEvent = new("Prop", "UnGrab");
     private static readonly ClassEvent<ValueChangeHandler> ValueChangeEvent = new("Prop", "ValueChange");
+    private static readonly MethodSlot CallEventSlot = new("CallEvent");
+    private static readonly MethodSlot GetAssetNameSlot = new("GetAssetName");
+    private static readonly MethodSlot GetBoneTransformSlot = new("GetBoneTransform");
     private static readonly MethodSlot GetGrabModeSlot = new("GetGrabMode");
     private static readonly MethodSlot GetHandlerSlot = new("GetHandler");
+    private static readonly MethodSlot GetInitialLocationSlot = new("GetInitialLocation");
     private static readonly MethodSlot GetMassOverrideSlot = new("GetMassOverride");
     private static readonly MethodSlot GetMassScaleSlot = new("GetMassScale");
     private static readonly MethodSlot GetMaterialColorParameterSlot = new("GetMaterialColorParameter");
@@ -125,10 +129,13 @@ public partial class Prop : Actor, IPaintable
     private static readonly MethodSlot GetMaterialTextureParameterSlot = new("GetMaterialTextureParameter");
     private static readonly MethodSlot GetMaterialVectorParameterSlot = new("GetMaterialVectorParameter");
     private static readonly MethodSlot GetMeshSlot = new("GetMesh");
+    private static readonly MethodSlot IsGrabbableSlot = new("IsGrabbable");
     private static readonly MethodSlot ResetMaterialSlot = new("ResetMaterial");
     private static readonly MethodSlot SetBuoyancyPontoonsSlot = new("SetBuoyancyPontoons");
     private static readonly MethodSlot SetBuoyancySettingsSlot = new("SetBuoyancySettings");
     private static readonly MethodSlot SetGrabModeSlot = new("SetGrabMode");
+    private static readonly MethodSlot SetGrabbableSlot = new("SetGrabbable");
+    private static readonly MethodSlot SetInitialLocationSlot = new("SetInitialLocation");
     private static readonly MethodSlot SetInteractionToolTipTextSlot = new("SetInteractionToolTipText");
     private static readonly MethodSlot SetMassOverrideSlot = new("SetMassOverride");
     private static readonly MethodSlot SetMassScaleSlot = new("SetMassScale");
@@ -141,6 +148,9 @@ public partial class Prop : Actor, IPaintable
     private static readonly MethodSlot SetPhysicalMaterialSlot = new("SetPhysicalMaterial");
     private static readonly MethodSlot SetPhysicsDampingSlot = new("SetPhysicsDamping");
 
+    /// <summary>Gets the asset path the entity was spawned with</summary>
+    public string AssetName => GetAssetName();
+
     /// <summary>Gets ability to Grab this Prop</summary>
     public GrabMode GrabMode
     {
@@ -150,6 +160,13 @@ public partial class Prop : Actor, IPaintable
 
     /// <summary>Gets the Character (if existing) which is holding this</summary>
     public Character? Handler => GetHandler();
+
+    /// <summary>Gets the location the entity was spawned at</summary>
+    public Vector InitialLocation
+    {
+        get => GetInitialLocation();
+        set => SetInitialLocation(value);
+    }
 
     /// <summary>Gets the overridden mass</summary>
     public float MassOverride
@@ -172,6 +189,13 @@ public partial class Prop : Actor, IPaintable
         set => SetMesh(value);
     }
 
+    /// <summary>Gets whether Characters can grab the Prop</summary>
+    public bool Grabbable
+    {
+        get => IsGrabbable();
+        set => SetGrabbable(value);
+    }
+
     /// <summary>Spawns a new Prop.</summary>
     public Prop(
         Vector location,
@@ -190,11 +214,25 @@ public partial class Prop : Actor, IPaintable
     {
     }
 
+    /// <summary>Calls a custom event on this entity, received by Subscribe of this entity</summary>
+    public void CallEvent(string eventName, params object?[] arguments) =>
+        InvokeVariadic(CallEventSlot, [eventName], arguments);
+
+    /// <summary>Gets the asset path the entity was spawned with</summary>
+    public string GetAssetName() => CallResult<string>(GetAssetNameSlot, 0)!;
+
+    /// <summary>Gets the world transform of a bone, a table with location and rotation</summary>
+    public IReadOnlyDictionary<string, object?> GetBoneTransform(string boneName) =>
+        CallResult<IReadOnlyDictionary<string, object?>, string>(GetBoneTransformSlot, 1, boneName)!;
+
     /// <summary>Gets ability to Grab this Prop</summary>
     public GrabMode GetGrabMode() => CallResult<GrabMode>(GetGrabModeSlot, 0)!;
 
     /// <summary>Gets the Character (if existing) which is holding this</summary>
     public Character? GetHandler() => CallResult<Character?>(GetHandlerSlot, 0);
+
+    /// <summary>Gets the location the entity was spawned at</summary>
+    public Vector GetInitialLocation() => CallResult<Vector>(GetInitialLocationSlot, 0)!;
 
     /// <summary>Gets the overridden mass</summary>
     public float GetMassOverride() => CallResult<float>(GetMassOverrideSlot, 0)!;
@@ -221,6 +259,9 @@ public partial class Prop : Actor, IPaintable
     /// <summary>Gets the Asset name</summary>
     public string GetMesh() => CallResult<string>(GetMeshSlot, 0)!;
 
+    /// <summary>Gets whether Characters can grab the Prop</summary>
+    public bool IsGrabbable() => CallResult<bool>(IsGrabbableSlot, 0)!;
+
     /// <summary>Resets the material from the specified index to the original one</summary>
     public void ResetMaterial(int? index = null, string? attachableId = null) =>
         Call(ResetMaterialSlot, 0, index, attachableId);
@@ -239,6 +280,12 @@ public partial class Prop : Actor, IPaintable
 
     /// <summary>Sets ability to Characters to Grab this Prop</summary>
     public void SetGrabMode(GrabMode grabMode) => Call(SetGrabModeSlot, 1, grabMode);
+
+    /// <summary>Sets whether Characters can grab the Prop</summary>
+    public void SetGrabbable(bool grabbable) => Call(SetGrabbableSlot, 1, grabbable);
+
+    /// <summary>Sets the location the entity returns to, for example when it falls out of the world</summary>
+    public void SetInitialLocation(Vector location) => Call(SetInitialLocationSlot, 1, location);
 
     /// <summary>Sets the interaction tooltip text shown when a Character interacts with this Prop</summary>
     public void SetInteractionToolTipText(string toolTipText) => Call(SetInteractionToolTipTextSlot, 1, toolTipText);

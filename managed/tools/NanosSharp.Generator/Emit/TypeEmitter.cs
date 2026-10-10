@@ -136,7 +136,7 @@ internal static class TypeEmitter
         writer.BlankLine();
     }
 
-    private static string SlotName(MethodModel method) => $"{method.Name}Slot";
+    private static string SlotName(MethodModel method) => $"{method.CSharpName}Slot";
 
     private static void WriteInstanceSubscriptions(CodeWriter writer, TypeModel type)
     {
@@ -162,14 +162,14 @@ internal static class TypeEmitter
         var modifiers = type.Kind == TypeKind.StaticClass ? "public static" : "public";
         if (property.Setter is null)
         {
-            writer.Line($"{modifiers} {property.Type} {property.Name} => {property.Getter.Name}();");
+            writer.Line($"{modifiers} {property.Type} {property.Name} => {property.Getter.CSharpName}();");
             return;
         }
 
         writer.Line($"{modifiers} {property.Type} {property.Name}");
         writer.OpenBlock();
-        writer.Line($"get => {property.Getter.Name}();");
-        writer.Line($"set => {property.Setter.Name}(value);");
+        writer.Line($"get => {property.Getter.CSharpName}();");
+        writer.Line($"set => {property.Setter.CSharpName}(value);");
         writer.CloseBlock();
     }
 
@@ -198,12 +198,12 @@ internal static class TypeEmitter
         var parameters = FormatParameters(method.Parameters);
         if (type.Kind == TypeKind.Mixin)
         {
-            writer.Line($"{method.ReturnType} {method.Name}({parameters});");
+            writer.Line($"{method.ReturnType} {method.CSharpName}({parameters});");
             return;
         }
 
         var modifiers = type.Kind == TypeKind.StaticClass ? "public static" : "public";
-        var declaration = $"{modifiers} {method.ReturnType} {method.Name}({parameters}) =>";
+        var declaration = $"{modifiers} {method.ReturnType} {method.CSharpName}({parameters}) =>";
         var invocation = $"{FormatInvocation(type, method)};";
         if (declaration.Length + invocation.Length + 1 <= MaximumLineLength)
         {
@@ -211,7 +211,7 @@ internal static class TypeEmitter
             return;
         }
 
-        WriteSignature(writer, $"{modifiers} {method.ReturnType} {method.Name}(", method.Parameters, ") =>");
+        WriteSignature(writer, $"{modifiers} {method.ReturnType} {method.CSharpName}(", method.Parameters, ") =>");
         writer.Line($"    {invocation}");
     }
 
