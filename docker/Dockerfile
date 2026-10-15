@@ -6,8 +6,13 @@ ARG DOTNET_VERSION=10.0
 FROM steamcmd/steamcmd:latest AS server
 ARG NANOS_BETA=
 ARG SERVER_REFRESH=
-RUN echo "server refresh ${SERVER_REFRESH}" && steamcmd +force_install_dir /nanos +login anonymous \
-        +app_update 1936830 ${NANOS_BETA:+-beta ${NANOS_BETA}} validate +quit \
+RUN echo "server refresh ${SERVER_REFRESH}" \
+    && for attempt in 1 2 3; do \
+        steamcmd +force_install_dir /nanos +login anonymous \
+            +app_update 1936830 ${NANOS_BETA:+-beta ${NANOS_BETA}} validate +quit \
+        && test -x /nanos/NanosWorldServer && break; \
+        sleep 5; \
+    done \
     && test -x /nanos/NanosWorldServer
 
 FROM mcr.microsoft.com/dotnet/runtime:${DOTNET_VERSION}-noble AS dotnet
