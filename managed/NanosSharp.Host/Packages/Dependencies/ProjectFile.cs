@@ -5,6 +5,8 @@ namespace NanosSharp.Host.Packages.Dependencies;
 
 internal static class ProjectFile
 {
+    private static readonly HashSet<string> HostProvidedPackages = new(["NanosSharp"], StringComparer.OrdinalIgnoreCase);
+
     public static string? Find(string serverDirectory) =>
         Directory.EnumerateFiles(serverDirectory, "*.csproj", SearchOption.TopDirectoryOnly).Order(StringComparer.Ordinal).FirstOrDefault();
 
@@ -14,6 +16,7 @@ internal static class ProjectFile
         return document.Descendants()
             .Where(element => element.Name.LocalName == "PackageReference")
             .Select(ReadPackageReference)
+            .Where(reference => !HostProvidedPackages.Contains(reference.Id))
             .OrderBy(reference => reference.Id, StringComparer.OrdinalIgnoreCase)
             .ToArray();
     }

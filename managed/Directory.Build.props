@@ -1,5 +1,6 @@
 <Project>
   <PropertyGroup>
+    <RepositoryRoot>$(MSBuildThisFileDirectory)..</RepositoryRoot>
     <TargetFramework>net10.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
@@ -10,7 +11,17 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <Version>0.1.0</Version>
     <Authors>DasDarki</Authors>
-    <RepositoryRoot>$(MSBuildThisFileDirectory)..</RepositoryRoot>
+    <Copyright>Copyright (c) 2026 DasDarki</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://dasdarki.de/nanossharp/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/DasDarki/NanosSharp</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>nanos-world;nanos;gameserver;scripting;modding</PackageTags>
+    <IsPackable>false</IsPackable>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageOutputPath>$(RepositoryRoot)/build/packages</PackageOutputPath>
     <BaseOutputPath>$(RepositoryRoot)/build/managed/bin/$(MSBuildProjectName)/</BaseOutputPath>
     <BaseIntermediateOutputPath>$(RepositoryRoot)/build/managed/obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
   </PropertyGroup>
