@@ -9,7 +9,7 @@ ARG SERVER_REFRESH=
 RUN echo "server refresh ${SERVER_REFRESH}" \
     && for attempt in 1 2 3; do \
         steamcmd +force_install_dir /nanos +login anonymous \
-            +app_update 1936830 ${NANOS_BETA:+-beta ${NANOS_BETA}} validate +quit \
+            +app_update 1936830 ${NANOS_BETA:+-beta ${NANOS_BETA}} +quit \
         && test -x /nanos/NanosWorldServer && break; \
         sleep 5; \
     done \
