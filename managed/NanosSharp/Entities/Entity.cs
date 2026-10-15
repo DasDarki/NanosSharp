@@ -28,6 +28,7 @@ public abstract partial class Entity
     internal uint NetworkId { get; private set; }
 
     private nint _instance;
+    private List<ScriptSubscription>? _hooks;
 
     /// <summary>Calls a scripting method of this entity by name.</summary>
     public object? Invoke(string method, params ReadOnlySpan<object?> arguments) =>
@@ -52,6 +53,7 @@ public abstract partial class Entity
     {
         NativeClass = nativeClass;
         _instance = instance;
+        _hooks = EventHookBinder.Bind(this);
     }
 
     internal void RemoveHandlers(PackageScope scope)
@@ -65,7 +67,11 @@ public abstract partial class Entity
         }
     }
 
-    internal void Unbind() => _instance = 0;
+    internal void Unbind()
+    {
+        ReleaseHooks();
+        _instance = 0;
+    }
 
     internal void RememberNetworkId(uint networkId)
     {
@@ -96,6 +102,7 @@ public abstract partial class Entity
         }
 
         _instance = 0;
+        ReleaseHooks();
         try
         {
             Destroyed?.Invoke(this);
@@ -117,6 +124,16 @@ public abstract partial class Entity
 
     private protected T? InvokeVariadic<T>(MethodSlot method, ReadOnlySpan<object?> arguments, ReadOnlySpan<object?> variadic) =>
         NativeClass.GetMethod(method).Invoke<T>(PackageContext.Environment, this, arguments, variadic);
+
+    private void ReleaseHooks()
+    {
+        var hooks = _hooks;
+        _hooks = null;
+        foreach (var subscription in hooks ?? [])
+        {
+            subscription.Dispose();
+        }
+    }
 
     private void UnsubscribeIfValid(string eventName, ScriptFunction function)
     {

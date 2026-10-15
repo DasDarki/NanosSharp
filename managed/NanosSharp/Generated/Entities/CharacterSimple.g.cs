@@ -768,6 +768,90 @@ public partial class CharacterSimple : Actor, IDamageable, IPaintable, IPawn
     /// <summary>Subscribes to the ValueChange event of this entity only.</summary>
     public ScriptSubscription SubscribeValueChange(ValueChangeHandler handler) => Subscribe("ValueChange", handler);
 
+    /// <summary>Called for the Death event of this entity when a subclass overrides it.</summary>
+    [EventHook("Death")]
+    protected virtual void HandleDeath(int lastDamageTaken, string? lastBoneDamaged, DamageType damageTypeReason, Vector hitFromDirection, Player? instigator, Actor? causer)
+    {
+    }
+
+    /// <summary>Called for the Destroy event of this entity when a subclass overrides it.</summary>
+    [EventHook("Destroy")]
+    protected virtual void HandleDestroy()
+    {
+    }
+
+    /// <summary>Called for the DimensionChange event of this entity when a subclass overrides it.</summary>
+    [EventHook("DimensionChange")]
+    protected virtual void HandleDimensionChange(int oldDimension, int newDimension)
+    {
+    }
+
+    /// <summary>Called for the EnterWater event of this entity when a subclass overrides it.</summary>
+    [EventHook("EnterWater")]
+    protected virtual void HandleEnterWater()
+    {
+    }
+
+    /// <summary>Called for the HealthChange event of this entity when a subclass overrides it.</summary>
+    [EventHook("HealthChange")]
+    protected virtual void HandleHealthChange(int oldHealth, int newHealth)
+    {
+    }
+
+    /// <summary>Called for the LeaveWater event of this entity when a subclass overrides it.</summary>
+    [EventHook("LeaveWater")]
+    protected virtual void HandleLeaveWater()
+    {
+    }
+
+    /// <summary>Called for the MoveComplete event of this entity when a subclass overrides it.</summary>
+    [EventHook("MoveComplete")]
+    protected virtual void HandleMoveComplete(bool succeeded)
+    {
+    }
+
+    /// <summary>Called for the NetworkAuthorityChange event of this entity when a subclass overrides it.</summary>
+    [EventHook("NetworkAuthorityChange")]
+    protected virtual void HandleNetworkAuthorityChange(Player? oldNetworkAuthority, Player? newNetworkAuthority)
+    {
+    }
+
+    /// <summary>Called for the Possess event of this entity when a subclass overrides it.</summary>
+    [EventHook("Possess")]
+    protected virtual void HandlePossess(Player? player)
+    {
+    }
+
+    /// <summary>Called for the Respawn event of this entity when a subclass overrides it.</summary>
+    [EventHook("Respawn")]
+    protected virtual void HandleRespawn()
+    {
+    }
+
+    /// <summary>Called for the Spawn event of this entity when a subclass overrides it.</summary>
+    [EventHook("Spawn")]
+    protected virtual void HandleSpawn()
+    {
+    }
+
+    /// <summary>Called for the TakeDamage event of this entity when a subclass overrides it.</summary>
+    [EventHook("TakeDamage")]
+    protected virtual void HandleTakeDamage(int damage, string? bone, DamageType type, Vector fromDirection, Player? instigator, object? causer)
+    {
+    }
+
+    /// <summary>Called for the UnPossess event of this entity when a subclass overrides it.</summary>
+    [EventHook("UnPossess")]
+    protected virtual void HandleUnPossess(Player? oldPlayer)
+    {
+    }
+
+    /// <summary>Called for the ValueChange event of this entity when a subclass overrides it.</summary>
+    [EventHook("ValueChange")]
+    protected virtual void HandleValueChange(string? key, object? value)
+    {
+    }
+
     /// <summary>Triggered when a new Class is registered with the Inheriting System</summary>
     public delegate void ClassRegisterHandler(object? @class);
 

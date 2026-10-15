@@ -758,6 +758,116 @@ public partial class VehicleWheeled : Actor, IDamageable, IPaintable, IVehicle
     /// <summary>Subscribes to the ValueChange event of this entity only.</summary>
     public ScriptSubscription SubscribeValueChange(ValueChangeHandler handler) => Subscribe("ValueChange", handler);
 
+    /// <summary>Called for the CharacterAttemptEnter event of this entity when a subclass overrides it.</summary>
+    [EventHook("CharacterAttemptEnter")]
+    protected virtual bool HandleCharacterAttemptEnter(Character? character, int seat) => true;
+
+    /// <summary>Called for the CharacterAttemptLeave event of this entity when a subclass overrides it.</summary>
+    [EventHook("CharacterAttemptLeave")]
+    protected virtual bool HandleCharacterAttemptLeave(Character? character) => true;
+
+    /// <summary>Called for the CharacterEnter event of this entity when a subclass overrides it.</summary>
+    [EventHook("CharacterEnter")]
+    protected virtual void HandleCharacterEnter(Character? character, int seatIndex)
+    {
+    }
+
+    /// <summary>Called for the CharacterLeave event of this entity when a subclass overrides it.</summary>
+    [EventHook("CharacterLeave")]
+    protected virtual void HandleCharacterLeave(Character? character, int seatIndex)
+    {
+    }
+
+    /// <summary>Called for the Death event of this entity when a subclass overrides it.</summary>
+    [EventHook("Death")]
+    protected virtual void HandleDeath(int lastDamageTaken, string? lastBoneDamaged, DamageType damageTypeReason, Vector hitFromDirection, Player? instigator, Actor? causer)
+    {
+    }
+
+    /// <summary>Called for the Destroy event of this entity when a subclass overrides it.</summary>
+    [EventHook("Destroy")]
+    protected virtual void HandleDestroy()
+    {
+    }
+
+    /// <summary>Called for the DimensionChange event of this entity when a subclass overrides it.</summary>
+    [EventHook("DimensionChange")]
+    protected virtual void HandleDimensionChange(int oldDimension, int newDimension)
+    {
+    }
+
+    /// <summary>Called for the EngineStart event of this entity when a subclass overrides it.</summary>
+    [EventHook("EngineStart")]
+    protected virtual void HandleEngineStart()
+    {
+    }
+
+    /// <summary>Called for the EngineStop event of this entity when a subclass overrides it.</summary>
+    [EventHook("EngineStop")]
+    protected virtual void HandleEngineStop()
+    {
+    }
+
+    /// <summary>Called for the EnterWater event of this entity when a subclass overrides it.</summary>
+    [EventHook("EnterWater")]
+    protected virtual void HandleEnterWater()
+    {
+    }
+
+    /// <summary>Called for the HealthChange event of this entity when a subclass overrides it.</summary>
+    [EventHook("HealthChange")]
+    protected virtual void HandleHealthChange(int oldHealth, int newHealth)
+    {
+    }
+
+    /// <summary>Called for the Hit event of this entity when a subclass overrides it.</summary>
+    [EventHook("Hit")]
+    protected virtual void HandleHit(float impactForce, Vector normalImpulse, Vector impactLocation, Vector velocity, Actor? otherActor)
+    {
+    }
+
+    /// <summary>Called for the Horn event of this entity when a subclass overrides it.</summary>
+    [EventHook("Horn")]
+    protected virtual void HandleHorn(bool isHonking)
+    {
+    }
+
+    /// <summary>Called for the LeaveWater event of this entity when a subclass overrides it.</summary>
+    [EventHook("LeaveWater")]
+    protected virtual void HandleLeaveWater()
+    {
+    }
+
+    /// <summary>Called for the NetworkAuthorityChange event of this entity when a subclass overrides it.</summary>
+    [EventHook("NetworkAuthorityChange")]
+    protected virtual void HandleNetworkAuthorityChange(Player? oldNetworkAuthority, Player? newNetworkAuthority)
+    {
+    }
+
+    /// <summary>Called for the Respawn event of this entity when a subclass overrides it.</summary>
+    [EventHook("Respawn")]
+    protected virtual void HandleRespawn()
+    {
+    }
+
+    /// <summary>Called for the Spawn event of this entity when a subclass overrides it.</summary>
+    [EventHook("Spawn")]
+    protected virtual void HandleSpawn()
+    {
+    }
+
+    /// <summary>Called for the TakeDamage event of this entity when a subclass overrides it.</summary>
+    [EventHook("TakeDamage")]
+    protected virtual void HandleTakeDamage(int damage, string? bone, DamageType type, Vector fromDirection, Player? instigator, object? causer)
+    {
+    }
+
+    /// <summary>Called for the ValueChange event of this entity when a subclass overrides it.</summary>
+    [EventHook("ValueChange")]
+    protected virtual void HandleValueChange(string? key, object? value)
+    {
+    }
+
     /// <summary>Triggered when a Character attempts to enter the Vehicle</summary>
     public delegate bool CharacterAttemptEnterHandler(VehicleWheeled self, Character? character, int seat);
 

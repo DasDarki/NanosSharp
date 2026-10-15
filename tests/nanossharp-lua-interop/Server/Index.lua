@@ -17,3 +17,7 @@ end)
 Package.Export("LuaInteropUseCSharpFunction", function(text)
     return NanosSharpShout(text)
 end)
+
+Package.Export("LuaInteropSpawnStaticMesh", function()
+    return StaticMesh(Vector(0, 0, 0), Rotator(0, 0, 0), "nanos-world::SM_Cube")
+end)

@@ -93,8 +93,14 @@ Own entity classes, every entity of that scripting class is wrapped with them (a
 public class RoleplayPlayer : Player
 {
     public int Money { get; set; }
+
+    protected override void HandleReady() => SendMessage($"You have {Money} dollars.");
 }
 ```
+
+Every entity event has a `Handle<Event>` hook. Only the hooks a subclass overrides are subscribed, per entity, and they
+are released when the entity is destroyed or the package unloads. Subclasses spawned with their own constructor, like
+`new MyProp(location)`, get the hooks as well. Cancellable events return `bool`, `false` cancels them.
 
 Compiled assemblies placed in `Server/` work as well, see `managed/examples`.
 Publish such projects into `Server/`, libraries, `*.deps.json` and native libraries next to them are resolved automatically.

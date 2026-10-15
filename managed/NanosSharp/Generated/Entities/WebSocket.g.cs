@@ -53,6 +53,18 @@ public partial class WebSocket : Entity
     /// <summary>Subscribes to the ReceiveMessage event of this entity only.</summary>
     public ScriptSubscription SubscribeReceiveMessage(ReceiveMessageHandler handler) => Subscribe("ReceiveMessage", handler);
 
+    /// <summary>Called for the Close event of this entity when a subclass overrides it.</summary>
+    [EventHook("Close")]
+    protected virtual void HandleClose()
+    {
+    }
+
+    /// <summary>Called for the ReceiveMessage event of this entity when a subclass overrides it.</summary>
+    [EventHook("ReceiveMessage")]
+    protected virtual void HandleReceiveMessage(string? message)
+    {
+    }
+
     /// <summary>Triggered when the connection was closed</summary>
     public delegate void CloseHandler(WebSocket self);
 

@@ -234,6 +234,48 @@ public partial class StaticMesh : Actor, IPaintable
     /// <summary>Subscribes to the ValueChange event of this entity only.</summary>
     public ScriptSubscription SubscribeValueChange(ValueChangeHandler handler) => Subscribe("ValueChange", handler);
 
+    /// <summary>Called for the Destroy event of this entity when a subclass overrides it.</summary>
+    [EventHook("Destroy")]
+    protected virtual void HandleDestroy()
+    {
+    }
+
+    /// <summary>Called for the DimensionChange event of this entity when a subclass overrides it.</summary>
+    [EventHook("DimensionChange")]
+    protected virtual void HandleDimensionChange(int oldDimension, int newDimension)
+    {
+    }
+
+    /// <summary>Called for the EnterWater event of this entity when a subclass overrides it.</summary>
+    [EventHook("EnterWater")]
+    protected virtual void HandleEnterWater()
+    {
+    }
+
+    /// <summary>Called for the LeaveWater event of this entity when a subclass overrides it.</summary>
+    [EventHook("LeaveWater")]
+    protected virtual void HandleLeaveWater()
+    {
+    }
+
+    /// <summary>Called for the NetworkAuthorityChange event of this entity when a subclass overrides it.</summary>
+    [EventHook("NetworkAuthorityChange")]
+    protected virtual void HandleNetworkAuthorityChange(Player? oldNetworkAuthority, Player? newNetworkAuthority)
+    {
+    }
+
+    /// <summary>Called for the Spawn event of this entity when a subclass overrides it.</summary>
+    [EventHook("Spawn")]
+    protected virtual void HandleSpawn()
+    {
+    }
+
+    /// <summary>Called for the ValueChange event of this entity when a subclass overrides it.</summary>
+    [EventHook("ValueChange")]
+    protected virtual void HandleValueChange(string? key, object? value)
+    {
+    }
+
     /// <summary>Triggered when a new Class is registered with the Inheriting System</summary>
     public delegate void ClassRegisterHandler(object? @class);
 

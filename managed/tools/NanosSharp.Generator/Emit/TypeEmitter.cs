@@ -6,6 +6,8 @@ internal static class TypeEmitter
 {
     private const int MaximumLineLength = 116;
     private const int MaximumTypedArguments = 8;
+    private const string SelfArgumentName = "self";
+    private const string HookPrefix = "Handle";
 
     private static readonly string[] Usings =
     [
@@ -91,6 +93,7 @@ internal static class TypeEmitter
         if (type.Kind == TypeKind.Entity)
         {
             WriteInstanceSubscriptions(writer, type);
+            WriteEventHooks(writer, type);
         }
 
         foreach (var eventModel in type.Events)
@@ -145,6 +148,27 @@ internal static class TypeEmitter
             writer.Line($"/// <summary>Subscribes to the {eventModel.Name} event of this entity only.</summary>");
             writer.Line($"public ScriptSubscription Subscribe{eventModel.Name}({eventModel.HandlerName} handler) => " +
                         $"Subscribe(\"{eventModel.Name}\", handler);");
+            writer.BlankLine();
+        }
+    }
+
+    private static void WriteEventHooks(CodeWriter writer, TypeModel type)
+    {
+        foreach (var eventModel in type.Events.Where(eventModel => eventModel.Arguments is [{ Name: SelfArgumentName }, ..]))
+        {
+            var parameters = FormatParameters(eventModel.Arguments.Skip(1));
+            writer.Line($"/// <summary>Called for the {eventModel.Name} event of this entity when a subclass overrides it.</summary>");
+            writer.Line($"[EventHook(\"{eventModel.Name}\")]");
+            if (eventModel.IsCancellable)
+            {
+                writer.Line($"protected virtual bool {HookPrefix}{eventModel.Name}({parameters}) => true;");
+                writer.BlankLine();
+                continue;
+            }
+
+            writer.Line($"protected virtual void {HookPrefix}{eventModel.Name}({parameters})");
+            writer.OpenBlock();
+            writer.CloseBlock();
             writer.BlankLine();
         }
     }

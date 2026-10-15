@@ -417,6 +417,60 @@ public partial class Player : Entity
     /// <summary>Subscribes to the ValueChange event of this entity only.</summary>
     public ScriptSubscription SubscribeValueChange(ValueChangeHandler handler) => Subscribe("ValueChange", handler);
 
+    /// <summary>Called for the Destroy event of this entity when a subclass overrides it.</summary>
+    [EventHook("Destroy")]
+    protected virtual void HandleDestroy()
+    {
+    }
+
+    /// <summary>Called for the DimensionChange event of this entity when a subclass overrides it.</summary>
+    [EventHook("DimensionChange")]
+    protected virtual void HandleDimensionChange(int oldDimension, int newDimension)
+    {
+    }
+
+    /// <summary>Called for the Possess event of this entity when a subclass overrides it.</summary>
+    [EventHook("Possess")]
+    protected virtual void HandlePossess(Entity? pawn)
+    {
+    }
+
+    /// <summary>Called for the Ready event of this entity when a subclass overrides it.</summary>
+    [EventHook("Ready")]
+    protected virtual void HandleReady()
+    {
+    }
+
+    /// <summary>Called for the Spawn event of this entity when a subclass overrides it.</summary>
+    [EventHook("Spawn")]
+    protected virtual void HandleSpawn()
+    {
+    }
+
+    /// <summary>Called for the UnPossess event of this entity when a subclass overrides it.</summary>
+    [EventHook("UnPossess")]
+    protected virtual void HandleUnPossess(Entity? pawn)
+    {
+    }
+
+    /// <summary>Called for the VOIPGlobalChannelSettingChange event of this entity when a subclass overrides it.</summary>
+    [EventHook("VOIPGlobalChannelSettingChange")]
+    protected virtual void HandleVOIPGlobalChannelSettingChange(int channel, VOIPSetting oldSetting, VOIPSetting newSetting)
+    {
+    }
+
+    /// <summary>Called for the VOIPLocalSettingChange event of this entity when a subclass overrides it.</summary>
+    [EventHook("VOIPLocalSettingChange")]
+    protected virtual void HandleVOIPLocalSettingChange(VOIPSetting oldSetting, VOIPSetting newSetting)
+    {
+    }
+
+    /// <summary>Called for the ValueChange event of this entity when a subclass overrides it.</summary>
+    [EventHook("ValueChange")]
+    protected virtual void HandleValueChange(string? key, object? value)
+    {
+    }
+
     /// <summary>Triggered when a new Class is registered with the Inheriting System</summary>
     public delegate void ClassRegisterHandler(object? @class);
 
