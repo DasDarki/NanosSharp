@@ -4,7 +4,7 @@
 
 > Early development. Linux dedicated server only.
 
-Documentation: https://dasdarki.de/nanossharp/
+Documentation: https://nanossharp.dasdarki.de
 
 ## Installation
 

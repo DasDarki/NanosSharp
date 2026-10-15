@@ -21,4 +21,4 @@ dotnet new install NanosSharp.Templates
 dotnet new nanossharp-script -n MyGamemode
 ```
 
-Documentation: https://dasdarki.de/nanossharp/
+Documentation: https://nanossharp.dasdarki.de

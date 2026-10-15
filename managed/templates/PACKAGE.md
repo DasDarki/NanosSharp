@@ -1,6 +1,6 @@
 # NanosSharp Templates
 
-`dotnet new` templates for [NanosSharp](https://dasdarki.de/nanossharp/) packages on nanos world servers.
+`dotnet new` templates for [NanosSharp](https://nanossharp.dasdarki.de) packages on nanos world servers.
 
 ```sh
 dotnet new install NanosSharp.Templates

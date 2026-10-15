@@ -13,7 +13,7 @@
     <Authors>DasDarki</Authors>
     <Copyright>Copyright (c) 2026 DasDarki</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://dasdarki.de/nanossharp/</PackageProjectUrl>
+    <PackageProjectUrl>https://nanossharp.dasdarki.de</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DasDarki/NanosSharp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>nanos-world;nanos;gameserver;scripting;modding</PackageTags>
