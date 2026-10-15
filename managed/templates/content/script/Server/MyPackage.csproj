@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>MyPackage.Scripts</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="NanosSharp" Version="NANOSSHARP_VERSION" ExcludeAssets="runtime" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.IO" />
+    <Using Include="System.Linq" />
+    <Using Include="System.Threading" />
+    <Using Include="System.Threading.Tasks" />
+    <Using Include="NanosSharp.Core" />
+    <Using Include="NanosSharp.Entities" />
+    <Using Include="NanosSharp.Enums" />
+    <Using Include="NanosSharp.Eventing" />
+    <Using Include="NanosSharp.Logging" />
+    <Using Include="NanosSharp.Mathematics" />
+    <Using Include="NanosSharp.Packages" />
+    <Using Include="NanosSharp.Scripting" />
+    <Using Include="NanosSharp.Threading" />
+  </ItemGroup>
+</Project>

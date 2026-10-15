@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>NanosSharp.Templates</PackageId>
+    <Title>NanosSharp Templates</Title>
+    <Description>dotnet new templates for NanosSharp packages on nanos world servers.</Description>
+    <PackageType>Template</PackageType>
+    <IsPackable>true</IsPackable>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeSymbols>false</IncludeSymbols>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <PackageReadmeFile>PACKAGE.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <StampedTemplateDirectory>$(BaseIntermediateOutputPath)templates/</StampedTemplateDirectory>
+  </PropertyGroup>
+  <ItemGroup>
+    <TemplateSource Include="content/**/*" />
+    <None Include="PACKAGE.md" Pack="true" PackagePath="/" />
+    <None Include="$(RepositoryRoot)/assets/icon.png" Pack="true" PackagePath="/" Visible="false" />
+  </ItemGroup>
+
+  <UsingTask TaskName="StampTemplates" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Sources ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <TargetRoot ParameterType="System.String" Required="true" />
+      <Version ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        foreach (var source in Sources)
+        {
+            var path = source.GetMetadata("FullPath");
+            var name = source.GetMetadata("RecursiveDir") + source.GetMetadata("Filename") + source.GetMetadata("Extension");
+            var target = System.IO.Path.Combine(TargetRoot, name);
+            System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(target));
+            System.IO.File.WriteAllText(target, System.IO.File.ReadAllText(path).Replace("NANOSSHARP_VERSION", Version));
+        }
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="StampTemplateContent" BeforeTargets="_GetPackageFiles">
+    <RemoveDir Directories="$(StampedTemplateDirectory)" />
+    <StampTemplates Sources="@(TemplateSource)" TargetRoot="$(StampedTemplateDirectory)" Version="$(Version)" />
+    <ItemGroup>
+      <StampedTemplate Include="$(StampedTemplateDirectory)**/*" />
+      <None Include="@(StampedTemplate)" Pack="true" PackagePath="content" />
+    </ItemGroup>
+  </Target>
+</Project>

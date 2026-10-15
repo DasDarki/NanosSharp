@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "DasDarki",
+  "classifications": ["nanos world", "NanosSharp", "Game"],
+  "identity": "NanosSharp.Templates.Script",
+  "name": "NanosSharp Script Package",
+  "description": "A nanos world package with C# scripts that the server compiles and hot reloads.",
+  "shortName": "nanossharp-script",
+  "sourceName": "MyPackage",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "symbols": {
+    "title": {
+      "type": "parameter",
+      "datatype": "text",
+      "description": "Title of the package shown by nanos world.",
+      "defaultValue": "My Package",
+      "replaces": "PACKAGE_TITLE"
+    },
+    "packageAuthor": {
+      "type": "parameter",
+      "datatype": "text",
+      "description": "Author of the package.",
+      "defaultValue": "Unknown",
+      "replaces": "PACKAGE_AUTHOR"
+    }
+  }
+}
