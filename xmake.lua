@@ -43,6 +43,11 @@ target("nanossharp")
                 raise("%s requires GLIBCXX_3.4.%s, nanos world only ships GLIBCXX_3.4.32", target:targetfile(), minor)
             end
         end
+        for minor in symbols:gmatch("GLIBC_2%.(%d+)") do
+            if tonumber(minor) > 34 then
+                raise("%s requires GLIBC_2.%s, nanos world only requires GLIBC_2.34", target:targetfile(), minor)
+            end
+        end
     end)
 
     on_load(function (target)
@@ -109,6 +114,44 @@ task("deploy")
         options = {
             {"s", "server", "kv", nil, "The nanos world server directory."},
             {"c", "configuration", "kv", "Debug", "The .NET build configuration.", values = {"Debug", "Release"}}
+        }
+    }
+task_end()
+
+task("bundle")
+    set_category("plugin")
+    on_run(function ()
+        import("core.base.option")
+        import("core.project.config")
+        import("core.project.project")
+
+        config.load()
+        local root = os.projectdir()
+        local version = option.get("release") or project.version()
+        local release_dir = path.join(root, "build", "release")
+        local bundle_dir = path.join(release_dir, "bundle")
+        local runtime_dir = path.join(bundle_dir, "NanosSharp", "runtime")
+        local archive = path.join(release_dir, "nanossharp-" .. version .. "-linux-x64.tar.gz")
+
+        os.execv("xmake", {"build", "nanossharp"})
+        os.execv("dotnet", {"build", path.join(root, "managed", "NanosSharp.Host", "NanosSharp.Host.csproj"), "-c", "Release",
+            "-p:Version=" .. version, "--nologo", "-v", "q"})
+
+        os.tryrm(release_dir)
+        os.mkdir(runtime_dir)
+        os.cp(path.join(root, "build", "managed", "bin", "NanosSharp.Host", "Release", "net10.0", "*"), runtime_dir)
+        os.cp(project.target("nanossharp"):targetfile(), runtime_dir)
+        os.cp(path.join(root, "scripts", "NanosSharp.sh"), bundle_dir)
+        os.cp(path.join(root, "LICENSE"), path.join(bundle_dir, "NanosSharp"))
+        os.execv("tar", {"-czf", archive, "-C", bundle_dir, "."})
+
+        cprint("${color.success}NanosSharp %s bundled into %s", version, archive)
+    end)
+    set_menu {
+        usage = "xmake bundle [-r version]",
+        description = "Build the NanosSharp runtime and pack it into a release archive for nanos world servers.",
+        options = {
+            {"r", "release", "kv", nil, "The version of the release, the project version by default."}
         }
     }
 task_end()
