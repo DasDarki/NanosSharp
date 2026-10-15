@@ -4,6 +4,30 @@
 
 > Early development. Linux dedicated server only.
 
+Documentation: https://dasdarki.de/nanossharp/
+
+## Installation
+
+Extract the bundle of a [release](https://github.com/DasDarki/NanosSharp/releases) into the server directory, install
+the .NET 10 runtime and start the server with `./NanosSharp.sh` instead of `./NanosWorldServer.sh`:
+
+```sh
+curl -L https://github.com/DasDarki/NanosSharp/releases/latest/download/nanossharp-<version>-linux-x64.tar.gz | tar -xz
+```
+
+Or run the image with the server, .NET and NanosSharp included:
+
+```sh
+docker run -p 7777:7777/udp -p 7777:7777/tcp -p 7778:7778/udp -v "$PWD/Packages:/nanos/Packages" ghcr.io/dasdarki/nanossharp
+```
+
+Create packages with the templates:
+
+```sh
+dotnet new install NanosSharp.Templates
+dotnet new nanossharp-script -n MyGamemode -o Packages/my-gamemode
+```
+
 ## How it works
 
 ```
@@ -49,7 +73,7 @@ public sealed class MyPackage : Package
     protected override void OnStart()
     {
         Log.Info($"Running on {Server.Map}");
-        Player.Ready += player => player.Possess(Character.Spawn(new Vector(0, 0, 200), Rotator.Zero));
+        Player.OnReady += player => player.Possess(new Character(new Vector(0, 0, 200), Rotator.Zero, "nanos-world::SK_Mannequin"));
     }
 }
 ```
@@ -249,6 +273,12 @@ and reports the results of the in-server test suite.
 Calls into nanos world must happen on the main thread, use `MainThread.Post` or `await` from main thread code.
 Everything without a typed wrapper yet is reachable through `ScriptApi` and `Entity.Invoke`.
 
+## Releasing
+
+Pushing a tag `v<version>` runs `.github/workflows/publish.yml`: it builds the bundle (`xmake bundle -r <version>`),
+pushes `NanosSharp` and `NanosSharp.Templates` to NuGet through trusted publishing, creates the GitHub release and
+pushes the Docker image from `docker/Dockerfile` to `ghcr.io/dasdarki/nanossharp`.
+
 ## Layout
 
 | Path | Content |
@@ -262,4 +292,6 @@ Everything without a typed wrapper yet is reachable through `ScriptApi` and `Ent
 | `managed/NanosSharp/Generated` | Generated API (do not edit) |
 | `managed/tools/NanosSharp.Generator` | API generator and native API dump |
 | `managed/examples` | Example packages |
+| `managed/templates` | `dotnet new` templates |
+| `docker` | Docker image of a server with NanosSharp |
 | `tests` | In-server integration test packages |
