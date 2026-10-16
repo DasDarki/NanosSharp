@@ -1,9 +1,9 @@
-#ifndef NANOSSHARP_GAME_VALIDATION_H_
-#define NANOSSHARP_GAME_VALIDATION_H_
+#ifndef NANOSSHARP_PLATFORM_LINUX_VALIDATION_H_
+#define NANOSSHARP_PLATFORM_LINUX_VALIDATION_H_
 
 #include <string>
 
-#include "game/package.h"
+#include "platform/linux/package.h"
 #include "game/scripting.h"
 
 namespace nanossharp::game {

@@ -1,7 +1,5 @@
 #include "bridge/native_api.h"
 
-#include <cxxabi.h>
-
 #include <cstdlib>
 #include <cstring>
 #include <exception>
@@ -13,9 +11,7 @@
 #include <vector>
 
 #include "bridge/managed_function_ref.h"
-#include "game/lua.h"
-#include "host/isolated_libraries.h"
-#include "runtime.h"
+#include "platform/platform.h"
 
 namespace nanossharp::bridge {
 
@@ -32,16 +28,6 @@ char* CopyString(const std::string& value) {
   return copy;
 }
 
-char* DescribeType(const void* polymorphic_object) {
-  auto vtable = *static_cast<const std::type_info* const* const*>(polymorphic_object);
-  const std::type_info* type = vtable[-1];
-  int status = 0;
-  char* demangled = abi::__cxa_demangle(type->name(), nullptr, nullptr, &status);
-  if (status != 0 || demangled == nullptr) {
-    return CopyString(type->name());
-  }
-  return demangled;
-}
 
 template <typename Function>
 uint8_t Guard(char** error, Function&& function) {
@@ -78,8 +64,7 @@ std::vector<ScriptValue> CollectArguments(const ValueHandle* args, int32_t count
 }
 
 void Log(int32_t type, const char* message, int32_t length) {
-  Runtime::Instance().Log(static_cast<game::LogType>(type),
-                          std::string(message, length));
+  platform::Log(static_cast<game::LogType>(type), std::string(message, length));
 }
 
 void FreeString(char* value) { std::free(value); }
@@ -230,12 +215,15 @@ const game::ScriptArray* GetSequence(const ScriptValue* value) {
 
 ValueHandle ResolveDeferred(const ScriptValue* value) {
   const auto* entity = std::get_if<game::EntityDeferred>(&value->value);
-  game::EntityFetcher* fetcher = game::GetSymbols().entity_fetcher;
-  if (entity == nullptr || fetcher == nullptr || !*fetcher) {
+  if (entity == nullptr) {
     return CreateNil();
   }
   try {
-    return NewValue((*fetcher)(entity->network_id).value);
+    ScriptValue resolved{std::monostate{}};
+    if (!platform::ResolveDeferredEntity(entity->network_id, resolved)) {
+      return CreateNil();
+    }
+    return NewValue(std::move(resolved.value));
   } catch (...) {
     return CreateNil();
   }
@@ -287,15 +275,15 @@ uint8_t Invoke(const ScriptValue* function, const ValueHandle* args, int32_t cou
   });
 }
 
-int32_t EngineIsAttached() { return Runtime::Instance().engine() != nullptr ? 1 : 0; }
+int32_t EngineIsAttached() { return platform::AttachedEngine() != nullptr ? 1 : 0; }
 
 int32_t ClassCount() {
-  game::Engine* engine = Runtime::Instance().engine();
+  game::Engine* engine = platform::AttachedEngine();
   return engine != nullptr ? static_cast<int32_t>(engine->classes().size()) : 0;
 }
 
 ClassHandle ClassGet(int32_t index) {
-  return Runtime::Instance().engine()->classes().at(index);
+  return platform::AttachedEngine()->classes().at(index);
 }
 
 const char* ClassGetName(ClassHandle handle) { return handle->GetName().c_str(); }
@@ -323,23 +311,23 @@ PropertyHandle ClassGetProperty(ClassHandle handle, int32_t index) {
 }
 
 int32_t GlobalFunctionCount() {
-  game::Engine* engine = Runtime::Instance().engine();
+  game::Engine* engine = platform::AttachedEngine();
   return engine != nullptr ? static_cast<int32_t>(engine->functions().size()) : 0;
 }
 
 FunctionHandle GlobalFunctionGet(int32_t index) {
-  return Runtime::Instance().engine()->functions().at(index).get();
+  return platform::AttachedEngine()->functions().at(index).get();
 }
 
 const char* FunctionGetName(FunctionHandle handle) { return handle->GetName(); }
 
-char* FunctionGetSignature(FunctionHandle handle) { return DescribeType(handle); }
+char* FunctionGetSignature(FunctionHandle handle) { return platform::DescribeType(handle); }
 
 const char* PropertyGetName(PropertyHandle handle) {
   return handle->GetName().c_str();
 }
 
-char* PropertyGetSignature(PropertyHandle handle) { return DescribeType(handle); }
+char* PropertyGetSignature(PropertyHandle handle) { return platform::DescribeType(handle); }
 
 uint8_t FunctionInvoke(FunctionHandle handle, EnvironmentHandle environment,
                        const ValueHandle* args, int32_t count, ValueHandle* result,
@@ -361,7 +349,7 @@ uint8_t PropertySet(PropertyHandle handle, ValueHandle self, ValueHandle value,
 }
 
 EnvironmentHandle EnvironmentCreate(const char* name, int32_t length) {
-  game::Engine* engine = Runtime::Instance().engine();
+  game::Engine* engine = platform::AttachedEngine();
   if (engine == nullptr) {
     return nullptr;
   }
@@ -369,21 +357,21 @@ EnvironmentHandle EnvironmentCreate(const char* name, int32_t length) {
 }
 
 void EnvironmentDestroy(const char* name, int32_t length) {
-  if (game::Engine* engine = Runtime::Instance().engine()) {
+  if (game::Engine* engine = platform::AttachedEngine()) {
     engine->DestroyEnvironment(std::string(name, length));
   }
 }
 
 void* LibraryLoad(const char* path, char** error) {
   std::string message;
-  void* handle = host::LoadIsolatedLibrary(path, message);
+  void* handle = platform::LoadNativeLibrary(path, message);
   if (handle == nullptr) {
     *error = CopyString(message);
   }
   return handle;
 }
 
-void* PackageGetEntity(game::Package* package) { return package->scripting_entity(); }
+void* PackageGetEntity(game::Package* package) { return platform::GetPackageEntity(package); }
 
 class ArgumentLease {
  public:
@@ -427,14 +415,6 @@ uint8_t FunctionCall(FunctionHandle handle, EnvironmentHandle environment, const
   });
 }
 
-game::Engine& AttachedEngine() {
-  game::Engine* engine = Runtime::Instance().engine();
-  if (engine == nullptr) {
-    throw std::runtime_error("the scripting engine is not attached");
-  }
-  return *engine;
-}
-
 game::Environment& RequireEnvironment(EnvironmentHandle environment) {
   if (environment == nullptr) {
     throw std::runtime_error("Lua globals can only be accessed from a package");
@@ -446,9 +426,8 @@ ValueHandle LuaGetGlobal(EnvironmentHandle environment, const char* name, int32_
                          char** error) {
   ValueHandle result = nullptr;
   Guard(error, [&] {
-    result = NewValue(game::GetLuaGlobal(AttachedEngine(), RequireEnvironment(environment),
-                                         std::string(name, length))
-                          .value);
+    result = NewValue(
+        platform::GetLuaGlobal(RequireEnvironment(environment), std::string(name, length)).value);
   });
   return result;
 }
@@ -456,13 +435,12 @@ ValueHandle LuaGetGlobal(EnvironmentHandle environment, const char* name, int32_
 uint8_t LuaSetGlobal(EnvironmentHandle environment, const char* name, int32_t length,
                      const ScriptValue* value, char** error) {
   return Guard(error, [&] {
-    game::SetLuaGlobal(AttachedEngine(), RequireEnvironment(environment),
-                       std::string(name, length), *value);
+    platform::SetLuaGlobal(RequireEnvironment(environment), std::string(name, length), *value);
   });
 }
 
 uint8_t PackageReload(game::Package* package, char** error) {
-  return Guard(error, [&] { game::GetSymbols().package_reload(package); });
+  return Guard(error, [&] { platform::ReloadPackage(package); });
 }
 
 }

@@ -1,4 +1,4 @@
-#include "host/isolated_libraries.h"
+#include "platform/linux/isolated_libraries.h"
 
 #include <dlfcn.h>
 

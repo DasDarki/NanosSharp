@@ -1,4 +1,4 @@
-#include "runtime.h"
+#include "platform/linux/runtime.h"
 
 #include <dlfcn.h>
 
@@ -7,9 +7,9 @@
 #include <utility>
 
 #include "bridge/native_api.h"
-#include "game/lua.h"
-#include "game/validation.h"
-#include "host/isolated_libraries.h"
+#include "platform/linux/lua.h"
+#include "platform/linux/validation.h"
+#include "platform/linux/isolated_libraries.h"
 
 namespace nanossharp {
 

@@ -1,4 +1,4 @@
-#include "game/lua.h"
+#include "platform/linux/lua.h"
 
 #include <cstddef>
 #include <cstring>
@@ -10,8 +10,8 @@
 #include <string>
 #include <vector>
 
-#include "game/lua_symbols.h"
-#include "game/validation.h"
+#include "platform/linux/lua_symbols.h"
+#include "platform/linux/validation.h"
 
 namespace nanossharp::game {
 

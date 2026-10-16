@@ -1,5 +1,5 @@
-#ifndef NANOSSHARP_RUNTIME_H_
-#define NANOSSHARP_RUNTIME_H_
+#ifndef NANOSSHARP_PLATFORM_LINUX_RUNTIME_H_
+#define NANOSSHARP_PLATFORM_LINUX_RUNTIME_H_
 
 #include <array>
 #include <filesystem>
@@ -8,8 +8,8 @@
 #include <thread>
 
 #include "game/scripting.h"
-#include "game/symbols.h"
-#include "hooks/hook_manager.h"
+#include "platform/linux/symbols.h"
+#include "platform/linux/hook_manager.h"
 #include "host/dotnet_host.h"
 
 namespace nanossharp {

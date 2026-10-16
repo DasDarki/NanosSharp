@@ -1,5 +1,5 @@
-#ifndef NANOSSHARP_GAME_PACKAGE_H_
-#define NANOSSHARP_GAME_PACKAGE_H_
+#ifndef NANOSSHARP_PLATFORM_LINUX_PACKAGE_H_
+#define NANOSSHARP_PLATFORM_LINUX_PACKAGE_H_
 
 #include <cstddef>
 #include <string>

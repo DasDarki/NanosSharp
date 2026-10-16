@@ -4,8 +4,13 @@
 #include <cstdint>
 
 #include "bridge/native_argument.h"
-#include "game/package.h"
 #include "game/scripting.h"
+
+namespace nanossharp::game {
+
+class Package;
+
+}
 
 namespace nanossharp::bridge {
 

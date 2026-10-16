@@ -1,6 +1,6 @@
-#include "game/symbols.h"
+#include "platform/linux/symbols.h"
 
-#include "game/lua_symbols.h"
+#include "platform/linux/lua_symbols.h"
 
 namespace nanossharp::game {
 

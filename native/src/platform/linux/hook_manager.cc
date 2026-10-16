@@ -1,4 +1,4 @@
-#include "hooks/hook_manager.h"
+#include "platform/linux/hook_manager.h"
 
 #include <funchook.h>
 

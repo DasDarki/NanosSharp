@@ -1,5 +1,5 @@
-#ifndef NANOSSHARP_GAME_SYMBOLS_H_
-#define NANOSSHARP_GAME_SYMBOLS_H_
+#ifndef NANOSSHARP_PLATFORM_LINUX_SYMBOLS_H_
+#define NANOSSHARP_PLATFORM_LINUX_SYMBOLS_H_
 
 #include <dlfcn.h>
 
@@ -7,26 +7,12 @@
 #include <memory>
 #include <string>
 
-#include "game/package.h"
+#include "game/log_type.h"
+#include "platform/linux/package.h"
 #include "game/scripting.h"
 
 namespace nanossharp::game {
 
-enum class LogType : int32_t {
-  kInfo = 0,
-  kWarning = 1,
-  kError = 2,
-  kDebug = 3,
-  kVerbose = 4,
-  kScript = 5,
-  kScriptWarning = 6,
-  kScriptError = 7,
-  kScriptDebug = 8,
-  kChat = 9,
-  kWebUI = 10,
-  kSuccess = 11,
-  kFatal = 12,
-};
 
 using EntityFetcher = std::function<ScriptValue(uint32_t)>;
 using EngineInitializeFunction = void (*)(bool, void (*)(Engine&), void (*)(),

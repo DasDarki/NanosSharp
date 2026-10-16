@@ -1,13 +1,13 @@
 #include "host/dotnet_host.h"
 
 #include <coreclr_delegates.h>
-#include <dlfcn.h>
 #include <hostfxr.h>
-#include <nethost.h>
 
 #include <array>
 #include <cstdio>
 #include <utility>
+
+#include "platform/platform.h"
 
 namespace nanossharp::host {
 
@@ -23,7 +23,11 @@ std::string HexCode(int32_t code) {
 
 template <typename T>
 T LoadExport(void* library, const char* name) {
-  return reinterpret_cast<T>(dlsym(library, name));
+  return reinterpret_cast<T>(platform::FindExport(library, name));
+}
+
+std::basic_string<char_t> ToHostString(const std::string& value) {
+  return std::filesystem::path(value).native();
 }
 
 }
@@ -32,18 +36,15 @@ DotnetHost::DotnetHost(std::filesystem::path runtime_directory)
     : runtime_directory_(std::move(runtime_directory)) {}
 
 bool DotnetHost::Start(std::string& error) {
-  std::array<char_t, 4096> hostfxr_path{};
-  size_t hostfxr_path_size = hostfxr_path.size();
-  int result = get_hostfxr_path(hostfxr_path.data(), &hostfxr_path_size, nullptr);
-  if (result != 0) {
-    error = "unable to locate hostfxr (" + HexCode(result) +
-            "), is the .NET runtime installed?";
+  platform::HostfxrLocation location;
+  if (!platform::LocateHostfxr(runtime_directory_, location, error)) {
     return false;
   }
 
-  void* hostfxr = dlopen(hostfxr_path.data(), RTLD_NOW | RTLD_LOCAL);
+  std::string load_error;
+  void* hostfxr = platform::OpenLibrary(location.library, load_error);
   if (hostfxr == nullptr) {
-    error = std::string("unable to load hostfxr: ") + dlerror();
+    error = "unable to load hostfxr: " + load_error;
     return false;
   }
 
@@ -59,8 +60,11 @@ bool DotnetHost::Start(std::string& error) {
 
   std::filesystem::path config_path =
       runtime_directory_ / (std::string(kHostAssemblyName) + ".runtimeconfig.json");
+  hostfxr_initialize_parameters parameters{sizeof(hostfxr_initialize_parameters), nullptr,
+                                           location.dotnet_root.c_str()};
   hostfxr_handle context = nullptr;
-  result = initialize(config_path.c_str(), nullptr, &context);
+  int result = initialize(config_path.c_str(), location.dotnet_root.empty() ? nullptr : &parameters,
+                          &context);
   if (result != 0 || context == nullptr) {
     error = "unable to initialize the .NET runtime with " + config_path.string() +
             " (" + HexCode(result) + ")";
@@ -89,8 +93,9 @@ void* DotnetHost::GetEntryPoint(const char* type_name, const char* method_name,
   std::string qualified_type = std::string(type_name) + ", " + kHostAssemblyName;
 
   void* entry_point = nullptr;
-  int result = load(assembly_path.c_str(), qualified_type.c_str(), method_name,
-                    UNMANAGEDCALLERSONLY_METHOD, nullptr, &entry_point);
+  int result = load(assembly_path.c_str(), ToHostString(qualified_type).c_str(),
+                    ToHostString(method_name).c_str(), UNMANAGEDCALLERSONLY_METHOD, nullptr,
+                    &entry_point);
   if (result != 0 || entry_point == nullptr) {
     error = "unable to load " + qualified_type + "::" + method_name + " from " +
             assembly_path.string() + " (" + HexCode(result) + ")";

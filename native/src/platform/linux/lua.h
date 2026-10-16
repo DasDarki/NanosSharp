@@ -1,9 +1,9 @@
-#ifndef NANOSSHARP_GAME_LUA_H_
-#define NANOSSHARP_GAME_LUA_H_
+#ifndef NANOSSHARP_PLATFORM_LINUX_LUA_H_
+#define NANOSSHARP_PLATFORM_LINUX_LUA_H_
 
 #include <string>
 
-#include "game/lua_symbols.h"
+#include "platform/linux/lua_symbols.h"
 #include "game/scripting.h"
 
 namespace nanossharp::game {
