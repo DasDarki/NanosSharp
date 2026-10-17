@@ -74,7 +74,7 @@ public static partial class ScriptApi
         });
         var document = new
         {
-            ServerVersion = Invoke<string>("Server", "GetVersion"),
+            ServerVersion = ReadVersion(),
             Classes = classes,
             Functions = DescribeMethods(NativeClassRegistry.Functions),
         };
@@ -85,6 +85,14 @@ public static partial class ScriptApi
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
         };
         System.IO.File.WriteAllText(path, JsonSerializer.Serialize(document, options) + "\n");
+    }
+
+    private static string ReadVersion()
+    {
+        var source = NativeClassRegistry.Classes
+            .Where(nativeClass => nativeClass.Name is "Server" or "Client")
+            .FirstOrDefault(nativeClass => nativeClass.StaticMethods.ContainsKey("GetVersion"));
+        return source is null ? "unknown" : Invoke<string>(source.Name, "GetVersion") ?? "unknown";
     }
 
     private static IEnumerable<object> DescribeMethods(IEnumerable<NativeMethod> methods) =>

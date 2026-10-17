@@ -156,9 +156,7 @@ struct std::hash<nanossharp::game::Void> {
 
 template <>
 struct std::hash<nanossharp::game::Tuple> {
-  size_t operator()(const nanossharp::game::Tuple& tuple) const {
-    return tuple.values.size();
-  }
+  size_t operator()(const nanossharp::game::Tuple& tuple) const;
 };
 
 template <>
@@ -192,14 +190,22 @@ struct ScriptValue {
   }
 };
 
-static_assert(sizeof(std::string) == 8,
-              "nanos world uses the COW std::string ABI, compile with "
-              "_GLIBCXX_USE_CXX11_ABI=0");
+#if defined(_WIN32)
+inline constexpr size_t kExpectedStringSize = 32;
+inline constexpr size_t kExpectedScriptValueSize = 40;
+#else
+inline constexpr size_t kExpectedStringSize = 8;
+inline constexpr size_t kExpectedScriptValueSize = 32;
+#endif
+
+static_assert(sizeof(std::string) == kExpectedStringSize,
+              "the std::string ABI must match nanos world, compile with _GLIBCXX_USE_CXX11_ABI=0 "
+              "on Linux and the MSVC STL on Windows");
 static_assert(sizeof(Entity) == 24);
 static_assert(sizeof(Vector) == 24);
 static_assert(sizeof(Rotator) == 12);
 static_assert(sizeof(Vector2D) == 8);
-static_assert(sizeof(ScriptValue) == 32);
+static_assert(sizeof(ScriptValue) == kExpectedScriptValueSize);
 static_assert(sizeof(ScriptArray) == 24);
 static_assert(alignof(ScriptValue) == 8);
 
@@ -211,6 +217,11 @@ inline size_t ScriptValueHash::operator()(const ScriptValue& value) const {
   return std::hash<ScriptVariant>{}(value.value);
 }
 
+}
+
+inline size_t std::hash<nanossharp::game::Tuple>::operator()(
+    const nanossharp::game::Tuple& tuple) const {
+  return tuple.values.size();
 }
 
 #endif

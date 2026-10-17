@@ -28,7 +28,7 @@ target("nanossharp")
     set_basename("nanossharp")
     set_symbols("hidden")
     set_warnings("all", "extra")
-    add_files("native/src/**.cc")
+    add_files("native/src/bridge/*.cc", "native/src/host/*.cc", "native/src/platform/linux/*.cc")
     add_includedirs("native/src")
     add_defines("_GLIBCXX_USE_CXX11_ABI=0")
     add_cxflags("-fPIC", "-fno-plt")
@@ -152,6 +152,110 @@ task("bundle")
         description = "Build the NanosSharp runtime and pack it into a release archive for nanos world servers.",
         options = {
             {"r", "release", "kv", nil, "The version of the release, the project version by default."}
+        }
+    }
+task_end()
+
+task("client")
+    set_category("plugin")
+    on_run(function ()
+        import("core.base.option")
+        import("core.project.config")
+        import("lib.detect.find_tool")
+        import("net.http")
+        import("utils.archive")
+
+        config.load()
+        local root = os.projectdir()
+        local is_windows_host = os.host() == "windows"
+        local output_dir = path.join(root, "build", "client")
+        local object_dir = path.join(root, "build", "windows", "obj")
+        local package_dir = path.join(output_dir, "NanosSharp")
+        local runtime_version = option.get("runtime")
+        local configuration = option.get("configuration")
+
+        local dotnet_root = get_config("dotnet_root")
+        local header_dirs = os.dirs(path.join(dotnet_root, "packs", "Microsoft.NETCore.App.Host.*", "*", "runtimes", "*", "native"))
+        local header_dir = nil
+        for _, dir in ipairs(header_dirs) do
+            if os.isfile(path.join(dir, "hostfxr.h")) then
+                header_dir = dir
+            end
+        end
+        if not header_dir then
+            raise("hostfxr.h was not found in the .NET SDK packs of %s", dotnet_root)
+        end
+
+        local system_flags = {}
+        local library_flags = {}
+        if not is_windows_host then
+            local xwin = option.get("xwin") or path.join(os.getenv("HOME"), ".xwin")
+            if not os.isdir(xwin) then
+                raise("the MSVC CRT and Windows SDK were not found in %s, install them with xwin", xwin)
+            end
+            for _, dir in ipairs({"crt/include", "sdk/include/ucrt", "sdk/include/um", "sdk/include/shared"}) do
+                table.insert(system_flags, "/imsvc" .. path.join(xwin, dir))
+            end
+            for _, dir in ipairs({"crt/lib/x86_64", "sdk/lib/um/x86_64", "sdk/lib/ucrt/x86_64"}) do
+                table.insert(library_flags, "/libpath:" .. path.join(xwin, dir))
+            end
+        end
+
+        os.tryrm(object_dir)
+        os.mkdir(object_dir)
+        local sources = {}
+        for _, pattern in ipairs({"bridge/*.cc", "host/*.cc", "platform/windows/*.cc"}) do
+            table.join2(sources, os.files(path.join(root, "native", "src", pattern)))
+        end
+
+        local objects = {}
+        for _, source in ipairs(sources) do
+            local object = path.join(object_dir, path.basename(source) .. ".obj")
+            local arguments = {"/nologo", "/c", "/std:c++20", "/EHsc", "/MD", "/O2", "/W3", "/DNOMINMAX",
+                "/DWIN32_LEAN_AND_MEAN", "/I" .. path.join(root, "native", "src"), "/imsvc" .. header_dir}
+            table.join2(arguments, system_flags)
+            table.join2(arguments, {source, "/Fo" .. object})
+            os.execv("clang-cl", arguments)
+            table.insert(objects, object)
+        end
+
+        local stubs = path.join(object_dir, "version_stubs.obj")
+        os.execv("clang", {"--target=x86_64-pc-windows-msvc", "-c",
+            path.join(root, "native", "src", "platform", "windows", "version_stubs.S"), "-o", stubs})
+        table.insert(objects, stubs)
+
+        os.tryrm(output_dir)
+        os.mkdir(package_dir)
+        local link_arguments = {"/nologo", "/DLL", "/DEF:" .. path.join(root, "native", "src", "platform", "windows", "version.def"),
+            "/OUT:" .. path.join(output_dir, "version.dll"), "/IMPLIB:" .. path.join(object_dir, "version.lib"), "dbghelp.lib"}
+        table.join2(link_arguments, library_flags)
+        table.join2(link_arguments, objects)
+        os.execv("lld-link", link_arguments)
+
+        os.execv("dotnet", {"build", path.join(root, "managed", "NanosSharp.Host", "NanosSharp.Host.csproj"), "-c", configuration,
+            "--nologo", "-v", "q"})
+        os.mkdir(path.join(package_dir, "runtime"))
+        os.cp(path.join(root, "build", "managed", "bin", "NanosSharp.Host", configuration, "net10.0", "*"), path.join(package_dir, "runtime"))
+
+        local cache_dir = path.join(root, "build", "cache")
+        local runtime_archive = path.join(cache_dir, "dotnet-runtime-" .. runtime_version .. "-win-x64.zip")
+        if not os.isfile(runtime_archive) then
+            os.mkdir(cache_dir)
+            http.download("https://builds.dotnet.microsoft.com/dotnet/Runtime/" .. runtime_version .. "/dotnet-runtime-" ..
+                runtime_version .. "-win-x64.zip", runtime_archive)
+        end
+        archive.extract(runtime_archive, path.join(package_dir, "dotnet"))
+        os.cp(path.join(root, "LICENSE"), package_dir)
+
+        cprint("${color.success}NanosSharp client built into %s, copy its content into NanosWorld/Binaries/Win64", output_dir)
+    end)
+    set_menu {
+        usage = "xmake client [options]",
+        description = "Build the NanosSharp client runtime for the Windows game client.",
+        options = {
+            {"c", "configuration", "kv", "Release", "The .NET build configuration.", values = {"Debug", "Release"}},
+            {nil, "runtime", "kv", "10.0.13", "The .NET runtime version shipped with the client."},
+            {nil, "xwin", "kv", nil, "Directory of the MSVC CRT and Windows SDK downloaded with xwin."}
         }
     }
 task_end()
