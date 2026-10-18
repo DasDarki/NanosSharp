@@ -20,7 +20,7 @@ namespace {
 using game::ScriptValue;
 using game::ValueType;
 
-constexpr game::CompatibilityVersion kEnvironmentVersion{1, 0, 0, 0};
+constexpr game::CompatibilityVersion kEnvironmentVersion{.minor = 157, .major = 1};
 
 char* CopyString(const std::string& value) {
   char* copy = static_cast<char*>(std::malloc(value.size() + 1));
