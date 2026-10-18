@@ -43,6 +43,9 @@ jobs:
       - name: Configure
         run: xmake f -m release -y --dotnet_root="$DOTNET_ROOT"
 
+      - name: Test
+        run: dotnet test managed/tests/NanosSharp.Host.Tests -c Release
+
       - name: Bundle runtime
         run: xmake bundle -r "${{ steps.version.outputs.version }}"
 
@@ -96,15 +99,26 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/download-artifact@v4
         with:
           name: bundle
           path: release
 
+      - name: Write checksums
+        run: cd release && sha256sum *.tar.gz > SHA256SUMS
+
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: release/*.tar.gz
+
       - uses: softprops/action-gh-release@v2
         with:
-          files: release/*.tar.gz
+          files: |
+            release/*.tar.gz
+            release/SHA256SUMS
           prerelease: ${{ needs.build.outputs.prerelease == 'true' }}
           generate_release_notes: true
 

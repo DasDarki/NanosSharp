@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.Text;
+using NanosSharp.Host.Compilation.Sandbox;
 using NanosSharp.Host.Packages.Building;
 using NanosSharp.Packages;
 
@@ -19,7 +20,11 @@ internal static class ScriptCompiler
         "NanosSharp.Mathematics", "NanosSharp.Packages", "NanosSharp.Scripting", "NanosSharp.Threading",
     ];
 
-    private static readonly Lazy<MetadataReference[]> FrameworkReferences = new(LoadFrameworkReferences);
+    private const string DynamicRuntimeAssembly = "Microsoft.CSharp.dll";
+
+    private static readonly Lazy<MetadataReference[]> FrameworkReferences = new(() => LoadFrameworkReferences(true));
+
+    private static readonly Lazy<MetadataReference[]> SandboxReferences = new(() => LoadFrameworkReferences(false));
 
 #if CLIENT
     private const string SideSymbol = "CLIENT";
@@ -31,7 +36,7 @@ internal static class ScriptCompiler
 
     private static readonly CSharpCompilationOptions CompilationOptions = new(
         OutputKind.DynamicallyLinkedLibrary,
-                allowUnsafe: true,
+        allowUnsafe: true,
         nullableContextOptions: NullableContextOptions.Enable,
         specificDiagnosticOptions: new Dictionary<string, ReportDiagnostic>
         {
@@ -40,7 +45,7 @@ internal static class ScriptCompiler
         });
 
     public static CompilationResult Compile(string assemblyName, IReadOnlyList<string> sourceFiles,
-        IEnumerable<AssemblyImage> referenceImages, bool optimize)
+        IEnumerable<AssemblyImage> referenceImages, bool optimize, ApiAllowList? allowList = null)
     {
         var globalUsings = string.Concat(GlobalUsings.Select(name => $"global using {name};\n"));
         var syntaxTrees = sourceFiles
@@ -48,10 +53,17 @@ internal static class ScriptCompiler
                 ParseOptions, file))
             .Append(CSharpSyntaxTree.ParseText(SourceText.From(globalUsings, Encoding.UTF8), ParseOptions, "GlobalUsings.g.cs"));
 
-        var references = FrameworkReferences.Value
+        var frameworkReferences = allowList is null ? FrameworkReferences.Value : SandboxReferences.Value;
+        var references = frameworkReferences
             .Concat(referenceImages.Select(reference => MetadataReference.CreateFromImage(reference.Image)));
-        var compilation = CSharpCompilation.Create(assemblyName, syntaxTrees, references,
-            CompilationOptions.WithOptimizationLevel(optimize ? OptimizationLevel.Release : OptimizationLevel.Debug));
+        var options = CompilationOptions
+            .WithOptimizationLevel(optimize ? OptimizationLevel.Release : OptimizationLevel.Debug)
+            .WithAllowUnsafe(allowList is null);
+        var compilation = CSharpCompilation.Create(assemblyName, syntaxTrees, references, options);
+        if (allowList is not null && SandboxVerifier.VerifySource(compilation) is { Count: > 0 } sourceViolations)
+        {
+            return new CompilationResult(null, null, sourceViolations.ToArray());
+        }
 
         using var assemblyStream = new MemoryStream();
         using var symbolStream = new MemoryStream();
@@ -62,17 +74,27 @@ internal static class ScriptCompiler
             .Select(diagnostic => diagnostic.ToString())
             .ToArray();
 
-        return result.Success
-            ? new CompilationResult(assemblyStream.ToArray(), symbolStream.ToArray(), diagnostics)
-            : new CompilationResult(null, null, diagnostics);
+        if (!result.Success)
+        {
+            return new CompilationResult(null, null, diagnostics);
+        }
+
+        var image = assemblyStream.ToArray();
+        if (allowList is not null && SandboxVerifier.VerifyAssembly(image, allowList) is { Count: > 0 } violations)
+        {
+            return new CompilationResult(null, null, diagnostics.Concat(violations).ToArray());
+        }
+
+        return new CompilationResult(image, symbolStream.ToArray(), diagnostics);
     }
 
-    private static MetadataReference[] LoadFrameworkReferences()
+    private static MetadataReference[] LoadFrameworkReferences(bool includeDynamic)
     {
         var trustedAssemblies = (AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") as string ?? string.Empty)
             .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
             .Where(path => Path.GetFileName(path).StartsWith("System.", StringComparison.Ordinal) ||
-                           Path.GetFileName(path) is "mscorlib.dll" or "netstandard.dll" or "Microsoft.CSharp.dll");
+                           Path.GetFileName(path) is "mscorlib.dll" or "netstandard.dll" ||
+                           (includeDynamic && Path.GetFileName(path) == DynamicRuntimeAssembly));
         return trustedAssemblies
             .Append(typeof(Package).Assembly.Location)
             .Select(path => (MetadataReference)MetadataReference.CreateFromFile(path))

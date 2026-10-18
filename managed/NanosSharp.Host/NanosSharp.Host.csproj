@@ -7,6 +7,12 @@
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Compilation/Sandbox/client-allowlist.txt" LogicalName="NanosSharp.Host.Compilation.Sandbox.client-allowlist.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="NanosSharp.Host.Tests" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="../NanosSharp/NanosSharp.csproj" />
   </ItemGroup>
   <ItemGroup>
