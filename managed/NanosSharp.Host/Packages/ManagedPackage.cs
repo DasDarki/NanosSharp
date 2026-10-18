@@ -143,7 +143,7 @@ internal sealed class ManagedPackage
     private void OnFileChanged(string path, TimeSpan delay)
     {
         var folder = Path.GetRelativePath(Scope.Directory, path).Split(Path.DirectorySeparatorChar)[0];
-        var isWatchedFolder = folder is PackageBuilder.ServerDirectoryName or PackageBuilder.SharedDirectoryName;
+        var isWatchedFolder = folder is PackageBuilder.SideDirectoryName or PackageBuilder.SharedDirectoryName;
         if (isWatchedFolder && PackageBuilder.IsRelevantFile(path))
         {
             ScheduleSourcesChanged(delay);

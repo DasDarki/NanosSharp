@@ -85,7 +85,7 @@ internal static unsafe class PackageManager
             }
         }
 
-        if (_settings.HotReload.Enabled)
+        if (_settings.HotReload.Enabled && !PackageBuilder.IsSandboxed)
         {
             package.SourcesChanged += OnSourcesChanged;
             package.WatchSources(TimeSpan.FromMilliseconds(_settings.HotReload.DelayMilliseconds));

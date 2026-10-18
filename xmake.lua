@@ -227,7 +227,7 @@ task("client")
         os.tryrm(output_dir)
         os.mkdir(package_dir)
         local link_arguments = {"/nologo", "/DLL", "/DEF:" .. path.join(root, "native", "src", "platform", "windows", "version.def"),
-            "/OUT:" .. path.join(output_dir, "version.dll"), "/IMPLIB:" .. path.join(object_dir, "version.lib"), "dbghelp.lib"}
+            "/OUT:" .. path.join(output_dir, "version.dll"), "/IMPLIB:" .. path.join(object_dir, "version.lib"), "/MAP:" .. path.join(object_dir, "version.map"), "dbghelp.lib"}
         table.join2(link_arguments, library_flags)
         table.join2(link_arguments, objects)
         os.execv("lld-link", link_arguments)

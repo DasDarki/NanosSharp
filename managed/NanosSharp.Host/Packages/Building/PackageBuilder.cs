@@ -1,6 +1,7 @@
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using NanosSharp.Host.Compilation;
+using NanosSharp.Host.Compilation.Sandbox;
 using NanosSharp.Host.Packages.Dependencies;
 using NanosSharp.Logging;
 
@@ -8,7 +9,14 @@ namespace NanosSharp.Host.Packages.Building;
 
 internal static class PackageBuilder
 {
-    public const string ServerDirectoryName = "Server";
+#if CLIENT
+    public const string SideDirectoryName = "Client";
+    public const bool IsSandboxed = true;
+#else
+    public const string SideDirectoryName = "Server";
+    public const bool IsSandboxed = false;
+#endif
+
     public const string SharedDirectoryName = "Shared";
 
     private const string ApiAssemblyName = "NanosSharp";
@@ -19,9 +27,9 @@ internal static class PackageBuilder
 
     public static bool HasManagedCode(string packageDirectory)
     {
-        var serverDirectory = Path.Combine(packageDirectory, ServerDirectoryName);
+        var sideDirectory = Path.Combine(packageDirectory, SideDirectoryName);
         var sharedDirectory = Path.Combine(packageDirectory, SharedDirectoryName);
-        return FindSources(serverDirectory).Any() || FindAssemblies(serverDirectory).Any() || FindSources(sharedDirectory).Any();
+        return FindSources(sideDirectory).Any() || FindAssemblies(sideDirectory).Any() || FindSources(sharedDirectory).Any();
     }
 
     public static bool IsRelevantFile(string path) =>
@@ -30,11 +38,11 @@ internal static class PackageBuilder
     public static PackageBuild Build(string packageName, string packageDirectory, IEnumerable<AssemblyImage> requiredImages,
         PackageBuildOptions options)
     {
-        var serverDirectory = Path.Combine(packageDirectory, ServerDirectoryName);
-        var assemblyPaths = FindAssemblies(serverDirectory).ToArray();
+        var sideDirectory = Path.Combine(packageDirectory, SideDirectoryName);
+        var assemblyPaths = FindAssemblies(sideDirectory).ToArray();
         var assemblies = assemblyPaths.Select(ReadAssembly).ToDictionary(image => image.Name, StringComparer.Ordinal);
-        var sources = FindSources(serverDirectory).Concat(FindSources(Path.Combine(packageDirectory, SharedDirectoryName))).ToArray();
-        var dependencies = RestoreDependencies(packageName, serverDirectory, sources.Length > 0, options);
+        var sources = FindSources(sideDirectory).Concat(FindSources(Path.Combine(packageDirectory, SharedDirectoryName))).ToArray();
+        var dependencies = IsSandboxed ? ResolvedDependencies.Empty : RestoreDependencies(packageName, sideDirectory, sources.Length > 0, options);
 
         foreach (var runtimeAssembly in dependencies.RuntimeAssemblies.Select(ReadAssembly))
         {
@@ -44,11 +52,12 @@ internal static class PackageBuilder
         if (sources.Length > 0)
         {
             var references = assemblyPaths.Concat(dependencies.CompileReferences).Select(ReadAssembly).Concat(requiredImages);
-            var scripts = CompileScripts($"{packageName}.Scripts", sources, references, options.Optimize);
+            var scripts = CompileScripts($"{packageName}.Scripts", sources, references, options.Optimize,
+                IsSandboxed ? ApiAllowList.Client : null);
             assemblies[scripts.Name] = scripts;
         }
 
-        var nativeLibraries = FindNativeLibraries(serverDirectory)
+        var nativeLibraries = FindNativeLibraries(sideDirectory)
             .Concat(dependencies.NativeLibraries)
             .DistinctBy(entry => entry.Key)
             .ToDictionary(StringComparer.Ordinal);
@@ -56,13 +65,13 @@ internal static class PackageBuilder
         return new PackageBuild(assemblies, nativeLibraries, manifests);
     }
 
-    private static ResolvedDependencies RestoreDependencies(string packageName, string serverDirectory, bool hasSources,
+    private static ResolvedDependencies RestoreDependencies(string packageName, string sideDirectory, bool hasSources,
         PackageBuildOptions options)
     {
-        var projectPath = ProjectFile.Find(serverDirectory);
+        var projectPath = ProjectFile.Find(sideDirectory);
         if (projectPath is null && hasSources && options.GenerateProjectFiles)
         {
-            projectPath = ProjectGenerator.Generate(packageName, serverDirectory);
+            projectPath = ProjectGenerator.Generate(packageName, sideDirectory);
             Log.Info($"Generated {Path.GetFileName(projectPath)} for IDE support and NuGet references.");
         }
 
@@ -82,9 +91,9 @@ internal static class PackageBuilder
     }
 
     private static AssemblyImage CompileScripts(string assemblyName, IReadOnlyList<string> sources,
-        IEnumerable<AssemblyImage> references, bool optimize)
+        IEnumerable<AssemblyImage> references, bool optimize, ApiAllowList? allowList)
     {
-        var result = ScriptCompiler.Compile(assemblyName, sources, references, optimize);
+        var result = ScriptCompiler.Compile(assemblyName, sources, references, optimize, allowList);
         foreach (var diagnostic in result.Diagnostics)
         {
             Log.Warning(diagnostic);
@@ -124,10 +133,10 @@ internal static class PackageBuilder
         }
     }
 
-    private static IEnumerable<KeyValuePair<string, string>> FindNativeLibraries(string serverDirectory) =>
-        NativeRuntimeIdentifiers
-            .Select(runtimeIdentifier => Path.Combine(serverDirectory, "runtimes", runtimeIdentifier, "native"))
-            .Prepend(serverDirectory)
+    private static IEnumerable<KeyValuePair<string, string>> FindNativeLibraries(string sideDirectory) =>
+        IsSandboxed ? [] : NativeRuntimeIdentifiers
+            .Select(runtimeIdentifier => Path.Combine(sideDirectory, "runtimes", runtimeIdentifier, "native"))
+            .Prepend(sideDirectory)
             .Where(Directory.Exists)
             .SelectMany(directory => Directory.GetFiles(directory, "*.so*").Order(StringComparer.Ordinal))
             .Select(path => KeyValuePair.Create(Path.GetFileName(path), path));
@@ -139,9 +148,9 @@ internal static class PackageBuilder
                 .Order(StringComparer.Ordinal)
             : [];
 
-    private static IEnumerable<string> FindAssemblies(string serverDirectory) =>
-        Directory.Exists(serverDirectory)
-            ? Directory.EnumerateFiles(serverDirectory, "*.dll", SearchOption.TopDirectoryOnly)
+    private static IEnumerable<string> FindAssemblies(string sideDirectory) =>
+        !IsSandboxed && Directory.Exists(sideDirectory)
+            ? Directory.EnumerateFiles(sideDirectory, "*.dll", SearchOption.TopDirectoryOnly)
                 .Where(path => Path.GetFileNameWithoutExtension(path) != ApiAssemblyName)
                 .Order(StringComparer.Ordinal)
             : [];

@@ -10,6 +10,12 @@ public static class Log
 {
     private const string ConsoleClass = "Console_I";
 
+#if CLIENT
+    private const bool WritesNativeAlways = true;
+#else
+    private const bool WritesNativeAlways = false;
+#endif
+
     /// <summary>Writes an informational entry.</summary>
     public static void Info(string message) => Write("Log", LogLevel.Script, message);
 
@@ -31,7 +37,7 @@ public static class Log
 
     private static void Write(string function, LogLevel fallbackLevel, string message)
     {
-        if (TryWriteConsole(function, message))
+        if (TryWriteConsole(function, message) && !WritesNativeAlways)
         {
             return;
         }

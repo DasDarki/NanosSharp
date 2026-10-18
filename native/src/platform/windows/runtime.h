@@ -9,6 +9,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <unordered_set>
 
 #include "game/log_type.h"
 #include "game/scripting.h"
@@ -35,16 +36,25 @@ class Runtime {
   static void OnEntityCreated(game::Engine* engine, const game::Entity& entity,
                               const std::shared_ptr<game::IScriptEntityRef>& ref, uint64_t class_id);
   static void* OnEngineDestroyed(game::Engine* engine, uint32_t flags);
+  static void OnEngineClosing(game::Engine* engine);
+  static game::Environment* OnEnvironmentCreated(game::Engine* engine, const std::string& name,
+                                                 game::CompatibilityVersion version);
+  static void* OnEnvironmentDestroyed(game::Environment* environment, uint32_t flags);
+  static LONG CALLBACK OnException(EXCEPTION_POINTERS* exception);
 
   bool IsGameProcess() const;
   void PatchSlot(void** vtable, int slot, void* detour, void** original);
   void AttachEngine(game::Engine* engine);
   void DetachEngine();
   bool StartManaged(std::string& error);
+  void LoadPackage(game::Environment* environment, const std::string& name);
 
   using EntityDestroyedFunction = decltype(&OnEntityDestroyed);
   using EntityCreatedFunction = decltype(&OnEntityCreated);
   using EngineDestroyedFunction = decltype(&OnEngineDestroyed);
+  using EngineClosingFunction = decltype(&OnEngineClosing);
+  using EnvironmentCreatedFunction = decltype(&OnEnvironmentCreated);
+  using EnvironmentDestroyedFunction = decltype(&OnEnvironmentDestroyed);
 
   std::filesystem::path base_directory_;
   std::unique_ptr<host::DotnetHost> host_;
@@ -53,6 +63,10 @@ class Runtime {
   EntityDestroyedFunction original_entity_destroyed_ = nullptr;
   EntityCreatedFunction original_entity_created_ = nullptr;
   EngineDestroyedFunction original_engine_destroyed_ = nullptr;
+  EngineClosingFunction original_engine_closing_ = nullptr;
+  EnvironmentCreatedFunction original_environment_created_ = nullptr;
+  EnvironmentDestroyedFunction original_environment_destroyed_ = nullptr;
+  std::unordered_set<game::Environment*> packages_;
   game::Engine* engine_ = nullptr;
   DWORD main_thread_ = 0;
   bool disabled_ = false;
