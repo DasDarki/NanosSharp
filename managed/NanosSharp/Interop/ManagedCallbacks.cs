@@ -15,4 +15,6 @@ internal unsafe struct ManagedCallbacks
     public delegate* unmanaged<long, void> ReleaseFunction;
     public delegate* unmanaged<nint, byte*, byte*, nint, void> PackageLoaded;
     public delegate* unmanaged<nint, void> PackageUnloading;
+    public delegate* unmanaged<nint, byte*, void> ClientFilesStoring;
+    public delegate* unmanaged<nint, void> ClientFilesStored;
 }

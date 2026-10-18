@@ -20,7 +20,7 @@ using FunctionHandle = game::IFunction*;
 using PropertyHandle = game::IProperty*;
 using EnvironmentHandle = game::Environment*;
 
-inline constexpr int32_t kNativeApiVersion = 3;
+inline constexpr int32_t kNativeApiVersion = 4;
 
 struct ManagedCallbacks {
   void (*engine_attached)();
@@ -33,6 +33,8 @@ struct ManagedCallbacks {
   void (*package_loaded)(game::Package* package, const char* name, const char* directory,
                          EnvironmentHandle environment);
   void (*package_unloading)(game::Package* package);
+  void (*client_files_storing)(game::Package* package, const char* directory);
+  void (*client_files_stored)(game::Package* package);
 };
 
 struct NativeApi {

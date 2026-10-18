@@ -23,6 +23,7 @@ using EnqueueLogFunction = void (*)(LogType, std::string&&);
 using PackageLoadFunction = void (*)(Package*);
 using PackageUnloadFunction = void (*)(Package*, bool, bool);
 using PackageReloadFunction = void (*)(Package*);
+using PackageStoreClientFilesFunction = void (*)(Package*);
 
 struct Symbols {
   std::unique_ptr<Engine>* engine_instance = nullptr;
@@ -33,6 +34,7 @@ struct Symbols {
   PackageLoadFunction package_load = nullptr;
   PackageUnloadFunction package_unload = nullptr;
   PackageReloadFunction package_reload = nullptr;
+  PackageStoreClientFilesFunction package_store_client_files = nullptr;
   std::string* packages_path = nullptr;
   EntityFetcher* entity_fetcher = nullptr;
 

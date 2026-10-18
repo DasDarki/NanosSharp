@@ -8,7 +8,7 @@ public sealed class ClientTests : Package
     private readonly string[] _expected =
     [
         "PlayerConnect", "PlayerSpawn", "PlayerReady", "PlayerFactory", "PlayerProperties", "Possess", "ClientRemoteEvent",
-        "ServerRemoteEvent", "ChatEventClass", "ChatCancel", "PlayerDestroy",
+        "ServerRemoteEvent", "NanosSharpHandshake", "ChatEventClass", "ChatCancel", "PlayerDestroy",
     ];
 
     protected override void OnStart()
@@ -21,6 +21,10 @@ public sealed class ClientTests : Package
             Check("ClientRemoteEvent", number == 42 && text == "hello from lua" && vector == new Vector(1, 2, 3), $"{number} {text} {vector}"));
         Events.SubscribeRemote("nanossharp:client-pong", (Player player, string marker, long value) =>
             Check("ServerRemoteEvent", marker == "pong" && value == 7, $"{marker} {value}"));
+        NanosSharpClients.Connected += (player, client) =>
+            Check("NanosSharpHandshake", player.HasNanosSharp && player.NanosSharpVersion == client.Version, $"{player.Name} runs NanosSharp {client.Version}");
+        NanosSharpClients.Missing += player =>
+            Check("NanosSharpHandshake", !player.HasNanosSharp, $"{player.Name} has no NanosSharp client, the Lua fallback is used");
         Log.Info($"{Prefix} waiting for a player to join");
     }
 

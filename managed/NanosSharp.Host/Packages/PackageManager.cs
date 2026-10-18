@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Runtime.Loader;
+using NanosSharp.Core;
 using NanosSharp.Host.Configuration;
 using NanosSharp.Host.Packages.Building;
 using NanosSharp.Host.Packages.Dependencies;
@@ -35,10 +36,15 @@ internal static unsafe class PackageManager
         NativeCallbacks.PackageLoaded += OnPackageLoaded;
         NativeCallbacks.PackageUnloading += OnPackageUnloading;
         NativeCallbacks.Tick += _ => UnloadTracker.Tick();
+#if !CLIENT
+        NativeCallbacks.ClientFilesStoring += PackageMarker.Write;
+        NativeCallbacks.ClientFilesStored += PackageMarker.Remove;
+#endif
     }
 
     private static void OnEngineAttached()
     {
+        StartHandshake();
         if (Environment.GetEnvironmentVariable(ApiDumpEnvironmentVariable) is { Length: > 0 } path)
         {
             ScriptApi.DumpApi(path);
@@ -48,6 +54,11 @@ internal static unsafe class PackageManager
 
     private static void OnEngineDetaching()
     {
+#if CLIENT
+        ServerHandshake.Stop();
+#else
+        NanosSharpClients.Stop();
+#endif
         PendingBuilds.Clear();
         foreach (var package in Packages.Values.ToArray())
         {
@@ -55,12 +66,41 @@ internal static unsafe class PackageManager
         }
     }
 
+    private static void StartHandshake()
+    {
+        try
+        {
+#if CLIENT
+            ServerHandshake.Start();
+#else
+            var clients = _settings.Clients;
+            NanosSharpClients.Start(new ClientPolicy(clients.Required, TimeSpan.FromSeconds(clients.HandshakeTimeoutSeconds),
+                clients.KickMessage));
+#endif
+        }
+        catch (Exception exception)
+        {
+            Log.Exception(exception, "Failed to start the NanosSharp client handshake");
+        }
+    }
+
     private static void OnPackageLoaded(NativePackage nativePackage)
     {
+#if CLIENT
+        SetPackageActive(nativePackage.Name, false);
+#endif
         if (!PackageBuilder.HasManagedCode(nativePackage.Directory))
         {
             return;
         }
+
+#if CLIENT
+        if (PackageMarker.FindIncompatibility(nativePackage.Directory) is { } incompatibility)
+        {
+            Log.Warning($"The C# code of {nativePackage.Name} is not started because {incompatibility}, its Lua fallback is used instead.");
+            return;
+        }
+#endif
 
         if (Packages.TryGetValue(nativePackage.Handle, out var existing))
         {
@@ -75,6 +115,9 @@ internal static unsafe class PackageManager
             {
                 var build = PendingBuilds.Remove(package.Name, out var pending) ? pending : BuildPackage(package);
                 package.Start(build, assemblyName => ResolveShared(package.Manifest, assemblyName));
+#if CLIENT
+                SetPackageActive(package.Name, true);
+#endif
             }
             catch (Exception exception)
             {
@@ -91,6 +134,11 @@ internal static unsafe class PackageManager
             package.WatchSources(TimeSpan.FromMilliseconds(_settings.HotReload.DelayMilliseconds));
         }
     }
+
+#if CLIENT
+    private static void SetPackageActive(string packageName, bool isActive) =>
+        ScriptApi.Invoke("Client", "SetValue", Handshake.PackageValuePrefix + packageName, isActive);
+#endif
 
     private static void OnPackageUnloading(nint handle)
     {

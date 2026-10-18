@@ -18,6 +18,7 @@ internal static class PackageBuilder
 #endif
 
     public const string SharedDirectoryName = "Shared";
+    public const string ClientDirectoryName = "Client";
 
     private const string ApiAssemblyName = "NanosSharp";
     private const string DependencyManifestExtension = ".deps.json";
@@ -31,6 +32,10 @@ internal static class PackageBuilder
         var sharedDirectory = Path.Combine(packageDirectory, SharedDirectoryName);
         return FindSources(sideDirectory).Any() || FindAssemblies(sideDirectory).Any() || FindSources(sharedDirectory).Any();
     }
+
+    public static bool HasClientCode(string packageDirectory) =>
+        FindSources(Path.Combine(packageDirectory, ClientDirectoryName)).Any() ||
+        FindSources(Path.Combine(packageDirectory, SharedDirectoryName)).Any();
 
     public static bool IsRelevantFile(string path) =>
         RelevantExtensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase) && !IsIgnored(path);

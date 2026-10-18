@@ -25,6 +25,10 @@ internal static unsafe class NativeCallbacks
 
     public static event Action<nint>? PackageUnloading;
 
+    public static event Action<nint, string>? ClientFilesStoring;
+
+    public static event Action<nint>? ClientFilesStored;
+
 #if CLIENT
     private static ScriptSubscription? _clientTick;
 #endif
@@ -40,6 +44,8 @@ internal static unsafe class NativeCallbacks
         callbacks->ReleaseFunction = &OnReleaseFunction;
         callbacks->PackageLoaded = &OnPackageLoaded;
         callbacks->PackageUnloading = &OnPackageUnloading;
+        callbacks->ClientFilesStoring = &OnClientFilesStoring;
+        callbacks->ClientFilesStored = &OnClientFilesStored;
     }
 
     public static nint CreateEnvironment(string name)
@@ -140,6 +146,13 @@ internal static unsafe class NativeCallbacks
         TimerScheduler.Tick();
         Tick?.Invoke(deltaTime);
     }
+
+    [UnmanagedCallersOnly]
+    private static void OnClientFilesStoring(nint package, byte* directory) =>
+        Guard(() => ClientFilesStoring?.Invoke(package, NativeRuntime.ReadString(directory)));
+
+    [UnmanagedCallersOnly]
+    private static void OnClientFilesStored(nint package) => Guard(() => ClientFilesStored?.Invoke(package));
 
     private static void Guard(Action action)
     {

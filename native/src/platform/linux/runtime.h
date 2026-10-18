@@ -33,6 +33,7 @@ class Runtime {
   static void OnServerTick(void* server, float delta_time);
   static void OnPackageLoad(game::Package* package);
   static void OnPackageUnload(game::Package* package, bool is_reload, bool is_cleanup);
+  static void OnPackageStoreClientFiles(game::Package* package);
   static void OnEntityCreated(game::Engine* engine, const game::Entity& entity,
                               const std::shared_ptr<game::IScriptEntityRef>& ref,
                               uint64_t class_id);
@@ -58,6 +59,7 @@ class Runtime {
   game::ServerTickFunction original_server_tick_ = nullptr;
   game::PackageLoadFunction original_package_load_ = nullptr;
   game::PackageUnloadFunction original_package_unload_ = nullptr;
+  game::PackageStoreClientFilesFunction original_package_store_client_files_ = nullptr;
   EntityCreatedFunction original_entity_created_ = nullptr;
   EntityDestroyedFunction original_entity_destroyed_ = nullptr;
   game::Engine* engine_ = nullptr;

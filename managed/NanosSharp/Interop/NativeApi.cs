@@ -6,7 +6,7 @@ namespace NanosSharp.Interop;
 [StructLayout(LayoutKind.Sequential)]
 internal unsafe struct NativeApi
 {
-    public const int SupportedVersion = 3;
+    public const int SupportedVersion = 4;
 
     public int Version;
 

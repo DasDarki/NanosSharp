@@ -74,6 +74,7 @@ bool Runtime::InstallHooks(std::string& error) {
   original_server_tick_ = symbols.server_tick;
   original_package_load_ = symbols.package_load;
   original_package_unload_ = symbols.package_unload;
+  original_package_store_client_files_ = symbols.package_store_client_files;
 
   bool prepared =
       hooks_->Prepare(original_engine_initialize_, &Runtime::OnEngineInitialize) &&
@@ -81,6 +82,7 @@ bool Runtime::InstallHooks(std::string& error) {
       hooks_->Prepare(original_server_tick_, &Runtime::OnServerTick) &&
       hooks_->Prepare(original_package_load_, &Runtime::OnPackageLoad) &&
       hooks_->Prepare(original_package_unload_, &Runtime::OnPackageUnload) &&
+      hooks_->Prepare(original_package_store_client_files_, &Runtime::OnPackageStoreClientFiles) &&
       hooks_->Prepare(game::GetLuaSymbols().push_value, &game::PushValueDetour);
   if (!prepared || !hooks_->Install()) {
     error = hooks_->error();
@@ -229,6 +231,21 @@ void Runtime::OnPackageUnload(game::Package* package, bool is_reload, bool is_cl
     package_unloading(package);
   }
   runtime.original_package_unload_(package, is_reload, is_cleanup);
+}
+
+void Runtime::OnPackageStoreClientFiles(game::Package* package) {
+  Runtime& runtime = Instance();
+  const bridge::ManagedCallbacks& callbacks = bridge::GetManagedCallbacks();
+  if (runtime.engine_ == nullptr || callbacks.client_files_storing == nullptr ||
+      callbacks.client_files_stored == nullptr) {
+    runtime.original_package_store_client_files_(package);
+    return;
+  }
+
+  std::string directory = *game::GetSymbols().packages_path + "/" + package->name();
+  callbacks.client_files_storing(package, directory.c_str());
+  runtime.original_package_store_client_files_(package);
+  callbacks.client_files_stored(package);
 }
 
 void Runtime::OnEntityCreated(game::Engine* engine, const game::Entity& entity,
