@@ -8,7 +8,7 @@ public sealed class ClientTests : Package
     private readonly string[] _expected =
     [
         "PlayerConnect", "PlayerSpawn", "PlayerReady", "PlayerFactory", "PlayerProperties", "Possess", "ClientRemoteEvent",
-        "ServerRemoteEvent", "NanosSharpHandshake", "ChatEventClass", "ChatCancel", "PlayerDestroy",
+        "ServerRemoteEvent", "ClientCSharpRemoteEvent", "NanosSharpHandshake", "ChatEventClass", "ChatCancel", "PlayerDestroy",
     ];
 
     protected override void OnStart()
@@ -21,6 +21,8 @@ public sealed class ClientTests : Package
             Check("ClientRemoteEvent", number == 42 && text == "hello from lua" && vector == new Vector(1, 2, 3), $"{number} {text} {vector}"));
         Events.SubscribeRemote("nanossharp:client-pong", (Player player, string marker, long value) =>
             Check("ServerRemoteEvent", marker == "pong" && value == 7, $"{marker} {value}"));
+        Events.SubscribeRemote("nanossharp:csharp-pong", (Player player, long value) =>
+            Check("ClientCSharpRemoteEvent", value == 42, $"{value} from {player.Name}"));
         NanosSharpClients.Connected += (player, client) =>
             Check("NanosSharpHandshake", player.HasNanosSharp && player.NanosSharpVersion == client.Version, $"{player.Name} runs NanosSharp {client.Version}");
         NanosSharpClients.Missing += player =>
@@ -60,6 +62,7 @@ public sealed class ClientTests : Package
         player.Possess(character);
 
         Events.CallRemote("nanossharp:server-ping", player, 7);
+        Events.CallRemote("nanossharp:csharp-ping", player, 41);
         player.SendMessage("NanosSharp client tests: write any chat message, then write 'nanossharp cancel' (it must NOT appear), then disconnect.");
     }
 
