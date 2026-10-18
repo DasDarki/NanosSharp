@@ -224,12 +224,18 @@ internal sealed class ApiModelBuilder
         {
             foreach (var function in source.Functions)
             {
-                owners.TryAdd(function.Name, (function, owner));
+                if (!owners.TryGetValue(function.Name, out var existing) || IsBetterMatch(function, owner, existing))
+                {
+                    owners[function.Name] = (function, owner);
+                }
             }
         }
 
         return owners;
     }
+
+    private bool IsBetterMatch(DocsFunction function, string owner, (DocsFunction Function, string Owner) existing) =>
+        existing.Owner == owner && !existing.Function.IsAvailableOn(_side) && function.IsAvailableOn(_side);
 
     private void Assign(TypeModel type, string owner, MethodModel method)
     {
