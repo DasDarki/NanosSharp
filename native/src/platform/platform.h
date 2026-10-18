@@ -6,6 +6,7 @@
 #include <string>
 
 #include "game/log_type.h"
+#include "game/lua.h"
 #include "game/scripting.h"
 
 namespace nanossharp::game {
@@ -32,9 +33,10 @@ char* DescribeType(const void* polymorphic_object);
 void* LoadNativeLibrary(const char* path, std::string& error);
 bool ResolveDeferredEntity(uint32_t network_id, game::ScriptValue& value);
 
-game::ScriptValue GetLuaGlobal(game::Environment& environment, const std::string& name);
-void SetLuaGlobal(game::Environment& environment, const std::string& name,
-                  const game::ScriptValue& value);
+bool IsLuaInteropAvailable(std::string& reason);
+game::LuaState* GetLuaState();
+game::LuaRef* GetLuaEnvironmentTable(game::Environment& environment);
+bool IsLuaFunction(const game::IScriptFunctionRef* function);
 void ReloadPackage(game::Package* package);
 void* GetPackageEntity(game::Package* package);
 

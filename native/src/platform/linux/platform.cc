@@ -11,14 +11,18 @@
 #include <typeinfo>
 
 #include "platform/linux/isolated_libraries.h"
-#include "platform/linux/lua.h"
 #include "platform/linux/package.h"
 #include "platform/linux/runtime.h"
 #include "platform/linux/symbols.h"
+#include "platform/linux/validation.h"
 
 namespace nanossharp::platform {
 
 namespace {
+
+constexpr std::ptrdiff_t kEngineLuaStateOffset = 0xa0;
+constexpr std::ptrdiff_t kEnvironmentTableOffset = 0xc8;
+constexpr char kLuaFunctionTypeName[] = "N2nw9scripting3lua14LuaFunctionRefE";
 
 char* CopyString(const char* value) {
   size_t length = std::strlen(value);
@@ -87,13 +91,27 @@ bool ResolveDeferredEntity(uint32_t network_id, game::ScriptValue& value) {
   return true;
 }
 
-game::ScriptValue GetLuaGlobal(game::Environment& environment, const std::string& name) {
-  return game::GetLuaGlobal(RequireEngine(), environment, name);
+bool IsLuaInteropAvailable(std::string&) { return true; }
+
+game::LuaState* GetLuaState() {
+  auto* state = *reinterpret_cast<game::LuaState**>(reinterpret_cast<char*>(&RequireEngine()) +
+                                                    kEngineLuaStateOffset);
+  if (state == nullptr) {
+    throw std::runtime_error("the Lua state is not available");
+  }
+  return state;
 }
 
-void SetLuaGlobal(game::Environment& environment, const std::string& name,
-                  const game::ScriptValue& value) {
-  game::SetLuaGlobal(RequireEngine(), environment, name, value);
+game::LuaRef* GetLuaEnvironmentTable(game::Environment& environment) {
+  if (!game::IsLuaEnvironment(&environment)) {
+    return nullptr;
+  }
+  return reinterpret_cast<game::LuaRef*>(reinterpret_cast<char*>(&environment) + kEnvironmentTableOffset);
+}
+
+bool IsLuaFunction(const game::IScriptFunctionRef* function) {
+  const char* name = game::GetTypeName(function);
+  return name != nullptr && std::strcmp(name, kLuaFunctionTypeName) == 0;
 }
 
 void ReloadPackage(game::Package* package) { game::GetSymbols().package_reload(package); }

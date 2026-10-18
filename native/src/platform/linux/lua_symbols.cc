@@ -1,5 +1,6 @@
 #include "platform/linux/lua_symbols.h"
 
+#include "game/lua.h"
 #include "platform/linux/symbols.h"
 
 namespace nanossharp::game {
@@ -17,39 +18,28 @@ constexpr char kRefPushSymbol[] = "_ZN2nw9scripting3lua6LuaRef14PushToLuaStackEP
 
 }
 
-LuaRef::~LuaRef() { GetLuaSymbols().ref_destroy(this); }
-
-bool LuaSymbols::Resolve(std::string& error) {
-  return ResolveSymbol("lua_getglobal", getglobal, error) &&
-         ResolveSymbol("lua_setglobal", setglobal, error) &&
-         ResolveSymbol("lua_gettop", gettop, error) &&
-         ResolveSymbol("lua_settop", settop, error) &&
-         ResolveSymbol("lua_createtable", createtable, error) &&
-         ResolveSymbol("lua_rawset", rawset, error) &&
-         ResolveSymbol("lua_rawseti", rawseti, error) &&
-         ResolveSymbol("lua_setfield", setfield, error) &&
-         ResolveSymbol("lua_setmetatable", setmetatable, error) &&
-         ResolveSymbol("luaL_newmetatable", newmetatable, error) &&
-         ResolveSymbol("lua_newuserdatauv", newuserdatauv, error) &&
-         ResolveSymbol("lua_touserdata", touserdata, error) &&
-         ResolveSymbol("lua_pushcclosure", pushcclosure, error) &&
-         ResolveSymbol("lua_pushlightuserdata", pushlightuserdata, error) &&
-         ResolveSymbol("lua_pushlstring", pushlstring, error) &&
-         ResolveSymbol("lua_tolstring", tolstring, error) &&
-         ResolveSymbol("lua_checkstack", checkstack, error) &&
-         ResolveSymbol("lua_error", this->error, error) &&
-         ResolveSymbol("lua_pcallk", pcallk, error) &&
-         ResolveSymbol("luaL_loadbufferx", loadbufferx, error) &&
-         ResolveSymbol("lua_setupvalue", setupvalue, error) &&
-         ResolveSymbol(kPopValueSymbol, pop_value, error) &&
-         ResolveSymbol(kPushValueSymbol, push_value, error) &&
-         ResolveSymbol(kRefDestroySymbol, ref_destroy, error) &&
-         ResolveSymbol(kRefPushSymbol, ref_push, error);
-}
-
-LuaSymbols& GetLuaSymbols() {
-  static LuaSymbols symbols;
-  return symbols;
+bool ResolveLuaSymbols(std::string& error) {
+  LuaSymbols& symbols = GetLuaSymbols();
+  return ResolveSymbol("lua_getglobal", symbols.getglobal, error) &&
+         ResolveSymbol("lua_setglobal", symbols.setglobal, error) &&
+         ResolveSymbol("lua_gettop", symbols.gettop, error) &&
+         ResolveSymbol("lua_settop", symbols.settop, error) &&
+         ResolveSymbol("lua_setfield", symbols.setfield, error) &&
+         ResolveSymbol("lua_setmetatable", symbols.setmetatable, error) &&
+         ResolveSymbol("luaL_newmetatable", symbols.newmetatable, error) &&
+         ResolveSymbol("lua_newuserdatauv", symbols.newuserdatauv, error) &&
+         ResolveSymbol("lua_touserdata", symbols.touserdata, error) &&
+         ResolveSymbol("lua_pushcclosure", symbols.pushcclosure, error) &&
+         ResolveSymbol("lua_pushlstring", symbols.pushlstring, error) &&
+         ResolveSymbol("lua_tolstring", symbols.tolstring, error) &&
+         ResolveSymbol("lua_error", symbols.error, error) &&
+         ResolveSymbol("lua_pcallk", symbols.pcallk, error) &&
+         ResolveSymbol("luaL_loadbufferx", symbols.loadbufferx, error) &&
+         ResolveSymbol("lua_setupvalue", symbols.setupvalue, error) &&
+         ResolveSymbol(kPopValueSymbol, symbols.pop_value, error) &&
+         ResolveSymbol(kPushValueSymbol, symbols.push_value, error) &&
+         ResolveSymbol(kRefDestroySymbol, symbols.ref_destroy, error) &&
+         ResolveSymbol(kRefPushSymbol, symbols.ref_push, error);
 }
 
 }

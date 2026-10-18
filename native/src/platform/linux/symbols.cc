@@ -36,7 +36,7 @@ bool Symbols::Resolve(std::string& error) {
          ResolveSymbol(kPackageStoreClientFilesSymbol, package_store_client_files, error) &&
          ResolveSymbol(kPackagesPathSymbol, packages_path, error) &&
          ResolveSymbol(kEntityFetcherSymbol, entity_fetcher, error) &&
-         GetLuaSymbols().Resolve(error);
+         ResolveLuaSymbols(error);
 }
 
 Symbols& GetSymbols() {

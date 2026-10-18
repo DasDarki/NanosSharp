@@ -10,6 +10,7 @@
 #include <utility>
 #include <vector>
 
+#include "bridge/lua_interop.h"
 #include "bridge/managed_function_ref.h"
 #include "platform/platform.h"
 
@@ -427,7 +428,7 @@ ValueHandle LuaGetGlobal(EnvironmentHandle environment, const char* name, int32_
   ValueHandle result = nullptr;
   Guard(error, [&] {
     result = NewValue(
-        platform::GetLuaGlobal(RequireEnvironment(environment), std::string(name, length)).value);
+        bridge::GetLuaGlobal(RequireEnvironment(environment), std::string(name, length)).value);
   });
   return result;
 }
@@ -435,7 +436,7 @@ ValueHandle LuaGetGlobal(EnvironmentHandle environment, const char* name, int32_
 uint8_t LuaSetGlobal(EnvironmentHandle environment, const char* name, int32_t length,
                      const ScriptValue* value, char** error) {
   return Guard(error, [&] {
-    platform::SetLuaGlobal(RequireEnvironment(environment), std::string(name, length), *value);
+    bridge::SetLuaGlobal(RequireEnvironment(environment), std::string(name, length), *value);
   });
 }
 

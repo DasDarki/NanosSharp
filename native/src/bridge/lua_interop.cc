@@ -1,4 +1,4 @@
-#include "platform/linux/lua.h"
+#include "bridge/lua_interop.h"
 
 #include <cstddef>
 #include <cstring>
@@ -10,25 +10,39 @@
 #include <string>
 #include <vector>
 
-#include "platform/linux/lua_symbols.h"
-#include "platform/linux/validation.h"
+#include "platform/platform.h"
 
 namespace nanossharp::game {
 
+LuaRef::~LuaRef() { GetLuaSymbols().ref_destroy(this); }
+
+LuaSymbols& GetLuaSymbols() {
+  static LuaSymbols symbols;
+  return symbols;
+}
+
+}
+
+namespace nanossharp::bridge {
+
 namespace {
 
-constexpr std::ptrdiff_t kEngineLuaStateOffset = 0xa0;
-constexpr std::ptrdiff_t kEnvironmentTableOffset = 0xc8;
 constexpr int kEnvironmentUpvalue = 1;
 constexpr int kTrampolineArguments = 2;
 constexpr char kTrampolineSource[] = "local operation, context = ... return operation(context)";
 constexpr char kTrampolineName[] = "=NanosSharp";
 constexpr char kTrampolineMode[] = "t";
-constexpr char kLuaFunctionTypeName[] = "N2nw9scripting3lua14LuaFunctionRefE";
 constexpr char kFunctionMetatableName[] = "NanosSharp.Function";
 constexpr char kGarbageCollectField[] = "__gc";
 
-using FunctionHolder = std::shared_ptr<IScriptFunctionRef>;
+using game::GetLuaSymbols;
+using game::LuaPopVisited;
+using game::LuaPushVisited;
+using game::LuaRef;
+using game::LuaState;
+using game::LuaSymbols;
+using game::ScriptValue;
+using FunctionHolder = std::shared_ptr<game::IScriptFunctionRef>;
 
 class LuaStackGuard {
  public:
@@ -48,27 +62,15 @@ struct OperationContext {
   std::exception_ptr exception;
 };
 
-LuaState* GetLuaState(Engine& engine) {
-  auto* state =
-      *reinterpret_cast<LuaState**>(reinterpret_cast<char*>(&engine) + kEngineLuaStateOffset);
-  if (state == nullptr) {
-    throw std::runtime_error("the Lua state is not available");
-  }
-  return state;
-}
-
-LuaRef& GetEnvironmentTable(Environment& environment) {
-  if (!IsLuaEnvironment(&environment)) {
+LuaRef& GetEnvironmentTable(game::Environment& environment) {
+  LuaRef* table = platform::GetLuaEnvironmentTable(environment);
+  if (table == nullptr) {
     throw std::runtime_error("the package environment is not a Lua environment");
   }
-  return *reinterpret_cast<LuaRef*>(reinterpret_cast<char*>(&environment) +
-                                    kEnvironmentTableOffset);
+  return *table;
 }
 
-bool IsLuaFunction(const FunctionHolder& function) {
-  const char* name = GetTypeName(function.get());
-  return name != nullptr && std::strcmp(name, kLuaFunctionTypeName) == 0;
-}
+bool IsLuaFunction(const FunctionHolder& function) { return platform::IsLuaFunction(function.get()); }
 
 int CollectFunction(LuaState* state) {
   auto* holder = static_cast<FunctionHolder*>(GetLuaSymbols().touserdata(state, 1));
@@ -79,7 +81,7 @@ int CollectFunction(LuaState* state) {
 bool InvokeFunction(LuaState* state, std::string& error) {
   const LuaSymbols& lua = GetLuaSymbols();
   try {
-    auto* holder = static_cast<FunctionHolder*>(lua.touserdata(state, LuaUpvalueIndex(1)));
+    auto* holder = static_cast<FunctionHolder*>(lua.touserdata(state, game::LuaUpvalueIndex(1)));
     int count = lua.gettop(state);
     std::vector<ScriptValue> arguments(count, ScriptValue{std::monostate{}});
     LuaPopVisited popped;
@@ -122,7 +124,7 @@ void PushFunction(LuaState* state, const FunctionHolder& function) {
 }
 
 int RunOperation(LuaState* state) {
-  auto* context = static_cast<OperationContext*>(GetLuaSymbols().touserdata(state, 1));
+  auto* context = *static_cast<OperationContext**>(GetLuaSymbols().touserdata(state, 1));
   try {
     context->operation(state);
   } catch (...) {
@@ -131,9 +133,12 @@ int RunOperation(LuaState* state) {
   return 0;
 }
 
-void RunInEnvironment(Engine& engine, Environment& environment,
-                      std::function<void(LuaState*)> operation) {
-  LuaState* state = GetLuaState(engine);
+void RunInEnvironment(game::Environment& environment, std::function<void(LuaState*)> operation) {
+  std::string reason;
+  if (!platform::IsLuaInteropAvailable(reason)) {
+    throw std::runtime_error("Lua interop is not available: " + reason);
+  }
+  LuaState* state = platform::GetLuaState();
   LuaRef& table = GetEnvironmentTable(environment);
   LuaStackGuard guard(state);
   const LuaSymbols& lua = GetLuaSymbols();
@@ -146,7 +151,7 @@ void RunInEnvironment(Engine& engine, Environment& environment,
 
   OperationContext context{std::move(operation), nullptr};
   lua.pushcclosure(state, &RunOperation, 0);
-  lua.pushlightuserdata(state, &context);
+  *static_cast<OperationContext**>(lua.newuserdatauv(state, sizeof(OperationContext*), 0)) = &context;
   if (lua.pcallk(state, kTrampolineArguments, 0, 0, 0, nullptr) != 0) {
     throw std::runtime_error(lua.tolstring(state, -1, nullptr));
   }
@@ -167,9 +172,9 @@ void PushValueDetour(LuaState* state, const ScriptValue& value, LuaPushVisited& 
   GetLuaSymbols().push_value(state, value, visited);
 }
 
-ScriptValue GetLuaGlobal(Engine& engine, Environment& environment, const std::string& name) {
+ScriptValue GetLuaGlobal(game::Environment& environment, const std::string& name) {
   ScriptValue value{std::monostate{}};
-  RunInEnvironment(engine, environment, [&](LuaState* state) {
+  RunInEnvironment(environment, [&](LuaState* state) {
     LuaStackGuard guard(state);
     const LuaSymbols& lua = GetLuaSymbols();
     lua.getglobal(state, name.c_str());
@@ -179,9 +184,8 @@ ScriptValue GetLuaGlobal(Engine& engine, Environment& environment, const std::st
   return value;
 }
 
-void SetLuaGlobal(Engine& engine, Environment& environment, const std::string& name,
-                  const ScriptValue& value) {
-  RunInEnvironment(engine, environment, [&](LuaState* state) {
+void SetLuaGlobal(game::Environment& environment, const std::string& name, const ScriptValue& value) {
+  RunInEnvironment(environment, [&](LuaState* state) {
     LuaStackGuard guard(state);
     const LuaSymbols& lua = GetLuaSymbols();
     LuaPushVisited visited;
