@@ -1,6 +1,28 @@
 public sealed class ClientProbe : Package
 {
-    protected override void OnStart() => Log.Info($"client probe started with {SharedProbe.Message}");
+    private int _interval;
+    private int _ticks;
 
-    protected override void OnStop() => Log.Info("client probe stopped");
+    protected override async void OnStart()
+    {
+        Log.Info($"client probe started with {SharedProbe.Message}");
+        _interval = ScriptTimer.SetInterval(OnInterval, 1000);
+        await Scheduler.Delay(500);
+        Log.Info("client probe resumed after await");
+    }
+
+    protected override void OnStop()
+    {
+        ScriptTimer.ClearInterval(_interval);
+        Log.Info("client probe stopped");
+    }
+
+    private void OnInterval()
+    {
+        _ticks++;
+        if (_ticks <= 3)
+        {
+            Log.Info($"client probe interval {_ticks}");
+        }
+    }
 }

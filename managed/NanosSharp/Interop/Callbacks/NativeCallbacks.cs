@@ -4,6 +4,9 @@ using NanosSharp.Entities.Binding;
 using NanosSharp.Interop.Reflection;
 using NanosSharp.Logging;
 using NanosSharp.Packages;
+#if CLIENT
+using NanosSharp.Scripting;
+#endif
 using NanosSharp.Threading;
 
 namespace NanosSharp.Interop.Callbacks;
@@ -21,6 +24,10 @@ internal static unsafe class NativeCallbacks
     public static event Action<NativePackage>? PackageLoaded;
 
     public static event Action<nint>? PackageUnloading;
+
+#if CLIENT
+    private static ScriptSubscription? _clientTick;
+#endif
 
     public static void Register(ManagedCallbacks* callbacks)
     {
@@ -59,6 +66,9 @@ internal static unsafe class NativeCallbacks
         MainThread.Capture();
         NativeClassRegistry.Load();
         PackageContext.GlobalEnvironment = CreateEnvironment(GlobalEnvironmentName);
+#if CLIENT
+        _clientTick = ScriptApi.Subscribe("Client", "Tick", (Action<float>)(deltaTime => Guard(() => RunTick(deltaTime))));
+#endif
         EngineAttached?.Invoke();
     });
 
@@ -71,6 +81,10 @@ internal static unsafe class NativeCallbacks
         }
         finally
         {
+#if CLIENT
+            _clientTick?.Dispose();
+            _clientTick = null;
+#endif
             NativeHandleCollector.ReleaseAll();
             EntityRegistry.Clear();
             if (PackageContext.GlobalEnvironment != 0)
@@ -84,13 +98,7 @@ internal static unsafe class NativeCallbacks
     });
 
     [UnmanagedCallersOnly]
-    private static void OnTick(float deltaTime) => Guard(() =>
-    {
-        NativeHandleCollector.Collect();
-        MainThread.Drain();
-        TimerScheduler.Tick();
-        Tick?.Invoke(deltaTime);
-    });
+    private static void OnTick(float deltaTime) => Guard(() => RunTick(deltaTime));
 
     [UnmanagedCallersOnly]
     private static void OnEntityCreated(ulong classId, nint instance, uint networkId) =>
@@ -124,6 +132,14 @@ internal static unsafe class NativeCallbacks
 
     [UnmanagedCallersOnly]
     private static void OnPackageUnloading(nint package) => Guard(() => PackageUnloading?.Invoke(package));
+
+    private static void RunTick(float deltaTime)
+    {
+        NativeHandleCollector.Collect();
+        MainThread.Drain();
+        TimerScheduler.Tick();
+        Tick?.Invoke(deltaTime);
+    }
 
     private static void Guard(Action action)
     {
