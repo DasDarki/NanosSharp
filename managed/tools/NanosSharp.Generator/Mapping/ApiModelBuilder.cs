@@ -26,7 +26,6 @@ internal sealed class ApiModelBuilder
         "UnsubscribeRemote",
     ];
 
-    private static readonly HashSet<string> ReservedPropertyNames = ["ClassName", "IsValid", "NativeClass"];
 
     private static readonly HashSet<string> ValueTypeNames =
     [
@@ -35,6 +34,7 @@ internal sealed class ApiModelBuilder
     ];
 
     private readonly NativeDump _native;
+    private readonly ApiSide _side;
     private readonly DocsCatalog _docs;
     private readonly GeneratorReport _report;
     private readonly NativeTypeMapper _nativeTypes;
@@ -42,9 +42,10 @@ internal sealed class ApiModelBuilder
     private readonly Dictionary<string, TypeModel> _types = new(StringComparer.Ordinal);
     private readonly HashSet<string> _enumNames;
 
-    public ApiModelBuilder(NativeDump native, DocsCatalog docs, GeneratorReport report)
+    public ApiModelBuilder(NativeDump native, ApiSide side, DocsCatalog docs, GeneratorReport report)
     {
         _native = native;
+        _side = side;
         _docs = docs;
         _report = report;
 
@@ -55,7 +56,7 @@ internal sealed class ApiModelBuilder
         var enumNames = docs.Enums.Keys.ToHashSet(StringComparer.Ordinal);
         _enumNames = enumNames;
 
-        _nativeTypes = new NativeTypeMapper(entityClasses.ToDictionary(name => $"nw::entities::S{name}", CSharpName), enumNames);
+        _nativeTypes = new NativeTypeMapper(entityClasses.ToDictionary(name => $"S{name}", CSharpName), enumNames, native.IsMsvc);
         _docsTypes = new DocsTypeMapper(entityClasses.Append(ActorBaseName).ToHashSet(StringComparer.Ordinal), enumNames, RenamedClasses);
     }
 
@@ -75,11 +76,12 @@ internal sealed class ApiModelBuilder
         foreach (var type in types)
         {
             type.Methods.Sort((left, right) => string.CompareOrdinal(left.Name, right.Name));
-            type.Properties.AddRange(BuildProperties(type));
         }
 
         return new ApiModel(types, BuildEnums());
     }
+
+    private void Report(string section, string entry) => _report.Add($"{_side}: {section}", entry);
 
     private void RemoveIncompleteMixins(TypeModel type)
     {
@@ -89,7 +91,7 @@ internal sealed class ApiModelBuilder
             .ToArray();
         foreach (var removed in type.Interfaces.Except(complete))
         {
-            _report.Add("Mixins that are not implemented completely", $"{type.Name}: {removed}");
+            Report("Mixins that are not implemented completely", $"{type.Name}: {removed}");
         }
 
         type.Interfaces = complete;
@@ -100,14 +102,14 @@ internal sealed class ApiModelBuilder
         var name = NameConverter.StripScriptingSuffix(nativeClass.Name);
         if (SkippedClasses.Contains(name))
         {
-            _report.Add("Skipped classes (implemented by hand)", nativeClass.Name);
+            Report("Skipped classes (implemented by hand)", nativeClass.Name);
             return;
         }
 
         var docs = _docs.FindClass(name);
         if (docs is null)
         {
-            _report.Add("Native classes without API definitions", nativeClass.Name);
+            Report("Native classes without API definitions", nativeClass.Name);
             return;
         }
 
@@ -137,14 +139,14 @@ internal sealed class ApiModelBuilder
         {
             if (!functions.TryGetValue(nativeMethod.Name, out var function))
             {
-                _report.Add("Native functions without documentation", $"{name}.{nativeMethod.Name}");
+                Report("Native functions without documentation", $"{name}.{nativeMethod.Name}");
                 continue;
             }
 
             AddIfBuilt(type, BuildMethod(name, nativeMethod, function, true));
         }
 
-        ReportMissing(name, functions.Values.Where(function => function.IsServerSide).Select(function => function.Name), nativeClass.StaticMethods);
+        ReportMissing(name, functions.Values.Where(function => function.IsAvailableOn(_side)).Select(function => function.Name), nativeClass.StaticMethods);
         type.Events.AddRange(BuildEvents(type.Name, docs.Events));
     }
 
@@ -171,11 +173,11 @@ internal sealed class ApiModelBuilder
                 var borrowed = _docs.FindBorrowedFunction(nativeMethod.Name, NativeParameterCount(nativeMethod));
                 if (borrowed is null)
                 {
-                    _report.Add("Native functions without documentation", $"{name}.{nativeMethod.Name}");
+                    Report("Native functions without documentation", $"{name}.{nativeMethod.Name}");
                     continue;
                 }
 
-                _report.Add("Functions documented through other classes", $"{name}.{nativeMethod.Name}");
+                Report("Functions documented through other classes", $"{name}.{nativeMethod.Name}");
                 owner = (borrowed, name);
             }
 
@@ -186,7 +188,7 @@ internal sealed class ApiModelBuilder
             }
         }
 
-        var ownFunctions = owners.Where(entry => entry.Value.Owner == name && entry.Value.Function.IsServerSide).Select(entry => entry.Key);
+        var ownFunctions = owners.Where(entry => entry.Value.Owner == name && entry.Value.Function.IsAvailableOn(_side)).Select(entry => entry.Key);
         ReportMissing(name, ownFunctions, nativeClass.Methods);
 
         var inheritedEvents = docs.Inheritance.Select(parent => _docs.FindClass(parent)).OfType<DocsClass>().SelectMany(parent => parent.Events);
@@ -293,7 +295,7 @@ internal sealed class ApiModelBuilder
                 .ToList();
             if (signature.Parameters.Count != function.Parameters.Count)
             {
-                _report.Add("Parameter count differs from documentation",
+                Report("Parameter count differs from documentation",
                     $"{className}.{nativeMethod.Name}: native {signature.Parameters.Count}, documented {function.Parameters.Count}");
             }
 
@@ -301,7 +303,7 @@ internal sealed class ApiModelBuilder
         }
         catch (Exception exception) when (exception is TypeMapException or FormatException)
         {
-            _report.Add("Functions with unsupported signatures", $"{className}.{nativeMethod.Name}: {exception.Message}");
+            Report("Functions with unsupported signatures", $"{className}.{nativeMethod.Name}: {exception.Message}");
             return null;
         }
     }
@@ -360,7 +362,7 @@ internal sealed class ApiModelBuilder
 
     private IEnumerable<EventModel> BuildEvents(string className, IEnumerable<DocsEvent> events) =>
         events
-            .Where(docsEvent => docsEvent.IsServerSide)
+            .Where(docsEvent => docsEvent.IsAvailableOn(_side))
             .DistinctBy(docsEvent => docsEvent.Name)
             .OrderBy(docsEvent => docsEvent.Name, StringComparer.Ordinal)
             .Select(docsEvent => BuildEvent(className, docsEvent));
@@ -401,35 +403,6 @@ internal sealed class ApiModelBuilder
         return parameters;
     }
 
-    private static IEnumerable<PropertyModel> BuildProperties(TypeModel type)
-    {
-        var methods = type.Methods.ToDictionary(method => method.Name, StringComparer.Ordinal);
-        foreach (var getter in type.Methods.Where(IsGetter))
-        {
-            var name = getter.Name[(getter.Name.StartsWith("Get", StringComparison.Ordinal) ? 3 : 2)..];
-            if (name.Length == 0 || name == type.Name || methods.ContainsKey(name) || ReservedPropertyNames.Contains(name))
-            {
-                continue;
-            }
-
-            var setterName = "Set" + name;
-            var setter = methods.GetValueOrDefault(setterName);
-            yield return new PropertyModel(name, getter.ReturnType, getter, IsMatchingSetter(setter, getter.ReturnType) ? setter : null);
-        }
-    }
-
-    private static bool IsGetter(MethodModel method) =>
-        method.Parameters.Count == 0 &&
-        method.ReturnType.Kind != CSharpTypeKind.Void &&
-        (method.Name.StartsWith("Get", StringComparison.Ordinal) || method.Name.StartsWith("Is", StringComparison.Ordinal));
-
-    private static bool IsMatchingSetter(MethodModel? setter, CSharpType type) =>
-        setter is not null &&
-        setter.ReturnType.Kind == CSharpTypeKind.Void &&
-        setter.Parameters.Count >= 1 &&
-        setter.Parameters[0].Type == type &&
-        setter.Parameters.Skip(1).All(parameter => parameter.IsOptional);
-
     private IReadOnlyList<EnumModel> BuildEnums() =>
         _docs.Enums.OrderBy(entry => entry.Key, StringComparer.Ordinal).Select(entry => new EnumModel(
             entry.Key,
@@ -441,7 +414,7 @@ internal sealed class ApiModelBuilder
     {
         if (!EnumValueEvaluator.TryEvaluate(value.Value, out var number))
         {
-            _report.Add("Enum values with unsupported values", $"{enumName}.{value.Key} = {value.Value}");
+            Report("Enum values with unsupported values", $"{enumName}.{value.Key} = {value.Value}");
             return null;
         }
 
@@ -453,7 +426,7 @@ internal sealed class ApiModelBuilder
         var nativeNames = nativeMethods.Select(method => method.Name).ToHashSet(StringComparer.Ordinal);
         foreach (var missing in documented.Where(name => !nativeNames.Contains(name)))
         {
-            _report.Add("Documented functions without native implementation", $"{className}.{missing}");
+            Report("Documented functions without native implementation", $"{className}.{missing}");
         }
     }
 

@@ -1,0 +1,81 @@
+#nullable enable
+
+using NanosSharp.Entities.Binding;
+using NanosSharp.Enums;
+using NanosSharp.Interop.Reflection;
+using NanosSharp.Mathematics;
+using NanosSharp.Scripting;
+
+namespace NanosSharp.Entities;
+
+public partial class VehicleWheeled
+{
+    /// <summary>Triggered when the local Player gets/loses network authority over this actor</summary>
+    public static event NetworkAuthorityChangeHandler? OnNetworkAuthorityChange
+    {
+        add => NetworkAuthorityChangeEvent.Add(value);
+        remove => NetworkAuthorityChangeEvent.Remove(value);
+    }
+
+    private static readonly ClassEvent<NetworkAuthorityChangeHandler> NetworkAuthorityChangeEvent = new("VehicleWheeled", "NetworkAuthorityChange");
+    private static readonly MethodSlot GetGearSlot = new("GetGear");
+    private static readonly MethodSlot GetRPMSlot = new("GetRPM");
+    private static readonly MethodSlot IsInAirSlot = new("IsInAir");
+    private static readonly MethodSlot SetMaterialFromCanvasSlot = new("SetMaterialFromCanvas");
+    private static readonly MethodSlot SetMaterialFromSceneCaptureSlot = new("SetMaterialFromSceneCapture");
+    private static readonly MethodSlot SetMaterialFromWebUISlot = new("SetMaterialFromWebUI");
+
+    /// <summary>Gets the current health</summary>
+    public uint Health => GetHealth();
+
+    /// <summary>Gets the Max Health</summary>
+    public uint MaxHealth => GetMaxHealth();
+
+    /// <summary>Checks if the engine is started</summary>
+    public bool EngineStarted => IsEngineStarted();
+
+    /// <summary>Gets if this Character is invulnerable</summary>
+    public bool Invulnerable => IsInvulnerable();
+
+    /// <summary>Gets the current Gear</summary>
+    public int Gear => GetGear();
+
+    /// <summary>Gets the current RPM</summary>
+    public float RPM => GetRPM();
+
+    /// <summary>Checks if the vehicle is in the air (no wheels touching the ground)</summary>
+    public bool InAir => IsInAir();
+
+    /// <summary>Gets the current Gear</summary>
+    public int GetGear() => CallResult<int>(GetGearSlot, 0)!;
+
+    /// <summary>Gets the current RPM</summary>
+    public float GetRPM() => CallResult<float>(GetRPMSlot, 0)!;
+
+    /// <summary>Checks if the vehicle is in the air (no wheels touching the ground)</summary>
+    public bool IsInAir() => CallResult<bool>(IsInAirSlot, 0)!;
+
+    /// <summary>Sets the material at the specified index of this Actor to a Canvas object</summary>
+    public void SetMaterialFromCanvas(Entity canvas, int? index = null, string? argument3 = null) =>
+        Call(SetMaterialFromCanvasSlot, 1, canvas, index, argument3);
+
+    /// <summary>Sets the material at the specified index of this Actor to a SceneCapture object</summary>
+    public void SetMaterialFromSceneCapture(Entity sceneCapture, int? index = null, string? argument3 = null) =>
+        Call(SetMaterialFromSceneCaptureSlot, 1, sceneCapture, index, argument3);
+
+    /// <summary>Sets the material at the specified index of this Actor to a WebUI object</summary>
+    public void SetMaterialFromWebUI(Entity webui, int? index = null, string? argument3 = null) =>
+        Call(SetMaterialFromWebUISlot, 1, webui, index, argument3);
+
+    /// <summary>Subscribes to the NetworkAuthorityChange event of this entity only.</summary>
+    public ScriptSubscription SubscribeNetworkAuthorityChange(NetworkAuthorityChangeHandler handler) => Subscribe("NetworkAuthorityChange", handler);
+
+    /// <summary>Called for the NetworkAuthorityChange event of this entity when a subclass overrides it.</summary>
+    [EventHook("NetworkAuthorityChange")]
+    protected virtual void HandleNetworkAuthorityChange(bool isNetworkAuthority)
+    {
+    }
+
+    /// <summary>Triggered when the local Player gets/loses network authority over this actor</summary>
+    public delegate void NetworkAuthorityChangeHandler(VehicleWheeled self, bool isNetworkAuthority);
+}

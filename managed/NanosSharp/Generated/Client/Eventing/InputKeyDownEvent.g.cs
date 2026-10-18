@@ -1,0 +1,17 @@
+#nullable enable
+
+using NanosSharp.Entities;
+using NanosSharp.Enums;
+using NanosSharp.Mathematics;
+
+namespace NanosSharp.Eventing;
+
+/// <summary>A keyboard key is being pressed</summary>
+public sealed class InputKeyDownEvent : CancellableEvent
+{
+    /// <summary>The key pressed</summary>
+    public string? KeyName { get; init; }
+
+    /// <summary>The amount depressed in case of this is an Axis input</summary>
+    public float Delta { get; init; }
+}

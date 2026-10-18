@@ -21,7 +21,13 @@ internal static class ScriptCompiler
 
     private static readonly Lazy<MetadataReference[]> FrameworkReferences = new(LoadFrameworkReferences);
 
-    private static readonly CSharpParseOptions ParseOptions = new(LanguageVersion.Latest);
+#if CLIENT
+    private const string SideSymbol = "CLIENT";
+#else
+    private const string SideSymbol = "SERVER";
+#endif
+
+    private static readonly CSharpParseOptions ParseOptions = new(LanguageVersion.Latest, preprocessorSymbols: [SideSymbol]);
 
     private static readonly CSharpCompilationOptions CompilationOptions = new(
         OutputKind.DynamicallyLinkedLibrary,

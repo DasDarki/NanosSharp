@@ -233,9 +233,9 @@ task("client")
         os.execv("lld-link", link_arguments)
 
         os.execv("dotnet", {"build", path.join(root, "managed", "NanosSharp.Host", "NanosSharp.Host.csproj"), "-c", configuration,
-            "--nologo", "-v", "q"})
+            "-p:NanosSharpSide=Client", "--nologo", "-v", "q"})
         os.mkdir(path.join(package_dir, "runtime"))
-        os.cp(path.join(root, "build", "managed", "bin", "NanosSharp.Host", configuration, "net10.0", "*"), path.join(package_dir, "runtime"))
+        os.cp(path.join(root, "build", "managed", "Client", "bin", "NanosSharp.Host", configuration, "net10.0", "*"), path.join(package_dir, "runtime"))
 
         local cache_dir = path.join(root, "build", "cache")
         local runtime_archive = path.join(cache_dir, "dotnet-runtime-" .. runtime_version .. "-win-x64.zip")
@@ -382,6 +382,7 @@ task("generate")
         local generator = path.join(root, "managed", "tools", "NanosSharp.Generator")
         os.execv("dotnet", {"run", "--project", generator, "-c", "Release", "--",
             "--native", path.join(generator, "Data", "native-api.json"),
+            "--native-client", path.join(generator, "Data", "native-api-client.json"),
             "--docs", definitions_dir,
             "--supplements", path.join(generator, "Data", "Supplements"),
             "--output", path.join(root, "managed", "NanosSharp", "Generated"),

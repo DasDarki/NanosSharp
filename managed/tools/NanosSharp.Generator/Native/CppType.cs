@@ -1,6 +1,6 @@
 namespace NanosSharp.Generator.Native;
 
-internal sealed record CppType(string Name, IReadOnlyList<CppType> Arguments, bool IsPointer, bool IsReference)
+internal sealed record CppType(string Name, IReadOnlyList<CppType> Arguments, bool IsPointer, bool IsReference, bool IsEnum = false)
 {
     public CppType Argument(int index) => Arguments[index];
 

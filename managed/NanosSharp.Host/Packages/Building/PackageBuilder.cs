@@ -9,6 +9,7 @@ namespace NanosSharp.Host.Packages.Building;
 internal static class PackageBuilder
 {
     public const string ServerDirectoryName = "Server";
+    public const string SharedDirectoryName = "Shared";
 
     private const string ApiAssemblyName = "NanosSharp";
     private const string DependencyManifestExtension = ".deps.json";
@@ -19,8 +20,8 @@ internal static class PackageBuilder
     public static bool HasManagedCode(string packageDirectory)
     {
         var serverDirectory = Path.Combine(packageDirectory, ServerDirectoryName);
-        return Directory.Exists(serverDirectory) &&
-               (FindSources(serverDirectory).Any() || FindAssemblies(serverDirectory).Any());
+        var sharedDirectory = Path.Combine(packageDirectory, SharedDirectoryName);
+        return FindSources(serverDirectory).Any() || FindAssemblies(serverDirectory).Any() || FindSources(sharedDirectory).Any();
     }
 
     public static bool IsRelevantFile(string path) =>
@@ -32,7 +33,7 @@ internal static class PackageBuilder
         var serverDirectory = Path.Combine(packageDirectory, ServerDirectoryName);
         var assemblyPaths = FindAssemblies(serverDirectory).ToArray();
         var assemblies = assemblyPaths.Select(ReadAssembly).ToDictionary(image => image.Name, StringComparer.Ordinal);
-        var sources = FindSources(serverDirectory).ToArray();
+        var sources = FindSources(serverDirectory).Concat(FindSources(Path.Combine(packageDirectory, SharedDirectoryName))).ToArray();
         var dependencies = RestoreDependencies(packageName, serverDirectory, sources.Length > 0, options);
 
         foreach (var runtimeAssembly in dependencies.RuntimeAssemblies.Select(ReadAssembly))
@@ -131,15 +132,19 @@ internal static class PackageBuilder
             .SelectMany(directory => Directory.GetFiles(directory, "*.so*").Order(StringComparer.Ordinal))
             .Select(path => KeyValuePair.Create(Path.GetFileName(path), path));
 
-    private static IEnumerable<string> FindSources(string serverDirectory) =>
-        Directory.EnumerateFiles(serverDirectory, "*.cs", SearchOption.AllDirectories)
-            .Where(path => !IsIgnored(path))
-            .Order(StringComparer.Ordinal);
+    private static IEnumerable<string> FindSources(string directory) =>
+        Directory.Exists(directory)
+            ? Directory.EnumerateFiles(directory, "*.cs", SearchOption.AllDirectories)
+                .Where(path => !IsIgnored(path))
+                .Order(StringComparer.Ordinal)
+            : [];
 
     private static IEnumerable<string> FindAssemblies(string serverDirectory) =>
-        Directory.EnumerateFiles(serverDirectory, "*.dll", SearchOption.TopDirectoryOnly)
-            .Where(path => Path.GetFileNameWithoutExtension(path) != ApiAssemblyName)
-            .Order(StringComparer.Ordinal);
+        Directory.Exists(serverDirectory)
+            ? Directory.EnumerateFiles(serverDirectory, "*.dll", SearchOption.TopDirectoryOnly)
+                .Where(path => Path.GetFileNameWithoutExtension(path) != ApiAssemblyName)
+                .Order(StringComparer.Ordinal)
+            : [];
 
     private static bool IsIgnored(string path) =>
         path.Split(Path.DirectorySeparatorChar).Any(segment => IgnoredDirectories.Contains(segment));

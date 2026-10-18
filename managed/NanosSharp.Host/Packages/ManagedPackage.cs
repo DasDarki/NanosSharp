@@ -117,9 +117,8 @@ internal sealed class ManagedPackage
 
     public void WatchSources(TimeSpan delay)
     {
-        var serverDirectory = Path.Combine(Scope.Directory, PackageBuilder.ServerDirectoryName);
         _changeTimer = new Timer(_ => MainThread.Post(() => SourcesChanged?.Invoke(this)));
-        _watcher = new FileSystemWatcher(serverDirectory)
+        _watcher = new FileSystemWatcher(Scope.Directory)
         {
             IncludeSubdirectories = true,
             NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Size,
@@ -143,7 +142,9 @@ internal sealed class ManagedPackage
 
     private void OnFileChanged(string path, TimeSpan delay)
     {
-        if (PackageBuilder.IsRelevantFile(path))
+        var folder = Path.GetRelativePath(Scope.Directory, path).Split(Path.DirectorySeparatorChar)[0];
+        var isWatchedFolder = folder is PackageBuilder.ServerDirectoryName or PackageBuilder.SharedDirectoryName;
+        if (isWatchedFolder && PackageBuilder.IsRelevantFile(path))
         {
             ScheduleSourcesChanged(delay);
         }

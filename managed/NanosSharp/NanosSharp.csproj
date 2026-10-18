@@ -1,11 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>NanosSharp</RootNamespace>
-    <Description>.NET scripting API for nanos world servers.</Description>
     <IsPackable>true</IsPackable>
     <PackageReadmeFile>PACKAGE.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(NanosSharpSide)' == 'Server'">
+    <PackageId>NanosSharp</PackageId>
+    <Description>.NET scripting API for nanos world servers.</Description>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(NanosSharpSide)' == 'Client'">
+    <PackageId>NanosSharp.Client</PackageId>
+    <Description>.NET scripting API for nanos world game clients.</Description>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(NanosSharpSide)' == 'Shared'">
+    <PackageId>NanosSharp.Shared</PackageId>
+    <Description>.NET scripting API shared by nanos world servers and game clients.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Generated/Server/**;Generated/Client/**;Server/**;Client/**" />
+    <Compile Include="Generated/Server/**/*.cs;Server/**/*.cs" Condition="'$(NanosSharpSide)' == 'Server'" />
+    <Compile Include="Generated/Client/**/*.cs;Client/**/*.cs" Condition="'$(NanosSharpSide)' == 'Client'" />
+  </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="NanosSharp.Host" />
   </ItemGroup>

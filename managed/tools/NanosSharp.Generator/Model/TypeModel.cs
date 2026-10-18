@@ -10,6 +10,8 @@ internal sealed class TypeModel
 
     public string? ScriptClassName { get; init; }
 
+    public bool IsPrimary { get; init; } = true;
+
     public string? BaseType { get; init; }
 
     public IReadOnlyList<string> Interfaces { get; set; } = [];

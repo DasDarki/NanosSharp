@@ -28,8 +28,16 @@ internal static class TypeEmitter
         writer.BlankLine();
         writer.Line($"namespace {type.Namespace};");
         writer.BlankLine();
-        WriteSummary(writer, type.Description);
-        WriteDeclaration(writer, type);
+        if (type.IsPrimary)
+        {
+            WriteSummary(writer, type.Description);
+            WriteDeclaration(writer, type);
+        }
+        else
+        {
+            WritePartialDeclaration(writer, type);
+        }
+
         writer.OpenBlock();
         WriteMembers(writer, type);
         writer.CloseBlock();
@@ -56,6 +64,18 @@ internal static class TypeEmitter
                 writer.Line($"public partial class {type.Name}{inheritance}");
                 break;
         }
+    }
+
+    private static void WritePartialDeclaration(CodeWriter writer, TypeModel type)
+    {
+        var inheritance = type.Interfaces.Count == 0 ? string.Empty : " : " + string.Join(", ", type.Interfaces);
+        var declaration = type.Kind switch
+        {
+            TypeKind.StaticClass => "public static partial class",
+            TypeKind.Mixin => "public partial interface",
+            _ => "public partial class",
+        };
+        writer.Line($"{declaration} {type.Name}{inheritance}");
     }
 
     private static void WriteMembers(CodeWriter writer, TypeModel type)
@@ -204,10 +224,19 @@ internal static class TypeEmitter
             WriteSummary(writer, constructor.Description);
             WriteSignature(writer, $"public {type.Name}(", constructor.Parameters, ")");
             writer.OpenBlock();
-            var arguments = FormatArguments(constructor.Parameters, constructor.RequiredParameterCount);
+            var arguments = constructor.Parameters.Count == 0
+                ? "ReadOnlySpan<object?>.Empty"
+                : constructor.Parameters.Any(parameter => parameter.IsOptional)
+                    ? FormatArguments(constructor.Parameters, constructor.RequiredParameterCount)
+                    : $"[{FormatArguments(constructor.Parameters, constructor.RequiredParameterCount)}]";
             writer.Line($"SpawnSelf(\"{type.ScriptClassName}\", {arguments});");
             writer.CloseBlock();
             writer.BlankLine();
+        }
+
+        if (!type.IsPrimary || type.Constructor is { Parameters.Count: 0 })
+        {
+            return;
         }
 
         writer.Line($"protected {type.Name}()");
@@ -311,6 +340,11 @@ internal static class TypeEmitter
 
     private static string FormatArguments(IReadOnlyList<ParameterModel> parameters, int requiredCount)
     {
+        if (parameters.Count == 0)
+        {
+            return "[]";
+        }
+
         var values = parameters.Select(FormatArgument).ToArray();
         if (parameters.Any(parameter => parameter.IsOptional))
         {

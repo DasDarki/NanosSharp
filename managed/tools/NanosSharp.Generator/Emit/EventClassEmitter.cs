@@ -36,17 +36,17 @@ internal static class EventClassEmitter
         return writer.ToString();
     }
 
-    public static string EmitCatalog(ApiModel model)
+    public static string EmitCatalog(ApiModel model, string methodName)
     {
         var writer = CreateWriter();
         writer.Line("internal static partial class ScriptEventCatalog");
         writer.OpenBlock();
-        writer.Line("private static partial Dictionary<Type, ScriptEventDescriptor> CreateDescriptors() => new()");
+        writer.Line($"static partial void {methodName}(Dictionary<Type, ScriptEventDescriptor> descriptors)");
         writer.OpenBlock();
         foreach (var (owner, eventModel) in Collect(model))
         {
             var className = ClassName(owner, eventModel);
-            writer.Line($"[typeof({className})] = new(\"{owner.ScriptClassName}\", \"{eventModel.Name}\", arguments => new {className}");
+            writer.Line($"descriptors[typeof({className})] = new(\"{owner.ScriptClassName}\", \"{eventModel.Name}\", arguments => new {className}");
             writer.OpenBlock();
             var index = 0;
             foreach (var (argument, property) in Properties(owner, eventModel))
@@ -55,10 +55,10 @@ internal static class EventClassEmitter
                 writer.Line($"{property} = ScriptEventArguments.Get<{argument.Type}>(arguments, {index++}){forgiving},");
             }
 
-            writer.CloseBlock("),");
+            writer.CloseBlock(");");
         }
 
-        writer.CloseBlock(";");
+        writer.CloseBlock();
         writer.CloseBlock();
         return writer.ToString();
     }

@@ -4,7 +4,10 @@ namespace NanosSharp.Generator.Native;
 
 internal sealed class CppTypeParser
 {
-    private static readonly string[] IgnoredQualifiers = ["const", "volatile", "struct", "class", "enum"];
+    private const string EnumQualifier = "enum";
+    private const string PointerSizeQualifier = "__ptr64";
+
+    private static readonly string[] IgnoredQualifiers = ["const", "volatile", "struct", "class", EnumQualifier];
 
     private readonly string _text;
     private int _position;
@@ -26,7 +29,7 @@ internal sealed class CppTypeParser
 
     private CppType ParseType()
     {
-        var name = ReadName();
+        var (name, isEnum) = ReadName();
         var arguments = new List<CppType>();
         SkipWhitespace();
         if (Peek() == '<')
@@ -36,7 +39,7 @@ internal sealed class CppTypeParser
         }
 
         var (isPointer, isReference) = ReadSuffix();
-        return new CppType(name, arguments, isPointer, isReference);
+        return new CppType(name, arguments, isPointer, isReference, isEnum);
     }
 
     private List<CppType> ParseArguments()
@@ -58,13 +61,15 @@ internal sealed class CppTypeParser
         return arguments;
     }
 
-    private string ReadName()
+    private (string Name, bool IsEnum) ReadName()
     {
         var words = new List<string>();
+        var isEnum = false;
         SkipWhitespace();
         while (_position < _text.Length && IsNameCharacter(_text[_position]))
         {
             var word = ReadWord();
+            isEnum |= word == EnumQualifier;
             if (!IgnoredQualifiers.Contains(word))
             {
                 words.Add(word);
@@ -73,7 +78,7 @@ internal sealed class CppTypeParser
             SkipWhitespace();
         }
 
-        return string.Join(' ', words);
+        return (string.Join(' ', words), isEnum);
     }
 
     private string ReadWord()
@@ -106,6 +111,10 @@ internal sealed class CppTypeParser
             else if (_text.AsSpan(_position).StartsWith("const"))
             {
                 _position += "const".Length - 1;
+            }
+            else if (_text.AsSpan(_position).StartsWith(PointerSizeQualifier))
+            {
+                _position += PointerSizeQualifier.Length - 1;
             }
             else
             {

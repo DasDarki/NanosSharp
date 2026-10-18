@@ -1,6 +1,8 @@
 <Project>
   <PropertyGroup>
     <RepositoryRoot>$(MSBuildThisFileDirectory)..</RepositoryRoot>
+    <NanosSharpSide Condition="'$(NanosSharpSide)' == ''">Server</NanosSharpSide>
+    <NanosSharpSideFolder Condition="'$(NanosSharpSide)' != 'Server'">.$(NanosSharpSide)</NanosSharpSideFolder>
     <TargetFramework>net10.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
@@ -22,7 +24,20 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageOutputPath>$(RepositoryRoot)/build/packages</PackageOutputPath>
-    <BaseOutputPath>$(RepositoryRoot)/build/managed/bin/$(MSBuildProjectName)/</BaseOutputPath>
-    <BaseIntermediateOutputPath>$(RepositoryRoot)/build/managed/obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
+    <BaseOutputPath>$(RepositoryRoot)/build/managed/bin/$(MSBuildProjectName)$(NanosSharpSideFolder)/</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(RepositoryRoot)/build/managed/obj/$(MSBuildProjectName)$(NanosSharpSideFolder)/</BaseIntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NanosSharpSide Condition="'$(NanosSharpSide)' == ''">Server</NanosSharpSide>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(NanosSharpSide)' == 'Server'">
+    <DefineConstants>$(DefineConstants);SERVER</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(NanosSharpSide)' == 'Client'">
+    <DefineConstants>$(DefineConstants);CLIENT</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(NanosSharpSide)' != 'Server'">
+    <BaseOutputPath>$(RepositoryRoot)/build/managed/$(NanosSharpSide)/bin/$(MSBuildProjectName)/</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(RepositoryRoot)/build/managed/$(NanosSharpSide)/obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
   </PropertyGroup>
 </Project>

@@ -47,7 +47,10 @@ jobs:
         run: xmake bundle -r "${{ steps.version.outputs.version }}"
 
       - name: Pack NuGet packages
-        run: dotnet pack managed/NanosSharp.slnx -c Release -p:Version="${{ steps.version.outputs.version }}"
+        run: |
+          dotnet pack managed/NanosSharp.slnx -c Release -p:Version="${{ steps.version.outputs.version }}"
+          dotnet pack managed/NanosSharp/NanosSharp.csproj -c Release -p:NanosSharpSide=Client -p:Version="${{ steps.version.outputs.version }}"
+          dotnet pack managed/NanosSharp/NanosSharp.csproj -c Release -p:NanosSharpSide=Shared -p:Version="${{ steps.version.outputs.version }}"
 
       - uses: actions/upload-artifact@v4
         with:

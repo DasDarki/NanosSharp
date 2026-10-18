@@ -1,3 +1,5 @@
+using NanosSharp.Generator.Model;
+
 namespace NanosSharp.Generator.Definitions;
 
 internal sealed class DocsEvent
@@ -12,5 +14,6 @@ internal sealed class DocsEvent
 
     public List<DocsReturn> Return { get; set; } = [];
 
-    public bool IsServerSide => Authority is "server" or "both" or "authority" or "network-authority";
+    public bool IsAvailableOn(ApiSide side) =>
+        Authority is "both" or "authority" or "network-authority" || Authority == (side == ApiSide.Server ? "server" : "client");
 }
