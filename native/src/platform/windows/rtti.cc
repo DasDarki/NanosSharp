@@ -60,7 +60,7 @@ uint8_t* FindData(const std::vector<Section>& sections, const void* needle, size
 }
 
 const CompleteObjectLocator* FindLocator(const std::vector<Section>& sections, uint8_t* base,
-                                         uint32_t descriptor) {
+                                         uint32_t descriptor, bool is_primary = true) {
   for (const Section& section : sections) {
     if (section.writable || section.executable) {
       continue;
@@ -68,7 +68,7 @@ const CompleteObjectLocator* FindLocator(const std::vector<Section>& sections, u
     for (size_t offset = 0; offset + sizeof(CompleteObjectLocator) <= section.size; offset += 4) {
       auto* locator = reinterpret_cast<const CompleteObjectLocator*>(section.start + offset);
       auto self = static_cast<uint32_t>(reinterpret_cast<const uint8_t*>(locator) - base);
-      if (locator->signature == kLocatorSignature && locator->offset == 0 &&
+      if (locator->signature == kLocatorSignature && (locator->offset == 0) == is_primary &&
           locator->type_descriptor == descriptor && locator->self == self) {
         return locator;
       }
@@ -105,6 +105,23 @@ void** FindVtable(HMODULE module, const char* decorated_name) {
   auto address = reinterpret_cast<uintptr_t>(locator);
   uint8_t* reference = FindData(sections, &address, sizeof(address));
   return reference != nullptr ? reinterpret_cast<void**>(reference + sizeof(void*)) : nullptr;
+}
+
+bool FindBaseOffset(HMODULE module, const char* decorated_name, uint32_t& offset) {
+  auto* base = reinterpret_cast<uint8_t*>(module);
+  std::vector<Section> sections = Sections(module);
+  uint8_t* name = FindData(sections, decorated_name, std::strlen(decorated_name) + 1);
+  if (name == nullptr) {
+    return false;
+  }
+
+  auto descriptor = static_cast<uint32_t>(name - kDescriptorNameOffset - base);
+  const CompleteObjectLocator* locator = FindLocator(sections, base, descriptor, false);
+  if (locator == nullptr) {
+    return false;
+  }
+  offset = locator->offset;
+  return true;
 }
 
 const char* DecoratedTypeName(const void* polymorphic_object) {

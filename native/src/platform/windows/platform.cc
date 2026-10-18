@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <vector>
 
+#include "platform/windows/lua_symbols.h"
 #include "platform/windows/rtti.h"
 #include "platform/windows/runtime.h"
 
@@ -18,6 +19,9 @@ namespace {
 constexpr wchar_t kDotnetDirectoryName[] = L"dotnet";
 constexpr wchar_t kHostfxrFileName[] = L"hostfxr.dll";
 constexpr char kUnsupportedFeature[] = "this feature is not supported on Windows yet";
+constexpr char kLuaEnvironmentType[] = ".?AVLuaEnvironment@lua@scripting@nw@@";
+constexpr char kLuaFunctionType[] = ".?AVLuaFunctionRef@lua@scripting@nw@@";
+constexpr std::ptrdiff_t kEngineLuaStateOffset = 0x88;
 
 char* CopyString(const std::string& value) {
   char* copy = static_cast<char*>(std::malloc(value.size() + 1));
@@ -77,12 +81,29 @@ void* LoadNativeLibrary(const char* path, std::string& error) {
 
 bool ResolveDeferredEntity(uint32_t, game::ScriptValue&) { return false; }
 
-game::ScriptValue GetLuaGlobal(game::Environment&, const std::string&) {
-  throw std::runtime_error(kUnsupportedFeature);
+bool IsLuaInteropAvailable(std::string& reason) { return lua::IsResolved(reason); }
+
+game::LuaState* GetLuaState() {
+  game::Engine* engine = AttachedEngine();
+  if (engine == nullptr) {
+    throw std::runtime_error("the scripting engine is not attached");
+  }
+  auto* state = *reinterpret_cast<game::LuaState**>(reinterpret_cast<char*>(engine) + kEngineLuaStateOffset);
+  if (state == nullptr) {
+    throw std::runtime_error("the Lua state is not available");
+  }
+  return state;
 }
 
-void SetLuaGlobal(game::Environment&, const std::string&, const game::ScriptValue&) {
-  throw std::runtime_error(kUnsupportedFeature);
+game::LuaRef* GetLuaEnvironmentTable(game::Environment& environment) {
+  if (!rtti::HasTypeName(&environment, kLuaEnvironmentType)) {
+    return nullptr;
+  }
+  return reinterpret_cast<game::LuaRef*>(reinterpret_cast<char*>(&environment) + lua::EnvironmentTableOffset());
+}
+
+bool IsLuaFunction(const game::IScriptFunctionRef* function) {
+  return rtti::HasTypeName(function, kLuaFunctionType);
 }
 
 void ReloadPackage(game::Package*) { throw std::runtime_error(kUnsupportedFeature); }

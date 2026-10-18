@@ -5,6 +5,7 @@
 
 #include "bridge/native_api.h"
 #include "platform/windows/allocator.h"
+#include "platform/windows/lua_symbols.h"
 #include "platform/windows/rtti.h"
 
 namespace nanossharp {
@@ -174,6 +175,12 @@ DWORD WINAPI Runtime::InstallHooks(void* parameter) {
 
   runtime->PatchSlot(environment_vtable, kEnvironmentDestructorSlot, reinterpret_cast<void*>(&OnEnvironmentDestroyed),
                      reinterpret_cast<void**>(&runtime->original_environment_destroyed_));
+  std::string lua_error;
+  if (platform::lua::Resolve(GetModuleHandleW(nullptr), lua_error)) {
+    runtime->Log(game::LogType::kDebug, "Lua interop is available");
+  } else {
+    runtime->Log(game::LogType::kWarning, "Lua interop is disabled: " + lua_error);
+  }
   runtime->Log(game::LogType::kInfo, "waiting for the scripting engine");
   return 0;
 }
