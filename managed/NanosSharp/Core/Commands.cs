@@ -1,6 +1,6 @@
 namespace NanosSharp.Core;
 
-/// <summary>Server console commands with string arguments.</summary>
+/// <summary>Console commands with string arguments, on the server and in the game client.</summary>
 public static class Commands
 {
     /// <summary>Registers a console command, the handler receives the command arguments.</summary>

@@ -24,6 +24,8 @@ public sealed class ClientProbe : Package
         Log.Info("client probe resumed after await");
         Check("PackageInfoLater", () => $"{Title} {Version}");
         Check("LocalPlayer", () => Client.LocalPlayer?.Name ?? "no local player yet");
+        CheckLuaInterop();
+        CheckCommands();
         Check("ClientEntity", () =>
         {
             _text = new TextRender(new Vector(0, 0, 300), Rotator.Zero, "NanosSharp");
@@ -41,6 +43,36 @@ public sealed class ClientProbe : Package
         }
 
         Log.Info("client probe stopped");
+    }
+
+    [Export]
+    public static string ClientShout(string text) => text.ToUpperInvariant();
+
+    private static void CheckLuaInterop()
+    {
+        Check("LuaExportCall", () => Require(Exports.Call<long>("ClientLuaLibrary.Add", 2, 3), 5L));
+        Check("LuaInvokesCSharpDelegate", () => Require(Exports.Call<long>("ClientLuaLibrary.Invoke", ScriptCallback.From((Func<long, long>)(value => value * 2)), 21), 42L));
+        Exports.Set("CSharpClientLibrary", new Dictionary<string, object?> { ["Multiply"] = (Func<long, long, long>)((first, second) => first * second) });
+        Check("LuaUsesCSharpExport", () => Require(Exports.Call<long>("ClientLuaUseCSharp", 6, 7), 42L));
+        Exports.Set("ClientProbeValue", new Dictionary<string, object?> { ["count"] = 12 });
+        Check("ExportRoundTrip", () => Require(Exports.Get<long>("ClientProbeValue.count"), 12L));
+        Check("ExportAttribute", () => Require(Exports.Call<string>("ClientShout", "nanos"), "NANOS"));
+    }
+
+    private static void CheckCommands()
+    {
+        Commands.Register("nanossharp_probe", arguments => Check("ConsoleCommand", () => $"arguments '{string.Join(' ', arguments)}'"), "NanosSharp client probe");
+        Commands.Run("nanossharp_probe hello world");
+    }
+
+    private static string Require<T>(T? actual, T expected)
+    {
+        if (!Equals(actual, expected))
+        {
+            throw new InvalidOperationException($"expected {expected} but got {actual}");
+        }
+
+        return $"{actual}";
     }
 
     private bool OnKeyPress(string? keyName, float delta)
