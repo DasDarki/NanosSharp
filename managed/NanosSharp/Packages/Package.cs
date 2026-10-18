@@ -35,14 +35,33 @@ public abstract unsafe class Package
 
     internal PackageScope Scope { get; set; } = null!;
 
+    private Entity? _scriptEntity;
+
     private Entity ScriptEntity
     {
         get
         {
-            var classId = NativeClassRegistry.Get(ScriptClassName).Id;
-            var instance = NativeRuntime.Api.PackageGetEntity(Scope.Handle);
-            return EntityRegistry.Resolve(classId, instance) ?? throw new InvalidOperationException($"Package {Name} has no scripting entity.");
+            if (_scriptEntity is { IsValid: true })
+            {
+                return _scriptEntity;
+            }
+
+            _scriptEntity = ResolveScriptEntity() ?? throw new InvalidOperationException($"Package {Name} has no scripting entity.");
+            return _scriptEntity;
         }
+    }
+
+    private Entity? ResolveScriptEntity()
+    {
+        var classId = NativeClassRegistry.Get(ScriptClassName).Id;
+        var instance = NativeRuntime.Api.PackageGetEntity(Scope.Handle);
+        if (instance != 0)
+        {
+            return EntityRegistry.Resolve(classId, instance);
+        }
+
+        return EntityRegistry.All.FirstOrDefault(entity =>
+            entity.IsValid && entity.ClassName == ScriptClassName && entity.Invoke<string>("GetName") == Name);
     }
 
     /// <summary>Lists files relative to the package, optionally inside a folder and filtered by extension like ".cs".</summary>

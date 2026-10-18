@@ -10,6 +10,7 @@ using NanosSharp.Interop.Callbacks;
 using NanosSharp.Logging;
 using NanosSharp.Packages;
 using NanosSharp.Scripting;
+using NanosSharp.Threading;
 
 namespace NanosSharp.Host.Packages;
 
@@ -114,9 +115,11 @@ internal static unsafe class PackageManager
             try
             {
                 var build = PendingBuilds.Remove(package.Name, out var pending) ? pending : BuildPackage(package);
-                package.Start(build, assemblyName => ResolveShared(package.Manifest, assemblyName));
 #if CLIENT
                 SetPackageActive(package.Name, true);
+                MainThread.Post(() => StartDeferred(package, build));
+#else
+                StartPackage(package, build);
 #endif
             }
             catch (Exception exception)
@@ -135,9 +138,39 @@ internal static unsafe class PackageManager
         }
     }
 
+    private static void StartPackage(ManagedPackage package, PackageBuild build) =>
+        package.Start(build, assemblyName => ResolveShared(package.Manifest, assemblyName));
+
 #if CLIENT
-    private static void SetPackageActive(string packageName, bool isActive) =>
-        ScriptApi.Invoke("Client", "SetValue", Handshake.PackageValuePrefix + packageName, isActive);
+    private static void StartDeferred(ManagedPackage package, PackageBuild build)
+    {
+        if (!Packages.TryGetValue(package.Handle, out var current) || current != package)
+        {
+            return;
+        }
+
+        using (PackageContext.Enter(package.Scope))
+        {
+            try
+            {
+                StartPackage(package, build);
+            }
+            catch (Exception exception)
+            {
+                Log.Error($"Failed to start the C# package: {exception}");
+                SetPackageActive(package.Name, false);
+                TrackUnload(package, package.Stop());
+            }
+        }
+    }
+
+    private static void SetPackageActive(string packageName, bool isActive)
+    {
+        using (PackageContext.Enter(null))
+        {
+            ScriptApi.Invoke("Client", "SetValue", Handshake.PackageValuePrefix + packageName, isActive);
+        }
+    }
 #endif
 
     private static void OnPackageUnloading(nint handle)
