@@ -4,6 +4,7 @@
 #include <utility>
 
 #include "bridge/native_api.h"
+#include "platform/windows/allocator.h"
 #include "platform/windows/rtti.h"
 
 namespace nanossharp {
@@ -152,6 +153,14 @@ DWORD WINAPI Runtime::InstallHooks(void* parameter) {
     return 0;
   }
 
+  void** environment_vtable = platform::rtti::FindVtable(GetModuleHandleW(nullptr), kLuaEnvironmentType);
+  if (environment_vtable == nullptr ||
+      !platform::allocator::Resolve(vtable[kEngineCreateEnvironmentSlot], environment_vtable[kEnvironmentDestructorSlot])) {
+    runtime->disabled_ = true;
+    runtime->Log(game::LogType::kError, "this game version is not supported, the game allocator was not found");
+    return 0;
+  }
+
   runtime->PatchSlot(vtable, game::kEngineEntityDestroyedSlot, reinterpret_cast<void*>(&OnEntityDestroyed),
                      reinterpret_cast<void**>(&runtime->original_entity_destroyed_));
   runtime->PatchSlot(vtable, game::kEngineEntityCreatedSlot, reinterpret_cast<void*>(&OnEntityCreated),
@@ -163,13 +172,8 @@ DWORD WINAPI Runtime::InstallHooks(void* parameter) {
   runtime->PatchSlot(vtable, kEngineCreateEnvironmentSlot, reinterpret_cast<void*>(&OnEnvironmentCreated),
                      reinterpret_cast<void**>(&runtime->original_environment_created_));
 
-  void** environment_vtable = platform::rtti::FindVtable(GetModuleHandleW(nullptr), kLuaEnvironmentType);
-  if (environment_vtable == nullptr) {
-    runtime->Log(game::LogType::kWarning, "the LuaEnvironment was not found, packages will not be unloaded");
-  } else {
-    runtime->PatchSlot(environment_vtable, kEnvironmentDestructorSlot, reinterpret_cast<void*>(&OnEnvironmentDestroyed),
-                       reinterpret_cast<void**>(&runtime->original_environment_destroyed_));
-  }
+  runtime->PatchSlot(environment_vtable, kEnvironmentDestructorSlot, reinterpret_cast<void*>(&OnEnvironmentDestroyed),
+                     reinterpret_cast<void**>(&runtime->original_environment_destroyed_));
   runtime->Log(game::LogType::kInfo, "waiting for the scripting engine");
   return 0;
 }
@@ -186,6 +190,7 @@ void Runtime::AttachEngine(game::Engine* engine) {
   if (disabled_ || engine == engine_) {
     return;
   }
+  platform::allocator::Activate();
   DetachEngine();
 
   Log(game::LogType::kDebug, "scripting engine attaching");
