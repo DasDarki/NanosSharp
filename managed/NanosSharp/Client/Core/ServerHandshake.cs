@@ -1,11 +1,9 @@
-using NanosSharp.Interop.Reflection;
 using NanosSharp.Scripting;
 
 namespace NanosSharp.Core;
 
 internal static class ServerHandshake
 {
-    private static readonly StaticMethodSlot CallRemoteSlot = new("Events", "CallRemote");
     private static ScriptSubscription? _request;
 
     public static void Start()
@@ -20,6 +18,5 @@ internal static class ServerHandshake
         _request = null;
     }
 
-    private static void Reply() =>
-        ScriptApi.InvokeVariadic(CallRemoteSlot, [Handshake.EventName, null], [Handshake.ProtocolVersion, Handshake.RuntimeVersion]);
+    private static void Reply() => Events.CallRemote(Handshake.EventName, Handshake.ProtocolVersion, Handshake.RuntimeVersion);
 }

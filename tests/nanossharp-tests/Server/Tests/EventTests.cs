@@ -35,6 +35,14 @@ public static class EventTests
     }
 
     [Test]
+    public static void BroadcastRemoteSupportsBothReliabilities()
+    {
+        Events.BroadcastRemote("nanossharp-test-remote", "payload", 1);
+        Events.BroadcastRemoteUnreliable("nanossharp-test-remote", "payload", 2);
+        Events.BroadcastRemoteUnreliable("nanossharp-test-remote", ["payload", 3]);
+    }
+
+    [Test]
     public static void HandlerReturningFalseBlocks()
     {
         using var blocking = Events.Subscribe("nanossharp-test-cancel", () => false);
