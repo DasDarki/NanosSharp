@@ -79,7 +79,7 @@ internal static class SandboxVerifier
         _ => null,
     };
 
-    private static string SpecificationName(MetadataReader reader, TypeSpecificationHandle handle)
+    private static string? SpecificationName(MetadataReader reader, TypeSpecificationHandle handle)
     {
         var blob = reader.GetBlobReader(reader.GetTypeSpecification(handle).Signature);
         var code = blob.ReadSignatureTypeCode();
@@ -98,7 +98,7 @@ internal static class SandboxVerifier
         return definition.Kind switch
         {
             HandleKind.TypeReference => TypeName(reader, (TypeReferenceHandle)definition),
-            HandleKind.TypeDefinition => DefinitionName(reader, (TypeDefinitionHandle)definition),
+            HandleKind.TypeDefinition => null,
             _ => definition.Kind.ToString(),
         };
     }
@@ -112,12 +112,6 @@ internal static class SandboxVerifier
         }
 
         return Combine(reader.GetString(reference.Namespace), StripArity(reader.GetString(reference.Name)));
-    }
-
-    private static string DefinitionName(MetadataReader reader, TypeDefinitionHandle handle)
-    {
-        var definition = reader.GetTypeDefinition(handle);
-        return Combine(reader.GetString(definition.Namespace), StripArity(reader.GetString(definition.Name)));
     }
 
     private static string FullName(INamedTypeSymbol type) =>

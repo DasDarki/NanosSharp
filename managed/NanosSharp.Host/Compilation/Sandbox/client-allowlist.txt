@@ -122,6 +122,8 @@
 +System.Environment::get_NewLine
 +System.Environment::get_TickCount
 +System.Environment::get_TickCount64
++System.Environment::get_CurrentManagedThreadId
++System.Environment::get_ProcessorCount
 +System.Type::GetTypeFromHandle
 +System.Type::get_Name
 +System.Type::op_Equality
