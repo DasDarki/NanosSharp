@@ -9,12 +9,21 @@ Documentation: https://nanossharp.dasdarki.de
 
 ## Installation
 
-Extract the bundle of a [release](https://github.com/DasDarki/NanosSharp/releases) into the server directory, install
-the .NET 10 runtime and start the server with `./NanosSharp.sh` instead of `./NanosWorldServer.sh`:
+The installer of a [release](https://github.com/DasDarki/NanosSharp/releases) sets up a server or the game client. It
+downloads the latest release, checks it against `SHA256SUMS` and puts every file where it belongs:
 
 ```sh
-curl -L https://github.com/DasDarki/NanosSharp/releases/latest/download/nanossharp-<version>-linux-x64.tar.gz | tar -xz
+curl -fsSLo nanossharp-install https://github.com/DasDarki/NanosSharp/releases/latest/download/nanossharp-install-linux-x64
+chmod +x nanossharp-install
+./nanossharp-install server     # in the server directory, installs .NET 10 into ~/.dotnet when it is missing
+./nanossharp-install client     # finds nanos world through Steam and configures Proton
 ```
+
+On Windows run `nanossharp-install-win-x64.exe`, it installs the client. Run the installer again to update,
+`--uninstall` removes NanosSharp. Start the server with `./NanosSharp.sh` instead of `./NanosWorldServer.sh`.
+
+The bundles can also be extracted by hand: `nanossharp-<version>-linux-x64.tar.gz` into the server directory and
+`nanossharp-client-<version>-win-x64.zip` into `NanosWorld/Binaries/Win64` of the game.
 
 Or run the image with the server, .NET and NanosSharp included:
 
@@ -84,7 +93,16 @@ xmake client                       # builds version.dll, the client runtime and 
 ```
 
 Copy the content of `build/client` into `NanosWorld/Binaries/Win64` of the game. Under Proton add
-`WINEDLLOVERRIDES="version=n,b" PROTON_DISABLE_NVAPI=1 %command%` to the launch options.
+`WINEDLLOVERRIDES="version=n,b" %command%` to the launch options, or let the installer set the override in the Wine
+prefix. NanosSharp keeps `nvapi64.dll` loaded under Wine, because NVIDIA Reflex loads and unloads it every frame on
+other graphics cards and leaks a thread local storage slot each time until the game crashes.
+
+```sh
+xmake bundle -r 0.2.0       # server bundle into build/release
+xmake client -r 0.2.0       # client bundle into build/release
+xmake installer -r 0.2.0    # installer for the current system into build/release
+./build/release/nanossharp-install-linux-x64 server --from build/release
+```
 
 ## Writing a package
 
@@ -340,9 +358,10 @@ Everything without a typed wrapper yet is reachable through `ScriptApi` and `Ent
 
 ## Releasing
 
-Pushing a tag `v<version>` runs `.github/workflows/publish.yml`: it builds the bundle (`xmake bundle -r <version>`),
-pushes `NanosSharp` and `NanosSharp.Templates` to NuGet through trusted publishing, creates the GitHub release and
-pushes the Docker image from `docker/Dockerfile` to `ghcr.io/dasdarki/nanossharp`.
+Pushing a tag `v<version>` runs `.github/workflows/publish.yml`: it builds the server bundle, the client bundle (cross
+compiled with `clang-cl` and `xwin`) and the installers for Linux and Windows, pushes the NuGet packages through
+trusted publishing, creates the GitHub release with `SHA256SUMS` and provenance attestations and pushes the Docker
+image from `docker/Dockerfile` to `ghcr.io/dasdarki/nanossharp`.
 
 ## Layout
 
@@ -357,6 +376,7 @@ pushes the Docker image from `docker/Dockerfile` to `ghcr.io/dasdarki/nanossharp
 | `managed/NanosSharp.Host` | Package loading, Roslyn compilation, client sandbox, hot reload |
 | `managed/NanosSharp/Generated` | Generated API (do not edit) |
 | `managed/tools/NanosSharp.Generator` | API generator and native API dump |
+| `managed/tools/NanosSharp.Installer` | Installer for servers and the game client (native AOT) |
 | `managed/examples` | Example packages |
 | `managed/templates` | `dotnet new` templates |
 | `docker` | Docker image of a server with NanosSharp |
