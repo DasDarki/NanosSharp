@@ -36,6 +36,9 @@ constexpr DWORD kClrException = 0xE0434352;
 constexpr DWORD kThreadNameException = 0x406D1388;
 constexpr DWORD kWidePrintException = 0x4001000A;
 constexpr size_t kMaximumClassCount = 512;
+constexpr wchar_t kNtdllName[] = L"ntdll.dll";
+constexpr char kWineVersionExport[] = "wine_get_version";
+constexpr wchar_t kNvapiName[] = L"nvapi64.dll";
 
 using ManagedEntryPoint = int32_t (*)(const bridge::NativeApi* api,
                                       bridge::ManagedCallbacks* callbacks,
@@ -136,6 +139,18 @@ void Runtime::Log(game::LogType type, const std::string& message) {
   std::fflush(log_file_);
 }
 
+void Runtime::PinNvapiUnderWine() {
+  if (GetProcAddress(GetModuleHandleW(kNtdllName), kWineVersionExport) == nullptr) {
+    return;
+  }
+  HMODULE nvapi = LoadLibraryW(kNvapiName);
+  if (nvapi == nullptr) {
+    return;
+  }
+  GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_PIN, kNvapiName, &nvapi);
+  Log(game::LogType::kDebug, "nvapi64.dll is kept loaded to avoid repeated loading under Wine");
+}
+
 bool Runtime::IsGameProcess() const {
   std::wstring path(MAX_PATH, L'\0');
   path.resize(GetModuleFileNameW(nullptr, path.data(), MAX_PATH));
@@ -147,6 +162,7 @@ bool Runtime::IsGameProcess() const {
 
 DWORD WINAPI Runtime::InstallHooks(void* parameter) {
   auto* runtime = static_cast<Runtime*>(parameter);
+  runtime->PinNvapiUnderWine();
   void** vtable = platform::rtti::FindVtable(GetModuleHandleW(nullptr), kLuaEngineType);
   if (vtable == nullptr) {
     runtime->disabled_ = true;

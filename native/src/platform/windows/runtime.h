@@ -43,6 +43,7 @@ class Runtime {
   static LONG CALLBACK OnException(EXCEPTION_POINTERS* exception);
 
   bool IsGameProcess() const;
+  void PinNvapiUnderWine();
   void PatchSlot(void** vtable, int slot, void* detour, void** original);
   void AttachEngine(game::Engine* engine);
   void DetachEngine();
