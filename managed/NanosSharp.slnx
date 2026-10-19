@@ -7,9 +7,11 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/NanosSharp.Host.Tests/NanosSharp.Host.Tests.csproj" />
+    <Project Path="tests/NanosSharp.Installer.Tests/NanosSharp.Installer.Tests.csproj" />
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/NanosSharp.Generator/NanosSharp.Generator.csproj" />
+    <Project Path="tools/NanosSharp.Installer/NanosSharp.Installer.csproj" />
   </Folder>
   <Project Path="NanosSharp.Host/NanosSharp.Host.csproj" />
   <Project Path="NanosSharp/NanosSharp.csproj" />
