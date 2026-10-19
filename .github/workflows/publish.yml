@@ -12,6 +12,7 @@ env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   XWIN_VERSION: 0.6.5
+  LLVM_VERSION: 20
 
 jobs:
   build:
@@ -89,9 +90,9 @@ jobs:
 
       - name: Install clang-cl and lld-link
         run: |
-          sudo apt-get update
-          sudo apt-get install -y clang-18 lld-18 llvm-18
-          echo "/usr/lib/llvm-18/bin" >> "$GITHUB_PATH"
+          curl -fsSLo llvm.sh https://apt.llvm.org/llvm.sh
+          sudo bash llvm.sh "$LLVM_VERSION"
+          echo "/usr/lib/llvm-$LLVM_VERSION/bin" >> "$GITHUB_PATH"
 
       - uses: actions/cache@v4
         id: xwin-cache
