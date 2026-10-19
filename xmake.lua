@@ -137,12 +137,14 @@ task("bundle")
         os.execv("dotnet", {"build", path.join(root, "managed", "NanosSharp.Host", "NanosSharp.Host.csproj"), "-c", "Release",
             "-p:Version=" .. version, "--nologo", "-v", "q"})
 
-        os.tryrm(release_dir)
+        os.tryrm(bundle_dir)
+        os.tryrm(archive)
         os.mkdir(runtime_dir)
         os.cp(path.join(root, "build", "managed", "bin", "NanosSharp.Host", "Release", "net10.0", "*"), runtime_dir)
         os.cp(project.target("nanossharp"):targetfile(), runtime_dir)
         os.cp(path.join(root, "scripts", "NanosSharp.sh"), bundle_dir)
         os.cp(path.join(root, "LICENSE"), path.join(bundle_dir, "NanosSharp"))
+        io.writefile(path.join(bundle_dir, "NanosSharp", "VERSION"), version .. "\n")
         os.execv("tar", {"-czf", archive, "-C", bundle_dir, "."})
 
         cprint("${color.success}NanosSharp %s bundled into %s", version, archive)
@@ -152,6 +154,36 @@ task("bundle")
         description = "Build the NanosSharp runtime and pack it into a release archive for nanos world servers.",
         options = {
             {"r", "release", "kv", nil, "The version of the release, the project version by default."}
+        }
+    }
+task_end()
+
+task("installer")
+    set_category("plugin")
+    on_run(function ()
+        import("core.base.option")
+        import("core.project.project")
+
+        local root = os.projectdir()
+        local version = option.get("release") or project.version()
+        local runtime = option.get("runtime")
+        local release_dir = path.join(root, "build", "release")
+        local publish_dir = path.join(root, "build", "installer", runtime)
+        local extension = runtime:startswith("win") and ".exe" or ""
+
+        os.tryrm(publish_dir)
+        os.execv("dotnet", {"publish", path.join(root, "managed", "tools", "NanosSharp.Installer", "NanosSharp.Installer.csproj"),
+            "-c", "Release", "-r", runtime, "-p:Version=" .. version, "-o", publish_dir, "--nologo", "-v", "q"})
+        os.mkdir(release_dir)
+        os.cp(path.join(publish_dir, "nanossharp-install" .. extension), path.join(release_dir, "nanossharp-install-" .. runtime .. extension))
+        cprint("${color.success}NanosSharp installer %s for %s written to %s", version, runtime, release_dir)
+    end)
+    set_menu {
+        usage = "xmake installer [-r version] [--runtime rid]",
+        description = "Publish the NanosSharp installer as a native executable.",
+        options = {
+            {"r", "release", "kv", nil, "The version of the release, the project version by default."},
+            {nil, "runtime", "kv", "linux-x64", "The runtime identifier, native AOT only builds for the host system."}
         }
     }
 task_end()
@@ -173,6 +205,7 @@ task("client")
         local package_dir = path.join(output_dir, "NanosSharp")
         local runtime_version = option.get("runtime")
         local configuration = option.get("configuration")
+        local release = option.get("release")
 
         local dotnet_root = get_config("dotnet_root")
         local header_dirs = os.dirs(path.join(dotnet_root, "packs", "Microsoft.NETCore.App.Host.*", "*", "runtimes", "*", "native"))
@@ -232,8 +265,12 @@ task("client")
         table.join2(link_arguments, objects)
         os.execv("lld-link", link_arguments)
 
-        os.execv("dotnet", {"build", path.join(root, "managed", "NanosSharp.Host", "NanosSharp.Host.csproj"), "-c", configuration,
-            "-p:NanosSharpSide=Client", "--nologo", "-v", "q"})
+        local build_arguments = {"build", path.join(root, "managed", "NanosSharp.Host", "NanosSharp.Host.csproj"), "-c", configuration,
+            "-p:NanosSharpSide=Client", "--nologo", "-v", "q"}
+        if release then
+            table.insert(build_arguments, "-p:Version=" .. release)
+        end
+        os.execv("dotnet", build_arguments)
         os.mkdir(path.join(package_dir, "runtime"))
         os.cp(path.join(root, "build", "managed", "Client", "bin", "NanosSharp.Host", configuration, "net10.0", "*"), path.join(package_dir, "runtime"))
 
@@ -247,6 +284,18 @@ task("client")
         archive.extract(runtime_archive, path.join(package_dir, "dotnet"))
         os.cp(path.join(root, "LICENSE"), package_dir)
 
+        if release then
+            io.writefile(path.join(package_dir, "VERSION"), release .. "\n")
+            local release_dir = path.join(root, "build", "release")
+            local archive = path.join(release_dir, "nanossharp-client-" .. release .. "-win-x64.zip")
+            os.mkdir(release_dir)
+            os.tryrm(archive)
+            os.execv("python3", {"-c", "import shutil, sys; shutil.make_archive(sys.argv[1], 'zip', sys.argv[2])",
+                archive:sub(1, -5), output_dir})
+            cprint("${color.success}NanosSharp client %s bundled into %s", release, archive)
+            return
+        end
+
         cprint("${color.success}NanosSharp client built into %s, copy its content into NanosWorld/Binaries/Win64", output_dir)
     end)
     set_menu {
@@ -255,7 +304,8 @@ task("client")
         options = {
             {"c", "configuration", "kv", "Release", "The .NET build configuration.", values = {"Debug", "Release"}},
             {nil, "runtime", "kv", "10.0.13", "The .NET runtime version shipped with the client."},
-            {nil, "xwin", "kv", nil, "Directory of the MSVC CRT and Windows SDK downloaded with xwin."}
+            {nil, "xwin", "kv", nil, "Directory of the MSVC CRT and Windows SDK downloaded with xwin."},
+            {"r", "release", "kv", nil, "Also pack the client into a release archive with this version."}
         }
     }
 task_end()

@@ -11,6 +11,7 @@ permissions:
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
+  XWIN_VERSION: 0.6.5
 
 jobs:
   build:
@@ -44,7 +45,9 @@ jobs:
         run: xmake f -m release -y --dotnet_root="$DOTNET_ROOT"
 
       - name: Test
-        run: dotnet test managed/tests/NanosSharp.Host.Tests -c Release
+        run: |
+          dotnet test managed/tests/NanosSharp.Host.Tests -c Release
+          dotnet test managed/tests/NanosSharp.Installer.Tests -c Release
 
       - name: Bundle runtime
         run: xmake bundle -r "${{ steps.version.outputs.version }}"
@@ -65,6 +68,87 @@ jobs:
         with:
           name: packages
           path: build/packages/
+          if-no-files-found: error
+
+  client:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+          actions-cache-folder: .xmake-cache
+
+      - name: Install clang-cl and lld-link
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-18 lld-18 llvm-18
+          echo "/usr/lib/llvm-18/bin" >> "$GITHUB_PATH"
+
+      - uses: actions/cache@v4
+        id: xwin-cache
+        with:
+          path: ~/.xwin
+          key: xwin-${{ env.XWIN_VERSION }}
+
+      - name: Download the MSVC CRT and Windows SDK
+        if: steps.xwin-cache.outputs.cache-hit != 'true'
+        run: |
+          curl -fsSL "https://github.com/Jake-Shadle/xwin/releases/download/$XWIN_VERSION/xwin-$XWIN_VERSION-x86_64-unknown-linux-musl.tar.gz" | tar -xz
+          "./xwin-$XWIN_VERSION-x86_64-unknown-linux-musl/xwin" --accept-license splat --output ~/.xwin
+
+      - name: Configure
+        run: xmake f -m release -y --dotnet_root="$DOTNET_ROOT"
+
+      - name: Bundle client
+        run: xmake client -r "${{ steps.version.outputs.version }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: client
+          path: build/release/*.zip
+          if-no-files-found: error
+
+  installer:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            runtime: linux-x64
+            file: nanossharp-install
+          - os: windows-2025
+            runtime: win-x64
+            file: nanossharp-install.exe
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Publish installer
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          dotnet publish managed/tools/NanosSharp.Installer/NanosSharp.Installer.csproj -c Release -r "${{ matrix.runtime }}" \
+            -p:Version="$version" -o build/installer
+          mkdir -p build/release
+          name="${{ matrix.file }}"
+          cp "build/installer/$name" "build/release/${name/nanossharp-install/nanossharp-install-${{ matrix.runtime }}}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-${{ matrix.runtime }}
+          path: build/release/
           if-no-files-found: error
 
   nuget:
@@ -95,7 +179,7 @@ jobs:
           --skip-duplicate
 
   release:
-    needs: build
+    needs: [build, client, installer]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -107,17 +191,33 @@ jobs:
           name: bundle
           path: release
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: client
+          path: release
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: installer-*
+          path: release
+          merge-multiple: true
+
       - name: Write checksums
-        run: cd release && sha256sum *.tar.gz > SHA256SUMS
+        run: cd release && sha256sum *.tar.gz *.zip nanossharp-install-* > SHA256SUMS
 
       - uses: actions/attest-build-provenance@v2
         with:
-          subject-path: release/*.tar.gz
+          subject-path: |
+            release/*.tar.gz
+            release/*.zip
+            release/nanossharp-install-*
 
       - uses: softprops/action-gh-release@v2
         with:
           files: |
             release/*.tar.gz
+            release/*.zip
+            release/nanossharp-install-*
             release/SHA256SUMS
           prerelease: ${{ needs.build.outputs.prerelease == 'true' }}
           generate_release_notes: true
