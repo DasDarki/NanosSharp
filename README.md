@@ -1,8 +1,9 @@
 # NanosSharp
 
-.NET runtime for [nanos world](https://nanos-world.com) servers. Write server packages in C# next to (or instead of) Lua.
+.NET runtime for [nanos world](https://nanos-world.com). Write packages in C# next to (or instead of) Lua, on the
+dedicated server and in the game client.
 
-> Early development. Linux dedicated server only.
+> Early development. The server runs on Linux x64, the client on Windows and under Proton.
 
 Documentation: https://nanossharp.dasdarki.de
 
@@ -30,6 +31,8 @@ dotnet new nanossharp-script -n MyGamemode -o Packages/my-gamemode
 
 ## How it works
 
+Server:
+
 ```
 NanosWorldServer
  └─ libnanossharp.so  (LD_PRELOAD, C++)
@@ -42,6 +45,20 @@ NanosWorldServer
              │   into its own collectible AssemblyLoadContext and the package's own scripting environment
              ├─ compiles *.cs files with Roslyn, loads *.dll files directly
              └─ hot reloads a package when its sources change
+```
+
+Client:
+
+```
+NanosWorld-Win64-Shipping.exe
+ └─ version.dll  (proxy of the system version.dll, C++ built with clang-cl)
+     ├─ finds the scripting engine through MSVC RTTI and patches LuaEngine/LuaEnvironment vtables
+     ├─ forwards its allocations to the game allocator, because the game replaces operator new/delete
+     ├─ resolves the Lua C API and PushValue/PopValue by byte signatures for Lua interop
+     └─ hosts a bundled CoreCLR via hostfxr
+         └─ NanosSharp.Host (C#, client flavor)
+             ├─ compiles Client/ and Shared/ of downloaded packages with Roslyn in a sandbox
+             └─ answers the server handshake and tells Lua fallbacks whether C# runs
 ```
 
 Every C# package is a regular nanos world package with its own `Package.toml`, environment and entry in `Server.GetPackages()`.
@@ -57,6 +74,17 @@ xmake deploy -s /path/to/server    # build everything and install runtime and ex
 ```
 
 Start the server with `./NanosSharp.sh` instead of `./NanosWorldServer.sh`.
+
+The game client is cross compiled on Linux with `clang-cl` against the Windows SDK and CRT from
+[xwin](https://github.com/Jake-Shadle/xwin):
+
+```sh
+xwin --accept-license splat --output ~/.xwin
+xmake client                       # builds version.dll, the client runtime and .NET into build/client
+```
+
+Copy the content of `build/client` into `NanosWorld/Binaries/Win64` of the game. Under Proton add
+`WINEDLLOVERRIDES="version=n,b" PROTON_DISABLE_NVAPI=1 %command%` to the launch options.
 
 ## Writing a package
 
@@ -145,10 +173,40 @@ including transitive dependencies and native libraries, and cached in `NanosShar
 
 Every package gets its own copy of its libraries, so packages can use different versions of the same library.
 
+## Client packages
+
+`.cs` files in `Client/` run on every player with the NanosSharp client, `Shared/` runs on both sides with the `SERVER`
+and `CLIENT` symbols for side specific code:
+
+```
+Packages/my-gamemode/
+ ├─ Server/Gamemode.cs
+ ├─ Client/Hud.cs          compiled on the player's machine
+ ├─ Client/Index.lua       Lua fallback for players without NanosSharp
+ └─ Shared/Teams.cs
+```
+
+```csharp
+public sealed class Hud : Package
+{
+    protected override void OnStart() =>
+        Events.SubscribeRemote("Welcome", (long slots) => Log.Info($"Welcome, {Client.LocalPlayer?.Name}!"));
+}
+```
+
+The client API is generated from the game client. Client code is compiled in a sandbox that checks every used type and
+member against an allow list (no files, processes, reflection, threads, `unsafe` or P/Invoke), it cannot use NuGet
+packages and has no hot reload.
+
+The server marks C# packages for the client while it collects their client files, and asks every ready player for its
+NanosSharp version. `NanosSharpClients.Connected`/`Missing` and `player.HasNanosSharp` expose the result. Lua fallbacks
+check `Client.GetValue("NanosSharp:" .. Package.GetName())`, which is only set when the C# code of that package runs.
+`[clients] required = true` in `NanosSharp.toml` kicks players without a compatible client.
+
 ## Lua interop
 
 Lua packages share values through `Package.Export`, which writes a global visible to every package. `Exports` is the
-C# side of it:
+C# side of it, on the server and in the client:
 
 ```csharp
 var sum = Exports.Call<long>("MyLuaLibrary.Add", 2, 3);
@@ -245,6 +303,11 @@ slots and callbacks read their parameters directly from the native arguments thr
 `NanosSharp.toml` in the server directory (created on first start):
 
 ```toml
+[clients]
+required = false
+handshake_timeout_seconds = 30
+kick_message = "This server requires NanosSharp {version}. Download it at https://nanossharp.dasdarki.de"
+
 [compilation]
 optimize = true
 
@@ -269,7 +332,9 @@ This has not been verified yet.
 ## Testing
 
 `xmake test` deploys everything into the server, starts it isolated on port 7797 with the packages in `tests/`
-and reports the results of the in-server test suite.
+and reports the results of the in-server test suite. The client is tested by hand with the package in
+`manual-tests/nanossharp-client-tests`: `xmake test -p 7777 -t 900 -d manual-tests -a '--steam_app game'`, then join
+the server with the client installed.
 Calls into nanos world must happen on the main thread, use `MainThread.Post` or `await` from main thread code.
 Everything without a typed wrapper yet is reachable through `ScriptApi` and `Entity.Invoke`.
 
@@ -283,15 +348,17 @@ pushes the Docker image from `docker/Dockerfile` to `ghcr.io/dasdarki/nanossharp
 
 | Path | Content |
 |---|---|
-| `native/src/game` | Reverse engineered engine types and symbols |
-| `native/src/hooks` | Inline hooking |
+| `native/src/game` | Reverse engineered engine types shared by both platforms |
+| `native/src/bridge` | C ABI between native and managed, Lua interop |
 | `native/src/host` | CoreCLR bootstrap |
-| `native/src/bridge` | C ABI between native and managed |
+| `native/src/platform/linux` | Server: symbols, hooks, `LD_PRELOAD` entry |
+| `native/src/platform/windows` | Client: proxy `version.dll`, RTTI scan, signatures, allocator |
 | `managed/NanosSharp` | Public API (`Core`, `Entities`, `Logging`, `Mathematics`, `Packages`, `Scripting`, `Threading`) and internal `Interop` |
-| `managed/NanosSharp.Host` | Package loading, Roslyn compilation, hot reload |
+| `managed/NanosSharp.Host` | Package loading, Roslyn compilation, client sandbox, hot reload |
 | `managed/NanosSharp/Generated` | Generated API (do not edit) |
 | `managed/tools/NanosSharp.Generator` | API generator and native API dump |
 | `managed/examples` | Example packages |
 | `managed/templates` | `dotnet new` templates |
 | `docker` | Docker image of a server with NanosSharp |
 | `tests` | In-server integration test packages |
+| `manual-tests` | Client test package for a running game |
