@@ -145,6 +145,12 @@ task("bundle")
         os.cp(path.join(root, "scripts", "NanosSharp.sh"), bundle_dir)
         os.cp(path.join(root, "LICENSE"), path.join(bundle_dir, "NanosSharp"))
         io.writefile(path.join(bundle_dir, "NanosSharp", "VERSION"), version .. "\n")
+
+        local installer_dir = path.join(root, "build", "installer", "linux-x64")
+        os.execv("dotnet", {"publish", path.join(root, "managed", "tools", "NanosSharp.Installer", "NanosSharp.Installer.csproj"),
+            "-c", "Release", "-r", "linux-x64", "-p:Version=" .. version, "-o", installer_dir, "--nologo", "-v", "q"})
+        os.cp(path.join(installer_dir, "nanossharp-install"), path.join(bundle_dir, "NanosSharp"))
+
         os.execv("tar", {"-czf", archive, "-C", bundle_dir, "."})
 
         cprint("${color.success}NanosSharp %s bundled into %s", version, archive)

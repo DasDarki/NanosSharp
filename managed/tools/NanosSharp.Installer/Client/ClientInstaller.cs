@@ -1,6 +1,6 @@
 using NanosSharp.Installer.Cli;
 using NanosSharp.Installer.Installation;
-using NanosSharp.Installer.Releases;
+using NanosSharp.Updater;
 
 namespace NanosSharp.Installer.Client;
 
@@ -12,7 +12,7 @@ internal static class ClientInstaller
     private const string LaunchOptions = "WINEDLLOVERRIDES=\"version=n,b\" %command%";
     private static readonly string[] OwnedDirectories = ["runtime", "dotnet"];
 
-    public static async Task InstallAsync(Options options, ReleaseClient client, string temporaryDirectory)
+    public static async Task InstallAsync(Options options, ReleaseDownloader client, string temporaryDirectory)
     {
         var game = Locate(options.Path);
         Terminal.Step($"nanos world found in {game.BinariesDirectory}");

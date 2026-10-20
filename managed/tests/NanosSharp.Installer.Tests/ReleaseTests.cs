@@ -1,4 +1,4 @@
-using NanosSharp.Installer.Releases;
+using NanosSharp.Updater;
 
 namespace NanosSharp.Installer.Tests;
 

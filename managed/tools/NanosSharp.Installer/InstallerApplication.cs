@@ -1,6 +1,6 @@
 using NanosSharp.Installer.Cli;
 using NanosSharp.Installer.Client;
-using NanosSharp.Installer.Releases;
+using NanosSharp.Updater;
 using NanosSharp.Installer.Server;
 
 namespace NanosSharp.Installer;
@@ -19,6 +19,7 @@ internal static class InstallerApplication
           --version <version>    install a specific version instead of the latest one
           --from <directory>     install from downloaded release files instead of GitHub
           --uninstall            remove NanosSharp
+          --update               update to the latest version if it is newer
           --force                reinstall even when the version is already installed
           -y, --yes              answer every question with its default
           -h, --help             show this help
@@ -39,6 +40,14 @@ internal static class InstallerApplication
 
     private static async Task<int> RunInternalAsync(string[] arguments)
     {
+        switch (arguments)
+        {
+            case ["keygen"]:
+                return KeyCommands.Keygen();
+            case ["sign", var manifest, var key]:
+                return KeyCommands.Sign(manifest, key);
+        }
+
         var temporaryDirectory = Directory.CreateTempSubdirectory("nanossharp-install-").FullName;
         try
         {
@@ -50,11 +59,12 @@ internal static class InstallerApplication
             }
 
             Terminal.AssumeYes = options.AssumeYes;
+            Terminal.Quiet = options.Quiet;
             var target = options.Target ?? DefaultTarget() ?? throw new InstallerException("Choose client or server, see --help.");
             await RunAsync(target, options, temporaryDirectory);
             return 0;
         }
-        catch (Exception exception) when (exception is InstallerException or ArgumentException or IOException or HttpRequestException or UnauthorizedAccessException)
+        catch (Exception exception) when (exception is InstallerException or UpdateException or ArgumentException or IOException or HttpRequestException or UnauthorizedAccessException)
         {
             Terminal.Error(exception.Message);
             return 1;
@@ -67,7 +77,7 @@ internal static class InstallerApplication
 
     private static async Task RunAsync(InstallTarget target, Options options, string temporaryDirectory)
     {
-        using var client = new ReleaseClient(options.Source);
+        using var client = new ReleaseDownloader(options.Source, Terminal.ProgressReporter);
         switch (target, options.Uninstall)
         {
             case (InstallTarget.Client, true):

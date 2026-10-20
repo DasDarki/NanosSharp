@@ -22,6 +22,11 @@ chmod +x nanossharp-install
 On Windows run `nanossharp-install-win-x64.exe`, it installs the client. Run the installer again to update,
 `--uninstall` removes NanosSharp. Start the server with `./NanosSharp.sh` instead of `./NanosWorldServer.sh`.
 
+Releases are signed with an ECDSA key whose public half is built into the installer. Every download, manual or
+automatic, is verified against it and rejected unless it is a genuine, untampered release, so a hijacked download or
+mirror cannot slip in a malicious build. The server updates itself on start when `[update] enabled = true` in
+`NanosSharp.toml`, only to newer releases, keeping the previous version as a backup.
+
 The bundles can also be extracted by hand: `nanossharp-<version>-linux-x64.tar.gz` into the server directory and
 `nanossharp-client-<version>-win-x64.zip` into `NanosWorld/Binaries/Win64` of the game.
 
@@ -383,7 +388,8 @@ image from `docker/Dockerfile` to `ghcr.io/dasdarki/nanossharp`.
 | `managed/NanosSharp.Host` | Package loading, Roslyn compilation, client sandbox, hot reload |
 | `managed/NanosSharp/Generated` | Generated API (do not edit) |
 | `managed/tools/NanosSharp.Generator` | API generator and native API dump |
-| `managed/tools/NanosSharp.Installer` | Installer for servers and the game client (native AOT) |
+| `managed/NanosSharp.Updater` | Shared release download, signature and checksum verification |
+| `managed/tools/NanosSharp.Installer` | Installer and updater for servers and the game client (native AOT) |
 | `managed/examples` | Example packages |
 | `managed/templates` | `dotnet new` templates |
 | `docker` | Docker image of a server with NanosSharp |

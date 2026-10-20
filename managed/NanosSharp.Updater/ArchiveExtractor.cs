@@ -1,9 +1,9 @@
 using System.Formats.Tar;
 using System.IO.Compression;
 
-namespace NanosSharp.Installer.Releases;
+namespace NanosSharp.Updater;
 
-internal static class ArchiveExtractor
+public static class ArchiveExtractor
 {
     public static void ExtractTarGz(string archive, string directory)
     {

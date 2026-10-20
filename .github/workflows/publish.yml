@@ -186,6 +186,8 @@ jobs:
       contents: write
       id-token: write
       attestations: write
+    env:
+      HAS_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY != '' }}
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -206,6 +208,16 @@ jobs:
       - name: Write checksums
         run: cd release && sha256sum *.tar.gz *.zip nanossharp-install-* > SHA256SUMS
 
+      - name: Sign checksums
+        if: env.HAS_SIGNING_KEY == 'true'
+        env:
+          SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
+        run: |
+          chmod +x release/nanossharp-install-linux-x64
+          printf '%s' "$SIGNING_KEY" > "$RUNNER_TEMP/signing-key.pem"
+          release/nanossharp-install-linux-x64 sign release/SHA256SUMS "$RUNNER_TEMP/signing-key.pem"
+          rm -f "$RUNNER_TEMP/signing-key.pem"
+
       - uses: actions/attest-build-provenance@v2
         with:
           subject-path: |
@@ -220,6 +232,7 @@ jobs:
             release/*.zip
             release/nanossharp-install-*
             release/SHA256SUMS
+            release/*.sig
           prerelease: ${{ needs.build.outputs.prerelease == 'true' }}
           generate_release_notes: true
 

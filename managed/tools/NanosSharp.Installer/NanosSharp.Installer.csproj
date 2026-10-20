@@ -11,4 +11,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="NanosSharp.Installer.Tests" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../NanosSharp.Updater/NanosSharp.Updater.csproj" />
+  </ItemGroup>
 </Project>

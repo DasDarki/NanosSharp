@@ -6,11 +6,14 @@ internal static class OptionsParser
     {
         InstallTarget? target = null;
         var uninstall = false;
+        var update = false;
         string? path = null;
         string? version = null;
         string? source = null;
         var assumeYes = false;
         var force = false;
+        var quiet = false;
+        var ifEnabled = false;
         var showHelp = false;
 
         for (var index = 0; index < arguments.Count; index++)
@@ -25,6 +28,15 @@ internal static class OptionsParser
                     break;
                 case "uninstall" or "--uninstall":
                     uninstall = true;
+                    break;
+                case "update" or "--update":
+                    update = true;
+                    break;
+                case "--quiet":
+                    quiet = true;
+                    break;
+                case "--if-enabled":
+                    ifEnabled = true;
                     break;
                 case "--path":
                     path = ReadValue(arguments, ref index);
@@ -49,7 +61,7 @@ internal static class OptionsParser
             }
         }
 
-        return new Options(target, uninstall, path, version, source, assumeYes, force, showHelp);
+        return new Options(target, uninstall, update, path, version, source, assumeYes, force, quiet, ifEnabled, showHelp);
     }
 
     private static string ReadValue(IReadOnlyList<string> arguments, ref int index)

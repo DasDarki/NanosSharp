@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using NanosSharp.Installer.Cli;
-using NanosSharp.Installer.Releases;
+using NanosSharp.Updater;
 
 namespace NanosSharp.Installer.Server;
 
@@ -20,7 +20,7 @@ internal static class DotnetRuntime
         DefaultRoots.Contains(root) || root == UserRoot || root == ReadInstallLocation() ||
         root == Environment.GetEnvironmentVariable("DOTNET_ROOT");
 
-    public static async Task InstallAsync(ReleaseClient client, string temporaryDirectory)
+    public static async Task InstallAsync(ReleaseDownloader client, string temporaryDirectory)
     {
         var script = Path.Combine(temporaryDirectory, "dotnet-install.sh");
         await client.DownloadAsync(InstallScriptUrl, script);

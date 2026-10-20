@@ -1,8 +1,8 @@
 using System.Security.Cryptography;
 
-namespace NanosSharp.Installer.Releases;
+namespace NanosSharp.Updater;
 
-internal static class Checksums
+public static class Checksums
 {
     public static Dictionary<string, string> Parse(string content)
     {

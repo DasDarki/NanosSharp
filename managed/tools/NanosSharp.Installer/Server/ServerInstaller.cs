@@ -1,6 +1,6 @@
 using NanosSharp.Installer.Cli;
 using NanosSharp.Installer.Installation;
-using NanosSharp.Installer.Releases;
+using NanosSharp.Updater;
 
 namespace NanosSharp.Installer.Server;
 
@@ -9,19 +9,37 @@ internal static class ServerInstaller
     private const string ServerScript = "NanosWorldServer.sh";
     private const string Launcher = "NanosSharp.sh";
     private const string NanosSharpDirectory = "NanosSharp";
-    private static readonly string[] OwnedEntries = ["runtime", "LICENSE", InstalledVersion.FileName];
+    private const string InstallerName = "nanossharp-install";
+    private static readonly string[] OwnedEntries = ["runtime", "LICENSE", InstallerName, InstalledVersion.FileName];
 
-    public static async Task InstallAsync(Options options, ReleaseClient client, string temporaryDirectory)
+    public static async Task InstallAsync(Options options, ReleaseDownloader client, string temporaryDirectory)
     {
         EnsureLinux();
         var serverDirectory = LocateServer(options.Path);
-        Terminal.Step($"Server found in {serverDirectory}");
-
-        var release = await client.GetAsync(options.Version);
         var nanosSharpDirectory = Path.Combine(serverDirectory, NanosSharpDirectory);
-        if (InstalledVersion.Read(nanosSharpDirectory) == release.Version && !options.Force)
+        var installed = InstalledVersion.Read(nanosSharpDirectory);
+
+        if (options.IfEnabled && !InstallConfig.AutoUpdateEnabled(serverDirectory))
+        {
+            return;
+        }
+
+        if (options.Update && installed is null)
+        {
+            throw new InstallerException($"NanosSharp is not installed in {serverDirectory}, install it before updating.");
+        }
+
+        Terminal.Step($"Server found in {serverDirectory}");
+        var release = await client.GetAsync(options.Version);
+        if (installed == release.Version && !options.Force)
         {
             Terminal.Success($"NanosSharp {release.Version} is already installed, use --force to reinstall it.");
+            return;
+        }
+
+        if (options.Update && installed is not null && !ReleaseVersion.IsNewer(release.Version, installed))
+        {
+            Terminal.Success($"NanosSharp {installed} is up to date.");
             return;
         }
 
@@ -29,10 +47,69 @@ internal static class ServerInstaller
 
         Terminal.Step($"Downloading NanosSharp {release.Version}");
         var archive = await client.DownloadVerifiedAsync(release, Release.ServerAsset(release.Version), temporaryDirectory);
-        RemoveOwnedFiles(serverDirectory);
-        ArchiveExtractor.ExtractTarGz(archive, serverDirectory);
+        ApplyWithBackup(serverDirectory, temporaryDirectory, () => ArchiveExtractor.ExtractTarGz(archive, serverDirectory));
         Terminal.Success($"NanosSharp {release.Version} is installed.");
         Terminal.Info($"Start the server with ./{Launcher} instead of ./{ServerScript}.");
+    }
+
+    private static void ApplyWithBackup(string serverDirectory, string temporaryDirectory, Action apply)
+    {
+        var backup = Path.Combine(temporaryDirectory, "backup");
+        Directory.CreateDirectory(backup);
+        MoveOwnedFiles(serverDirectory, backup);
+        try
+        {
+            apply();
+        }
+        catch
+        {
+            MoveOwnedFiles(serverDirectory, null);
+            MoveOwnedFiles(backup, serverDirectory);
+            throw;
+        }
+    }
+
+    private static void MoveOwnedFiles(string from, string? to)
+    {
+        foreach (var relative in OwnedPaths())
+        {
+            Move(Path.Combine(from, relative), to is null ? null : Path.Combine(to, relative));
+        }
+    }
+
+    private static IEnumerable<string> OwnedPaths()
+    {
+        yield return Launcher;
+        foreach (var entry in OwnedEntries)
+        {
+            yield return Path.Combine(NanosSharpDirectory, entry);
+        }
+    }
+
+    private static void Move(string source, string? destination)
+    {
+        if (Directory.Exists(source))
+        {
+            if (destination is null)
+            {
+                Directory.Delete(source, true);
+                return;
+            }
+
+            Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+            Directory.Move(source, destination);
+        }
+        else if (File.Exists(source))
+        {
+            if (destination is null)
+            {
+                File.Delete(source);
+                return;
+            }
+
+            Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+            File.Move(source, destination, true);
+        }
     }
 
     public static void Uninstall(Options options)
@@ -50,7 +127,7 @@ internal static class ServerInstaller
         Terminal.Info("NanosSharp.toml and the NuGet cache in NanosSharp/cache were kept.");
     }
 
-    private static async Task EnsureDotnetAsync(ReleaseClient client, string temporaryDirectory)
+    private static async Task EnsureDotnetAsync(ReleaseDownloader client, string temporaryDirectory)
     {
         if (DotnetRuntime.FindRoot() is { } root)
         {

@@ -4,11 +4,19 @@ internal static class Terminal
 {
     public static bool AssumeYes { get; set; }
 
-    public static void Step(string message) => Write(ConsoleColor.Cyan, "==> ", message);
+    public static bool Quiet { get; set; }
 
-    public static void Info(string message) => Console.WriteLine($"    {message}");
+    public static void Step(string message) => Write(ConsoleColor.Cyan, "==> ", message, skipWhenQuiet: true);
 
-    public static void Success(string message) => Write(ConsoleColor.Green, "OK  ", message);
+    public static void Info(string message)
+    {
+        if (!Quiet)
+        {
+            Console.WriteLine($"    {message}");
+        }
+    }
+
+    public static void Success(string message) => Write(ConsoleColor.Green, "OK  ", message, skipWhenQuiet: true);
 
     public static void Warning(string message) => Write(ConsoleColor.Yellow, "!   ", message);
 
@@ -57,29 +65,37 @@ internal static class Terminal
         };
     }
 
-    public static void Progress(long received, long? total)
+    public static IProgress<NanosSharp.Updater.DownloadProgress> ProgressReporter { get; } = new DownloadProgressReporter();
+
+    private sealed class DownloadProgressReporter : IProgress<NanosSharp.Updater.DownloadProgress>
     {
-        if (Console.IsOutputRedirected)
+        public void Report(NanosSharp.Updater.DownloadProgress value)
+        {
+            if (Console.IsOutputRedirected)
+            {
+                return;
+            }
+
+            if (value.Done)
+            {
+                Console.WriteLine();
+                return;
+            }
+
+            var text = value.Total is > 0
+                ? $"    {value.Received / 1048576.0:0.0} / {value.Total.Value / 1048576.0:0.0} MB"
+                : $"    {value.Received / 1048576.0:0.0} MB";
+            Console.Write($"\r{text}   ");
+        }
+    }
+
+    private static void Write(ConsoleColor color, string prefix, string message, bool skipWhenQuiet = false)
+    {
+        if (skipWhenQuiet && Quiet)
         {
             return;
         }
 
-        var text = total is > 0
-            ? $"    {received / 1048576.0:0.0} / {total.Value / 1048576.0:0.0} MB"
-            : $"    {received / 1048576.0:0.0} MB";
-        Console.Write($"\r{text}   ");
-    }
-
-    public static void EndProgress()
-    {
-        if (!Console.IsOutputRedirected)
-        {
-            Console.WriteLine();
-        }
-    }
-
-    private static void Write(ConsoleColor color, string prefix, string message)
-    {
         var previous = Console.ForegroundColor;
         Console.ForegroundColor = color;
         Console.Write(prefix);
