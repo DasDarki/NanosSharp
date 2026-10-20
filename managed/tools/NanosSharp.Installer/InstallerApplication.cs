@@ -43,7 +43,9 @@ internal static class InstallerApplication
         switch (arguments)
         {
             case ["keygen"]:
-                return KeyCommands.Keygen();
+                return KeyCommands.Keygen(null);
+            case ["keygen", "--out", var keyPath]:
+                return KeyCommands.Keygen(keyPath);
             case ["sign", var manifest, var key]:
                 return KeyCommands.Sign(manifest, key);
         }

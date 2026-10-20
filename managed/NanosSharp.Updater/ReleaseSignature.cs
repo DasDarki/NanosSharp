@@ -7,7 +7,7 @@ public static class ReleaseSignature
 {
     public const string SignatureAsset = "SHA256SUMS.sig";
 
-    private const string PublicKey = "";
+    private const string PublicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEIs6ySYFkVqJiPYpmrLZTa8riw6XDoeCaszmgsWFFaMoBAxoLA++aOiH5XZATI9Ws81uAdILk8u0FKhkMkujW+Q==";
 
     public static bool IsConfigured => PublicKey.Length > 0;
 
