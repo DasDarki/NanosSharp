@@ -1,10 +1,6 @@
-public static class Shared
-{
-    public const int ProtocolVersion = 1;
+namespace MyPackage;
 
-#if SERVER
-    public const string Side = "server";
-#elif CLIENT
-    public const string Side = "client";
-#endif
+public static class Protocol
+{
+    public const int Version = 1;
 }

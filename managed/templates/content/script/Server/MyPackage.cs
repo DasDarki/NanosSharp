@@ -1,8 +1,10 @@
+namespace MyPackage;
+
 public sealed class MyPackage : Package
 {
     protected override void OnStart()
     {
-        Log.Info($"{Title} started on the {Shared.Side}.");
+        Log.Info($"{Title} started, protocol version {Protocol.Version}.");
         Player.OnReady += OnPlayerReady;
     }
 

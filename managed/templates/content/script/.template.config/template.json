@@ -8,15 +8,6 @@
   "shortName": "nanossharp-script",
   "sourceName": "MyPackage",
   "preferNameDirectory": true,
-  "sources": [
-    {
-      "modifiers": [
-        {
-          "copyOnly": [ "Shared/**" ]
-        }
-      ]
-    }
-  ],
   "tags": {
     "language": "C#",
     "type": "project"

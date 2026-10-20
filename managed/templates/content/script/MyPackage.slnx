@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="Server/MyPackage.Server.csproj" />
   <Project Path="Client/MyPackage.Client.csproj" />
+  <Project Path="Shared/MyPackage.Shared.csproj" />
 </Solution>

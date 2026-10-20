@@ -5,11 +5,12 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ImplicitUsings>disable</ImplicitUsings>
+    <RootNamespace>MyPackage</RootNamespace>
     <AssemblyName>MyPackage.Scripts</AssemblyName>
     <DefineConstants>$(DefineConstants);CLIENT</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../Shared/**/*.cs" Link="Shared/%(RecursiveDir)%(Filename)%(Extension)" />
+    <ProjectReference Include="../Shared/MyPackage.Shared.csproj" />
     <None Include="../Package.toml" Link="Package.toml" />
   </ItemGroup>
   <ItemGroup>
