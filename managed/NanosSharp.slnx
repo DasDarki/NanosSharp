@@ -1,6 +1,6 @@
 <Solution>
   <Folder Name="/examples/">
-    <Project Path="examples/HelloWorld/HelloWorld.csproj" />
+    <Project Path="../packages/examples/HelloWorld/HelloWorld.csproj" />
   </Folder>
   <Folder Name="/templates/">
     <Project Path="templates/NanosSharp.Templates.csproj" />

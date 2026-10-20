@@ -179,7 +179,7 @@ Every entity event has a `Handle<Event>` hook. Only the hooks a subclass overrid
 are released when the entity is destroyed or the package unloads. Subclasses spawned with their own constructor, like
 `new MyProp(location)`, get the hooks as well. Cancellable events return `bool`, `false` cancels them.
 
-Compiled assemblies placed in `Server/` work as well, see `managed/examples`.
+Compiled assemblies placed in `Server/` work as well, see `packages/examples`.
 Publish such projects into `Server/`, libraries, `*.deps.json` and native libraries next to them are resolved automatically.
 A package listed in `packages_requirements` shares its assemblies, so dependents can use its types.
 
@@ -312,7 +312,7 @@ using var route = HTTPServer.Route(HTTPMethod.GET, "/status", request => HttpSer
 
 ## Performance
 
-`xmake test -d benchmarks` runs the same operations from C# and Lua inside the server, measured after a warmup of
+`xmake test -d packages/benchmarks` runs the same operations from C# and Lua inside the server, measured after a warmup of
 500 ms with one million iterations each:
 
 | Operation | Lua | C# |
@@ -363,10 +363,10 @@ generate = true
 
 ## Testing
 
-`xmake test` deploys everything into the server, starts it isolated on port 7797 with the packages in `tests/`
-and reports the results of the in-server test suite. The client is tested by hand with the package in
-`manual-tests/nanossharp-client-tests`: `xmake test -p 7777 -t 900 -d manual-tests -a '--steam_app game'`, then join
-the server with the client installed.
+`xmake test` deploys everything into the server, starts it isolated on port 7797 with the packages in
+`packages/e2e/server` and reports the results of the in-server test suite. The client is tested by hand with the
+package in `packages/e2e/client/nanossharp-client-tests`: `xmake test -p 7777 -t 900 -d packages/e2e/client -a '--steam_app game'`,
+then join the server with the client installed.
 Calls into nanos world must happen on the main thread, use `MainThread.Post` or `await` from main thread code.
 Everything without a typed wrapper yet is reachable through `ScriptApi` and `Entity.Invoke`.
 
@@ -392,8 +392,9 @@ image from `docker/Dockerfile` to `ghcr.io/dasdarki/nanossharp`.
 | `managed/tools/NanosSharp.Generator` | API generator and native API dump |
 | `managed/NanosSharp.Updater` | Shared release download, signature and checksum verification |
 | `managed/tools/NanosSharp.Installer` | Installer and updater for servers and the game client (native AOT) |
-| `managed/examples` | Example packages |
 | `managed/templates` | `dotnet new` templates |
 | `docker` | Docker image of a server with NanosSharp |
-| `tests` | In-server integration test packages |
-| `manual-tests` | Client test package for a running game |
+| `packages/examples` | Example packages |
+| `packages/e2e/server` | Automated in-server integration test packages |
+| `packages/e2e/client` | Client integration test package, run by hand in the game |
+| `packages/benchmarks` | C# and Lua performance benchmarks |

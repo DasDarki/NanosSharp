@@ -5,6 +5,6 @@
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../../NanosSharp/NanosSharp.csproj" Private="false" ExcludeAssets="runtime" />
+    <ProjectReference Include="../../../managed/NanosSharp/NanosSharp.csproj" Private="false" ExcludeAssets="runtime" />
   </ItemGroup>
 </Project>

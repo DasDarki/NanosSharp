@@ -97,7 +97,7 @@ task("deploy")
         os.cp(project.target("nanossharp"):targetfile(), runtime_dir)
         os.cp(path.join(root, "scripts", "NanosSharp.sh"), server_dir)
 
-        for _, example_dir in ipairs(os.dirs(path.join(root, "managed", "examples", "*"))) do
+        for _, example_dir in ipairs(os.dirs(path.join(root, "packages", "examples", "*"))) do
             local name = path.filename(example_dir)
             local package_dir = path.join(server_dir, "Packages", "nanossharp-" .. name:lower())
             os.mkdir(path.join(package_dir, "Server"))
@@ -383,7 +383,7 @@ task("test")
             {"s", "server", "kv", nil, "The nanos world server directory."},
             {"c", "configuration", "kv", "Release", "The .NET build configuration.", values = {"Debug", "Release"}},
             {"t", "timeout", "kv", "120", "Seconds until the server is stopped."},
-            {"d", "directory", "kv", "tests", "Directory with the packages to run, for example benchmarks."},
+            {"d", "directory", "kv", "packages/e2e/server", "Directory with the packages to run, for example packages/benchmarks."},
             {"a", "arguments", "kv", nil, "Additional server arguments, for example '--steam_app game'."},
             {"p", "port", "kv", "7797", "Game port of the test server, the query port is the next one."}
         }
