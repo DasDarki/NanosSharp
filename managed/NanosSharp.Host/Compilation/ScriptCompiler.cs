@@ -27,9 +27,9 @@ internal static class ScriptCompiler
     private static readonly Lazy<MetadataReference[]> SandboxReferences = new(() => LoadFrameworkReferences(false));
 
 #if CLIENT
-    private const string SideSymbol = "CLIENT";
+    public const string SideSymbol = "CLIENT";
 #else
-    private const string SideSymbol = "SERVER";
+    public const string SideSymbol = "SERVER";
 #endif
 
     private static readonly CSharpParseOptions ParseOptions = new(LanguageVersion.Latest, preprocessorSymbols: [SideSymbol]);

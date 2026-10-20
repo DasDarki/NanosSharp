@@ -2,7 +2,7 @@ public sealed class MyPackage : Package
 {
     protected override void OnStart()
     {
-        Log.Info($"{Title} started.");
+        Log.Info($"{Title} started on the {Shared.Side}.");
         Player.OnReady += OnPlayerReady;
     }
 

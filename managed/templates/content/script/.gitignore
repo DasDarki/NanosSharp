@@ -1,0 +1,12 @@
+# Build and restore output
+**/bin/
+**/obj/
+
+# IDE
+.vs/
+.idea/
+*.user
+*.suo
+
+# Written by the NanosSharp server for debugger attach
+**/.vscode/launch.json

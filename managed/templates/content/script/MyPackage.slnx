@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Server/MyPackage.Server.csproj" />
+  <Project Path="Client/MyPackage.Client.csproj" />
+</Solution>

@@ -1,0 +1,12 @@
+# Build output
+**/bin/
+**/obj/
+
+# Compiled package assembly, rebuild with: dotnet build
+Server/
+
+# IDE
+.vs/
+.idea/
+*.user
+*.suo

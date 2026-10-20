@@ -6,7 +6,12 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ImplicitUsings>disable</ImplicitUsings>
     <AssemblyName>MyPackage.Scripts</AssemblyName>
+    <DefineConstants>$(DefineConstants);CLIENT</DefineConstants>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../Shared/**/*.cs" Link="Shared/%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="../Package.toml" Link="Package.toml" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NanosSharp" Version="NANOSSHARP_VERSION" ExcludeAssets="runtime" />
   </ItemGroup>
@@ -26,5 +31,6 @@
     <Using Include="NanosSharp.Packages" />
     <Using Include="NanosSharp.Scripting" />
     <Using Include="NanosSharp.Threading" />
+    <Using Include="NanosSharp.Diagnostics" />
   </ItemGroup>
 </Project>
