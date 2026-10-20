@@ -13,7 +13,11 @@ internal static unsafe class Entry
         try
         {
             NativeRuntime.Initialize(api, callbacks);
-            PackageManager.Initialize(NativeRuntime.ReadString(runtimeDirectory));
+            var directory = NativeRuntime.ReadString(runtimeDirectory);
+            PackageManager.Initialize(directory);
+#if CLIENT
+            Packages.ClientUpdater.Start(directory);
+#endif
             Log.Info($".NET {Environment.Version} runtime started.");
             return 0;
         }

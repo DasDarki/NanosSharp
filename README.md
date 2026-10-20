@@ -25,7 +25,9 @@ On Windows run `nanossharp-install-win-x64.exe`, it installs the client. Run the
 Releases are signed with an ECDSA key whose public half is built into the installer. Every download, manual or
 automatic, is verified against it and rejected unless it is a genuine, untampered release, so a hijacked download or
 mirror cannot slip in a malicious build. The server updates itself on start when `[update] enabled = true` in
-`NanosSharp.toml`, only to newer releases, keeping the previous version as a backup.
+`NanosSharp.toml`, only to newer releases, keeping the previous version as a backup. The client keeps itself up to date
+automatically, downloading and verifying a newer release in the background and applying it on the next game start
+(`NANOSSHARP_NO_UPDATE=1` turns it off).
 
 The bundles can also be extracted by hand: `nanossharp-<version>-linux-x64.tar.gz` into the server directory and
 `nanossharp-client-<version>-win-x64.zip` into `NanosWorld/Binaries/Win64` of the game.

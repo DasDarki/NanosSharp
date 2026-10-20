@@ -7,6 +7,7 @@
 #include "platform/windows/allocator.h"
 #include "platform/windows/lua_symbols.h"
 #include "platform/windows/rtti.h"
+#include "platform/windows/self_update.h"
 
 namespace nanossharp {
 
@@ -112,6 +113,11 @@ void Runtime::Load(HMODULE module) {
     SetStdHandle(STD_OUTPUT_HANDLE, error_file);
   }
   SetEnvironmentVariableW(L"DOTNET_EnableCrashReport", L"1");
+
+  if (platform::self_update::Apply(base_directory_, module_path,
+                                   [this](const std::string& message) { Log(game::LogType::kInfo, message); })) {
+    return;
+  }
 
   AddVectoredExceptionHandler(0, &Runtime::OnException);
   HANDLE thread = CreateThread(nullptr, 0, &Runtime::InstallHooks, this, 0, nullptr);
