@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Runtime.Loader;
 using NanosSharp.Core;
+using NanosSharp.Diagnostics;
 using NanosSharp.Host.Configuration;
 using NanosSharp.Host.Packages.Building;
 using NanosSharp.Host.Packages.Dependencies;
@@ -22,6 +23,11 @@ internal static unsafe class PackageManager
     private static readonly Dictionary<nint, ManagedPackage> Packages = [];
     private static readonly Dictionary<string, PackageBuild> PendingBuilds = new(StringComparer.Ordinal);
     private static readonly UnloadTracker UnloadTracker = new();
+#if CLIENT
+    private const string DebugEnvironmentVariable = "NANOSSHARP_DEBUG";
+    private static bool _debugOptIn;
+#endif
+    private static bool _debugAnnounced;
     private static HostSettings _settings = null!;
     private static PackageBuildOptions _buildOptions = null!;
 
@@ -32,6 +38,14 @@ internal static unsafe class PackageManager
         var nugetCache = Path.Combine(serverDirectory, "NanosSharp", "cache", "nuget");
         _buildOptions = new PackageBuildOptions(new NuGetRestorer(_settings.NuGet.Sources, nugetCache), _settings.Projects.Generate,
             _settings.Compilation.Optimize);
+#if CLIENT
+        _debugOptIn = Environment.GetEnvironmentVariable(DebugEnvironmentVariable) is "1" or "true";
+#else
+        if (_settings.Debug.Enabled)
+        {
+            EnableDebug();
+        }
+#endif
         NativeCallbacks.EngineAttached += OnEngineAttached;
         NativeCallbacks.EngineDetaching += OnEngineDetaching;
         NativeCallbacks.PackageLoaded += OnPackageLoaded;
@@ -96,10 +110,16 @@ internal static unsafe class PackageManager
         }
 
 #if CLIENT
-        if (PackageMarker.FindIncompatibility(nativePackage.Directory) is { } incompatibility)
+        var marker = PackageMarker.Read(nativePackage.Directory);
+        if (marker.Incompatibility is { } incompatibility)
         {
             Log.Warning($"The C# code of {nativePackage.Name} is not started because {incompatibility}, its Lua fallback is used instead.");
             return;
+        }
+
+        if (_debugOptIn && marker.Debug)
+        {
+            EnableDebug();
         }
 #endif
 
@@ -217,7 +237,20 @@ internal static unsafe class PackageManager
     }
 
     private static PackageBuild BuildPackage(ManagedPackage package) =>
-        PackageBuilder.Build(package.Name, package.Scope.Directory, CollectRequiredImages(package.Manifest), _buildOptions);
+        PackageBuilder.Build(package.Name, package.Scope.Directory, CollectRequiredImages(package.Manifest),
+            _buildOptions with { Optimize = _buildOptions.Optimize && !DebugState.IsEnabled });
+
+    private static void EnableDebug()
+    {
+        DebugState.Enable();
+        if (_debugAnnounced)
+        {
+            return;
+        }
+
+        _debugAnnounced = true;
+        Log.Info($"Debug mode is on. Attach a .NET debugger to this process (PID {Environment.ProcessId}).");
+    }
 
     private static void Reload(ManagedPackage package)
     {

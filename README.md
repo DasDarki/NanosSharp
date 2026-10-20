@@ -221,6 +221,16 @@ NanosSharp version. `NanosSharpClients.Connected`/`Missing` and `player.HasNanos
 check `Client.GetValue("NanosSharp:" .. Package.GetName())`, which is only set when the C# code of that package runs.
 `[clients] required = true` in `NanosSharp.toml` kicks players without a compatible client.
 
+## Debugging
+
+NanosSharp hosts a regular .NET runtime, so you debug packages by attaching a .NET debugger. Packages are compiled in
+memory with their symbols, and when debugging is on they are built unoptimized. Drop `Debugger.Break()` where you want
+to stop, it launches or breaks into a debugger there and is a no-op otherwise.
+
+The server is the authority: `[debug] enabled = true` in `NanosSharp.toml`. On a native Windows client the player also
+opts in with `NANOSSHARP_DEBUG=1` in the launch options, both sides have to agree and no network port is opened. Client
+debugging needs a native Windows game, not Proton. See the [docs](https://nanossharp.dasdarki.de/docs/guides/debugging).
+
 ## Lua interop
 
 Lua packages share values through `Package.Export`, which writes a global visible to every package. `Exports` is the
@@ -321,6 +331,9 @@ slots and callbacks read their parameters directly from the native arguments thr
 `NanosSharp.toml` in the server directory (created on first start):
 
 ```toml
+[debug]
+enabled = false
+
 [clients]
 required = false
 handshake_timeout_seconds = 30
@@ -340,12 +353,6 @@ sources = ["https://api.nuget.org/v3/index.json"]
 [projects]
 generate = true
 ```
-
-## Debugging
-
-The server hosts a regular CoreCLR, so attaching a .NET debugger (Rider, VS Code with netcoredbg) to the
-`NanosWorldServer` process is the intended workflow. Assemblies are loaded together with their symbols.
-This has not been verified yet.
 
 ## Testing
 

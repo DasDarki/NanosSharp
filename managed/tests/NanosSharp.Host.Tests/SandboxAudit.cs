@@ -98,6 +98,7 @@ public sealed class SandboxAudit : IDisposable
         ("Record", "var p = new Point(1, 2) with { X = 3 }; Log.Info(p.X.ToString());"),
         ("Tuple", "var (a, b) = (1, \"x\"); Log.Info($\"{a}{b}\");"),
         ("GenericMethod", "Log.Info(Identity(5).ToString()); static T Identity<T>(T value) => value;"),
+        ("DebuggerApi", "if (Debugger.IsEnabled || Debugger.IsAttached) { Debugger.Break(); } Log.Info(\"ok\");"),
     ];
 
     private static readonly string RecordType = "public readonly record struct Point(int X, int Y);";

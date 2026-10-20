@@ -77,6 +77,7 @@ internal static class PackageBuilder
         if (projectPath is null && hasSources && options.GenerateProjectFiles)
         {
             projectPath = ProjectGenerator.Generate(packageName, sideDirectory);
+            LaunchConfiguration.Write(sideDirectory);
             Log.Info($"Generated {Path.GetFileName(projectPath)} for IDE support and NuGet references.");
         }
 

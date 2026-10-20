@@ -17,7 +17,7 @@ internal static class ScriptCompiler
     [
         "System", "System.Collections.Generic", "System.IO", "System.Linq", "System.Threading",
         "System.Threading.Tasks", "NanosSharp.Core", "NanosSharp.Entities", "NanosSharp.Enums", "NanosSharp.Eventing", "NanosSharp.Logging",
-        "NanosSharp.Mathematics", "NanosSharp.Packages", "NanosSharp.Scripting", "NanosSharp.Threading",
+        "NanosSharp.Mathematics", "NanosSharp.Packages", "NanosSharp.Scripting", "NanosSharp.Threading", "NanosSharp.Diagnostics",
     ];
 
     private const string DynamicRuntimeAssembly = "Microsoft.CSharp.dll";
