@@ -9,7 +9,7 @@
     <AssemblyName>MyPackage.Shared</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="NanosSharp" Version="NANOSSHARP_VERSION" ExcludeAssets="runtime" />
+    <PackageReference Include="NanosSharp.Shared" Version="NANOSSHARP_VERSION" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System" />

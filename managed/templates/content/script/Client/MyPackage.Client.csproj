@@ -14,7 +14,7 @@
     <None Include="../Package.toml" Link="Package.toml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NanosSharp" Version="NANOSSHARP_VERSION" ExcludeAssets="runtime" />
+    <PackageReference Include="NanosSharp.Client" Version="NANOSSHARP_VERSION" ExcludeAssets="runtime" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System" />
