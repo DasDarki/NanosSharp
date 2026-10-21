@@ -1,6 +1,7 @@
 using NanosSharp.Entities;
 using NanosSharp.Entities.Binding;
 using NanosSharp.Enums;
+using NanosSharp.Injection;
 using NanosSharp.Interop;
 using NanosSharp.Interop.Reflection;
 using NanosSharp.Interop.Values;
@@ -32,6 +33,9 @@ public abstract unsafe class Package
 
     /// <summary>Whether the package is currently unloading.</summary>
     public bool IsUnloading => ScriptEntity.Invoke<bool>("IsUnloading");
+
+    /// <summary>The dependency injection container of this package.</summary>
+    protected ServiceContainer Services => Scope.Container!;
 
     internal PackageScope Scope { get; set; } = null!;
 

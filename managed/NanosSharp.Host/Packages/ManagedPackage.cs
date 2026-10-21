@@ -6,6 +6,7 @@ using NanosSharp.Entities.Binding;
 using NanosSharp.Eventing;
 using NanosSharp.Host.Packages.Building;
 using NanosSharp.Host.Packages.Loading;
+using NanosSharp.Injection;
 using NanosSharp.Interop.Callbacks;
 using NanosSharp.Logging;
 using NanosSharp.Packages;
@@ -28,6 +29,7 @@ internal sealed class ManagedPackage
     public event Action<ManagedPackage>? SourcesChanged;
 
     private readonly List<Package> _entries = [];
+    private ServiceContainer? _container;
     private PackageLoadContext? _loadContext;
     private FileSystemWatcher? _watcher;
     private Timer? _changeTimer;
@@ -49,7 +51,7 @@ internal sealed class ManagedPackage
         _loadContext = new PackageLoadContext(Name, build, resolveShared);
         Scope.LoadContext = _loadContext;
         Scope.IsActive = true;
-        using var _ = PackageContext.Enter(Scope);
+        using var context = PackageContext.Enter(Scope);
 
         var loadedTypes = _loadContext.LoadBuild().SelectMany(GetLoadableTypes).ToArray();
         foreach (var type in loadedTypes.Where(IsEntryType))
@@ -69,15 +71,33 @@ internal sealed class ManagedPackage
             Exports.Register(type);
         }
 
+        var container = new ServiceContainer(Scope);
+        Scope.Container = container;
+        _container = container;
+
+        foreach (var type in loadedTypes.Where(IsServiceType))
+        {
+            container.AddDiscovered(type);
+        }
+
+        foreach (var entry in _entries)
+        {
+            container.Add(entry);
+        }
+
+        container.ResolveInjections();
+
         foreach (var entry in _entries)
         {
             EventBus.Register(entry);
         }
 
-        foreach (var entry in _entries)
+        foreach (var service in container.AutoRegisters)
         {
-            entry.OnStart();
+            EventBus.Register(service);
         }
+
+        _ = container.StartAsync(_entries);
 
         Log.Info($"C# package started with {_entries.Count} entry point(s).");
     }
@@ -90,7 +110,12 @@ internal sealed class ManagedPackage
             {
                 StopEntry(entry);
             }
+
+            _container?.Stop();
         }
+
+        _container = null;
+        Scope.Container = null;
 
         foreach (var subscription in Scope.Subscriptions.ToArray())
         {
@@ -166,6 +191,10 @@ internal sealed class ManagedPackage
 
     private static bool IsEntryType(Type type) =>
         type is { IsClass: true, IsAbstract: false } && type.IsSubclassOf(typeof(Package));
+
+    private static bool IsServiceType(Type type) =>
+        type is { IsClass: true, IsAbstract: false } && !type.IsSubclassOf(typeof(Package)) &&
+        (typeof(IService).IsAssignableFrom(type) || typeof(IAutoRegister).IsAssignableFrom(type));
 
     private static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
     {

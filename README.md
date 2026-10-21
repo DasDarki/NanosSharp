@@ -198,6 +198,30 @@ including transitive dependencies and native libraries, and cached in `NanosShar
 
 Every package gets its own copy of its libraries, so packages can use different versions of the same library.
 
+## Dependency injection
+
+A small container is built in, so services are singletons with a lifecycle instead of static `Instance` fields. The
+container is created per package, the same on the server and the client, and it is sandbox safe. Services are found and
+started automatically, `[Inject]` fields and properties are filled before start and `[OnInit]` methods run after.
+
+```csharp
+public sealed class Economy : Service
+{
+    public override Task StartAsync(CancellationToken token) => Task.CompletedTask;
+}
+
+public sealed class Gamemode : Package
+{
+    [Inject] private Economy _economy = null!;
+
+    protected override void OnStart() => Services.Add(new Config());
+}
+```
+
+`IService`/`Service` have `StartAsync`/`StopAsync`, `BackgroundService` runs off the main thread, `ScheduledService`
+runs on the game tick, and a class marked `IAutoRegister` gets its `[ServerEvent]` handlers registered like a package.
+See the [dependency injection guide](https://nanossharp.dasdarki.de/docs/guides/dependency-injection).
+
 ## Client packages
 
 `.cs` files in `Client/` run on every player with the NanosSharp client, `Shared/` runs on both sides with the `SERVER`
@@ -386,7 +410,7 @@ image from `docker/Dockerfile` to `ghcr.io/dasdarki/nanossharp`.
 | `native/src/host` | CoreCLR bootstrap |
 | `native/src/platform/linux` | Server: symbols, hooks, `LD_PRELOAD` entry |
 | `native/src/platform/windows` | Client: proxy `version.dll`, RTTI scan, signatures, allocator |
-| `managed/NanosSharp` | Public API (`Core`, `Entities`, `Logging`, `Mathematics`, `Packages`, `Scripting`, `Threading`) and internal `Interop` |
+| `managed/NanosSharp` | Public API (`Core`, `Entities`, `Eventing`, `Injection`, `Logging`, `Mathematics`, `Packages`, `Scripting`, `Threading`) and internal `Interop` |
 | `managed/NanosSharp.Host` | Package loading, Roslyn compilation, client sandbox, hot reload |
 | `managed/NanosSharp/Generated` | Generated API (do not edit) |
 | `managed/tools/NanosSharp.Generator` | API generator and native API dump |

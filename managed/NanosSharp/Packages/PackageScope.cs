@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Runtime.Loader;
 using NanosSharp.Eventing;
+using NanosSharp.Injection;
 using NanosSharp.Scripting;
 
 namespace NanosSharp.Packages;
@@ -26,6 +27,8 @@ internal sealed class PackageScope(string name, string directory)
     public HashSet<string> Exports { get; } = [];
 
     public EventDispatcher Events { get; } = new();
+
+    public ServiceContainer? Container { get; set; }
 
     public bool Owns(Delegate handler) =>
         LoadContext is not null && handler.GetInvocationList().Any(entry => IsOwnedMethod(entry.Method));

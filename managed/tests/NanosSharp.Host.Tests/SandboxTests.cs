@@ -40,6 +40,54 @@ public sealed class SandboxTests : IDisposable
         Assert.True(result.Succeeded, string.Join(Environment.NewLine, result.Diagnostics));
     }
 
+    [Fact]
+    public void DependencyInjectionIsAllowed()
+    {
+        var result = Compile("""
+            public sealed class Config
+            {
+                public int MaxPlayers { get; set; } = 32;
+            }
+
+            public sealed class Stats : Service, IAutoRegister
+            {
+                [Inject] private Config _config = null!;
+
+                public int Online { get; private set; }
+
+                [OnInit]
+                private void Initialize() => Log.Info($"max {_config.MaxPlayers}");
+
+                public override Task StartAsync(CancellationToken token) => Task.CompletedTask;
+
+                [ServerEvent]
+                private void OnTick(ServerTickEvent tickEvent) => Online++;
+            }
+
+            public sealed class Heartbeat : ScheduledService
+            {
+                [Inject] private Stats _stats = null!;
+
+                public Heartbeat() : base(TimeSpan.FromSeconds(1))
+                {
+                }
+
+                protected override void OnTick(float deltaTime) => Log.Info($"online {_stats.Online}");
+            }
+
+            public sealed class Game : Package
+            {
+                protected override void OnStart()
+                {
+                    Services.Add(new Config());
+                    Log.Info($"online {Services.GetRequired<Stats>().Online}");
+                }
+            }
+            """);
+
+        Assert.True(result.Succeeded, string.Join(Environment.NewLine, result.Diagnostics));
+    }
+
     [Theory]
     [InlineData("System.IO.File.ReadAllText(\"secret.txt\");", "System.IO.File")]
     [InlineData("System.Diagnostics.Process.Start(\"calc\");", "System.Diagnostics.Process")]
