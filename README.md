@@ -79,6 +79,10 @@ NanosWorld-Win64-Shipping.exe
 
 Every C# package is a regular nanos world package with its own `Package.toml`, environment and entry in `Server.GetPackages()`.
 
+See [docs/architecture.md](docs/architecture.md) for how the native host, the trusted host and the client sandbox fit
+together, and [docs/security.md](docs/security.md) for the trust model and why untrusted client code runs in a
+WebAssembly sandbox.
+
 ## Building
 
 Requirements: xmake 3, GCC or Clang with C++20, .NET 10 SDK.
