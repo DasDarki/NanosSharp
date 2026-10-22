@@ -1,8 +1,0 @@
-package nanos:naot@0.1.0;
-
-world sandbox {
-    import nanos: interface {
-        nop: func(value: s32) -> s32;
-        function-call: func(method: s32, arguments: list<u8>) -> s64;
-    }
-}

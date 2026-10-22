@@ -1,6 +1,9 @@
 # Client runtime WASM migration
 
-Status: exploration, branch `refactor/wasm`.
+> Status: shipped in v0.3.0. This is the historical engineering journal of the client WebAssembly
+> sandbox work. The feasibility probes it references under `experiments/` were removed after the
+> feature shipped; those paths no longer exist and are kept only for the record. For the current
+> design see [architecture.md](architecture.md) and [security.md](security.md).
 
 ## Why
 
