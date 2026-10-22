@@ -58,8 +58,6 @@ public static unsafe class WasmBootstrap
 
         MarshallingSelfTest();
 
-        NativeCallbacks.Tick += delta => NativeRuntime.Log(LogLevel.Info, $"tick delta={delta}");
-
         NativeRuntime.Log(LogLevel.Info, "wasm runtime ready");
     }
 

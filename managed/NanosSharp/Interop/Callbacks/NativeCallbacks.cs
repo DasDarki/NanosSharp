@@ -15,6 +15,9 @@ internal static unsafe class NativeCallbacks
 {
     private const string GlobalEnvironmentName = "nanossharp";
 
+    /// <summary>Marks a scripting function id as owned by a sandboxed guest rather than the trusted host, so the engine to managed callback can route it to the sandbox instead of the host's own function registry.</summary>
+    internal const long GuestFunctionIdFlag = 1L << 62;
+
     public static event Action? EngineAttached;
 
     public static event Action? EngineDetaching;
@@ -29,8 +32,10 @@ internal static unsafe class NativeCallbacks
 
     public static event Action<nint>? ClientFilesStored;
 
-#if CLIENT
+#if CLIENT && !NANOSSHARP_WASM
     private static ScriptSubscription? _clientTick;
+#endif
+#if CLIENT
     internal static Func<long, nint, int, nint>? FunctionInvoker;
     internal static Action<long>? FunctionReleaser;
     internal static Action<ulong, nint, uint>? EntityCreatedHandler;
@@ -78,7 +83,7 @@ internal static unsafe class NativeCallbacks
         MainThread.Capture();
         NativeClassRegistry.Load();
         PackageContext.GlobalEnvironment = CreateEnvironment(GlobalEnvironmentName);
-#if CLIENT
+#if CLIENT && !NANOSSHARP_WASM
         _clientTick = ScriptApi.Subscribe("Client", "Tick", (Action<float>)(deltaTime => Guard(() => RunTick(deltaTime))));
 #endif
         EngineAttached?.Invoke();
@@ -95,7 +100,7 @@ internal static unsafe class NativeCallbacks
         }
         finally
         {
-#if CLIENT
+#if CLIENT && !NANOSSHARP_WASM
             _clientTick?.Dispose();
             _clientTick = null;
 #endif
@@ -150,7 +155,7 @@ internal static unsafe class NativeCallbacks
     private static nint OnInvokeFunction(long id, NativeArgument* arguments, int count)
     {
 #if CLIENT
-        if (FunctionInvoker is { } invoker)
+        if (FunctionInvoker is { } invoker && (id & GuestFunctionIdFlag) != 0)
         {
             try
             {
@@ -170,7 +175,7 @@ internal static unsafe class NativeCallbacks
     private static void OnReleaseFunction(long id)
     {
 #if CLIENT
-        if (FunctionReleaser is { } releaser)
+        if (FunctionReleaser is { } releaser && (id & GuestFunctionIdFlag) != 0)
         {
             Guard(() => releaser(id));
             return;

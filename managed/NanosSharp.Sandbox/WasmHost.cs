@@ -1,6 +1,7 @@
 using System.Text;
 using NanosSharp.Interop;
 using NanosSharp.Interop.Arguments;
+using NanosSharp.Interop.Callbacks;
 using Wasmtime;
 using ValueType = NanosSharp.Interop.Values.ValueType;
 
@@ -132,12 +133,12 @@ internal sealed unsafe class WasmHost : IDisposable
             WriteGuestArgument(baseptr + block + i * 32, ref arguments[i], ref stringCursor);
         }
 
-        var result = invoke.Invoke(id, block, records);
+        var result = invoke.Invoke(id & ~NativeCallbacks.GuestFunctionIdFlag, block, records);
         Free(block);
         return TakeValue(result is null ? 0 : Convert.ToInt32(result));
     }
 
-    public void ReleaseFunction(long id) => _instance.GetFunction("nanos_release_function")?.Invoke(id);
+    public void ReleaseFunction(long id) => _instance.GetFunction("nanos_release_function")?.Invoke(id & ~NativeCallbacks.GuestFunctionIdFlag);
 
     public void EntityCreated(ulong classId, nint instance, uint networkId) =>
         _instance.GetFunction("nanos_entity_created")?.Invoke((long)classId, InternInstance(instance), (int)networkId);
@@ -328,7 +329,7 @@ internal sealed unsafe class WasmHost : IDisposable
                 r[0] = ValueCreateMap(a[0].AsInt32(), a[1].AsInt32(), a[2].AsInt32());
                 break;
             case "value-create-function":
-                r[0] = InternValue(_api->ValueCreateFunction(a[0].AsInt64(), ResolveEnvironment(a[1].AsInt32())));
+                r[0] = InternValue(_api->ValueCreateFunction(a[0].AsInt64() | NativeCallbacks.GuestFunctionIdFlag, ResolveEnvironment(a[1].AsInt32())));
                 break;
             case "value-clone":
                 r[0] = InternValue(_api->ValueClone(ResolveValue(a[0].AsInt32())));
@@ -514,7 +515,7 @@ internal sealed unsafe class WasmHost : IDisposable
         byte ok;
         fixed (NativeArgument* pointer = native)
         {
-            ok = _api->FunctionCall((nint)ResolveFunction(method), environment, pointer, count, &resultArgument, &message);
+            ok = _api->FunctionCall((nint)ResolveFunction(method), ResolveEnvironment(environment), pointer, count, &resultArgument, &message);
         }
 
         if (ok == 0)
@@ -556,7 +557,15 @@ internal sealed unsafe class WasmHost : IDisposable
                 target.NetworkId = *(uint*)(source + 24);
                 break;
             default:
-                Buffer.MemoryCopy(source + 8, (byte*)System.Runtime.CompilerServices.Unsafe.AsPointer(ref target) + 8, 24, 24);
+                if (target.Type == NativeArgument.HandleType || target.Type == NativeArgument.BorrowedHandleType)
+                {
+                    target.Handle = ResolveValue(*(int*)(source + 8));
+                }
+                else
+                {
+                    Buffer.MemoryCopy(source + 8, (byte*)System.Runtime.CompilerServices.Unsafe.AsPointer(ref target) + 8, 24, 24);
+                }
+
                 break;
         }
     }
@@ -594,7 +603,15 @@ internal sealed unsafe class WasmHost : IDisposable
                 *(uint*)(target + 24) = source.NetworkId;
                 break;
             default:
-                Buffer.MemoryCopy((byte*)System.Runtime.CompilerServices.Unsafe.AsPointer(ref source) + 8, target + 8, 24, 24);
+                if (source.Type == NativeArgument.HandleType || source.Type == NativeArgument.BorrowedHandleType)
+                {
+                    *(int*)(target + 8) = InternValue(source.Handle);
+                }
+                else
+                {
+                    Buffer.MemoryCopy((byte*)System.Runtime.CompilerServices.Unsafe.AsPointer(ref source) + 8, target + 8, 24, 24);
+                }
+
                 break;
         }
     }
