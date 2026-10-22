@@ -1,0 +1,14 @@
+[package]
+name = "nanos-wasmruntime-devhost"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "devhost"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+wasmtime = "29"
+wasmtime-wasi = "29"
+wasmtime-wasi-http = "29"

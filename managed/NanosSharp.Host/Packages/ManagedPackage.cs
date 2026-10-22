@@ -28,6 +28,10 @@ internal sealed class ManagedPackage
 
     public event Action<ManagedPackage>? SourcesChanged;
 
+#if CLIENT
+    public void UseBuild(PackageBuild build) => Build = build;
+#endif
+
     private readonly List<Package> _entries = [];
     private ServiceContainer? _container;
     private PackageLoadContext? _loadContext;

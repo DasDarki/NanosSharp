@@ -4,12 +4,13 @@ using NanosSharp.Interop.Arguments;
 namespace NanosSharp.Interop;
 
 [StructLayout(LayoutKind.Sequential)]
-internal unsafe struct NativeApi
+internal unsafe partial struct NativeApi
 {
     public const int SupportedVersion = 4;
 
     public int Version;
 
+#if !NANOSSHARP_WASM
     public delegate* unmanaged<int, byte*, int, void> Log;
     public delegate* unmanaged<byte*, void> FreeString;
 
@@ -73,4 +74,5 @@ internal unsafe struct NativeApi
     public delegate* unmanaged<nint, nint, NativeArgument*, int, NativeArgument*, byte**, byte> FunctionCall;
     public delegate* unmanaged<nint, byte*, int, byte**, nint> LuaGetGlobal;
     public delegate* unmanaged<nint, byte*, int, nint, byte**, byte> LuaSetGlobal;
+#endif
 }

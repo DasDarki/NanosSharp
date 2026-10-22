@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>NanosSharp.WasmRuntime</RootNamespace>
+    <OutputType>Exe</OutputType>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <WasmSingleFileBundle>true</WasmSingleFileBundle>
+    <WasmMainAssemblyFileName>NanosSharp.WasmRuntime.dll</WasmMainAssemblyFileName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="testpackage/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../NanosSharp/NanosSharp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <LinkerArg Include="-Wl,--component-type,&quot;$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/wit/nanos.wit'))&quot;" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(NanosSharpClientRuntime)' == 'WasmAot'">
+    <PackageReference Include="Microsoft.DotNet.ILCompiler.LLVM" Version="10.0.0-rc.1.26357.1" />
+    <PackageReference Include="runtime.linux-x64.Microsoft.DotNet.ILCompiler.LLVM" Version="10.0.0-rc.1.26357.1" />
+  </ItemGroup>
+
+</Project>

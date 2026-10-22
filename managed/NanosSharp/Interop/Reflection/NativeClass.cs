@@ -38,6 +38,22 @@ internal sealed unsafe class NativeClass
         Properties = properties;
     }
 
+    public NativeClass(
+        ulong id,
+        string name,
+        NativeMethod? constructor,
+        IReadOnlyDictionary<string, NativeMethod> methods,
+        IReadOnlyDictionary<string, NativeMethod> staticMethods,
+        IReadOnlyDictionary<string, NativeProperty> properties)
+    {
+        Id = id;
+        Name = name;
+        Constructor = constructor;
+        Methods = methods;
+        StaticMethods = staticMethods;
+        Properties = properties;
+    }
+
     public NativeMethod GetMethod(MethodSlot slot)
     {
         if (slot.Id >= _slots.Length)

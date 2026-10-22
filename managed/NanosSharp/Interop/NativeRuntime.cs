@@ -26,6 +26,8 @@ internal static unsafe class NativeRuntime
 
     public static bool IsInitialized => _api != null;
 
+    internal static NativeApi* ApiPointer => _api;
+
     public static bool IsEngineAttached => _api != null && _api->EngineIsAttached() != 0;
 
     public static void Initialize(NativeApi* api, ManagedCallbacks* callbacks)

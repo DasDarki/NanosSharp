@@ -13,6 +13,8 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   XWIN_VERSION: 0.6.5
   LLVM_VERSION: 20
+  WASI_SDK_VERSION: "25.0"
+  WASI_SDK_MAJOR: "25"
 
 jobs:
   build:
@@ -105,6 +107,21 @@ jobs:
         run: |
           curl -fsSL "https://github.com/Jake-Shadle/xwin/releases/download/$XWIN_VERSION/xwin-$XWIN_VERSION-x86_64-unknown-linux-musl.tar.gz" | tar -xz
           "./xwin-$XWIN_VERSION-x86_64-unknown-linux-musl/xwin" --accept-license splat --output ~/.xwin
+
+      - name: Install the wasi-experimental workload
+        run: dotnet workload install wasi-experimental
+
+      - uses: actions/cache@v4
+        id: wasi-sdk-cache
+        with:
+          path: ~/.wasi-sdk
+          key: wasi-sdk-${{ env.WASI_SDK_VERSION }}
+
+      - name: Download the WASI SDK
+        if: steps.wasi-sdk-cache.outputs.cache-hit != 'true'
+        run: |
+          curl -fsSL "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-$WASI_SDK_MAJOR/wasi-sdk-$WASI_SDK_VERSION-x86_64-linux.tar.gz" | tar -xz
+          mv "wasi-sdk-$WASI_SDK_VERSION-x86_64-linux" ~/.wasi-sdk
 
       - name: Configure
         run: xmake f -m release -y --dotnet_root="$DOTNET_ROOT"

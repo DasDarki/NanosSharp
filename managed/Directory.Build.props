@@ -1,6 +1,7 @@
 <Project>
   <PropertyGroup>
     <RepositoryRoot>$(MSBuildThisFileDirectory)..</RepositoryRoot>
+    <NanosSharpSide Condition="'$(NanosSharpSide)' == '' and ('$(NanosSharpClientRuntime)' == 'Wasm' or '$(NanosSharpClientRuntime)' == 'WasmAot')">Client</NanosSharpSide>
     <NanosSharpSide Condition="'$(NanosSharpSide)' == ''">Server</NanosSharpSide>
     <NanosSharpSideFolder Condition="'$(NanosSharpSide)' != 'Server'">.$(NanosSharpSide)</NanosSharpSideFolder>
     <TargetFramework>net10.0</TargetFramework>
@@ -39,5 +40,28 @@
   <PropertyGroup Condition="'$(NanosSharpSide)' != 'Server'">
     <BaseOutputPath>$(RepositoryRoot)/build/managed/$(NanosSharpSide)/bin/$(MSBuildProjectName)/</BaseOutputPath>
     <BaseIntermediateOutputPath>$(RepositoryRoot)/build/managed/$(NanosSharpSide)/obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(NanosSharpClientRuntime)' == 'Wasm'">
+    <RuntimeIdentifier>wasi-wasm</RuntimeIdentifier>
+    <DefineConstants>$(DefineConstants);NANOSSHARP_WASM</DefineConstants>
+    <RunAOTCompilation>true</RunAOTCompilation>
+    <PublishTrimmed>true</PublishTrimmed>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WasmNativeStrip>false</WasmNativeStrip>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(NanosSharpClientRuntime)' == 'Wasm'">
+    <TrimmerRootAssembly Include="NanosSharp" />
+    <TrimmerRootAssembly Include="NanosSharp.WasmRuntime" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(NanosSharpClientRuntime)' == 'WasmAot'">
+    <RuntimeIdentifier>wasi-wasm</RuntimeIdentifier>
+    <DefineConstants>$(DefineConstants);NANOSSHARP_WASM</DefineConstants>
+    <PublishTrimmed>true</PublishTrimmed>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <IlcExportUnmanagedEntrypoints>true</IlcExportUnmanagedEntrypoints>
+    <WasmBuildNative>true</WasmBuildNative>
+    <WasmGenerateAppBundle>false</WasmGenerateAppBundle>
   </PropertyGroup>
 </Project>

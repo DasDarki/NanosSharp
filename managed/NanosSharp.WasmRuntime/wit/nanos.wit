@@ -1,0 +1,66 @@
+package nanos:runtime@0.1.0;
+
+world sandbox {
+    import nanos: interface {
+        log: func(p0: s32, p1: s32, p2: s32);
+        free-string: func(p0: s32);
+        value-create-nil: func() -> s32;
+        value-create-bool: func(p0: s32) -> s32;
+        value-create-integer: func(p0: s64) -> s32;
+        value-create-double: func(p0: f64) -> s32;
+        value-create-string: func(p0: s32, p1: s32) -> s32;
+        value-create-vector: func(p0: f64, p1: f64, p2: f64) -> s32;
+        value-create-rotator: func(p0: f64, p1: f64, p2: f64) -> s32;
+        value-create-color: func(p0: f32, p1: f32, p2: f32, p3: f32) -> s32;
+        value-create-vector2-d: func(p0: f64, p1: f64) -> s32;
+        value-create-entity: func(p0: s64, p1: s32, p2: s32) -> s32;
+        value-create-array: func(p0: s32, p1: s32) -> s32;
+        value-create-map: func(p0: s32, p1: s32, p2: s32) -> s32;
+        value-create-function: func(p0: s64, p1: s32) -> s32;
+        value-clone: func(p0: s32) -> s32;
+        value-free: func(p0: s32);
+        value-get-type: func(p0: s32) -> s32;
+        value-get-bool: func(p0: s32) -> s32;
+        value-get-integer: func(p0: s32) -> s64;
+        value-get-double: func(p0: s32) -> f64;
+        value-get-string: func(p0: s32, p1: s32) -> s32;
+        value-get-doubles: func(p0: s32, p1: s32);
+        value-get-color: func(p0: s32, p1: s32);
+        value-get-entity: func(p0: s32, p1: s32, p2: s32, p3: s32);
+        value-get-network-id: func(p0: s32) -> s32;
+        value-resolve-deferred: func(p0: s32) -> s32;
+        value-get-length: func(p0: s32) -> s32;
+        value-get-item: func(p0: s32, p1: s32) -> s32;
+        value-get-entries: func(p0: s32, p1: s32, p2: s32);
+        value-invoke: func(p0: s32, p1: s32, p2: s32, p3: s32, p4: s32) -> s32;
+        engine-is-attached: func() -> s32;
+        class-count: func() -> s32;
+        class-get: func(p0: s32) -> s32;
+        class-get-name: func(p0: s32) -> s32;
+        class-get-id: func(p0: s32) -> s64;
+        class-get-constructor: func(p0: s32) -> s32;
+        class-get-function-count: func(p0: s32, p1: s32) -> s32;
+        class-get-function: func(p0: s32, p1: s32, p2: s32) -> s32;
+        class-get-property-count: func(p0: s32) -> s32;
+        class-get-property: func(p0: s32, p1: s32) -> s32;
+        global-function-count: func() -> s32;
+        global-function-get: func(p0: s32) -> s32;
+        function-get-name: func(p0: s32) -> s32;
+        function-get-signature: func(p0: s32) -> s32;
+        property-get-name: func(p0: s32) -> s32;
+        property-get-signature: func(p0: s32) -> s32;
+        function-invoke: func(p0: s32, p1: s32, p2: s32, p3: s32, p4: s32, p5: s32) -> s32;
+        property-get: func(p0: s32, p1: s32, p2: s32, p3: s32) -> s32;
+        property-set: func(p0: s32, p1: s32, p2: s32, p3: s32) -> s32;
+        environment-create: func(p0: s32, p1: s32) -> s32;
+        environment-destroy: func(p0: s32, p1: s32);
+        package-reload: func(p0: s32, p1: s32) -> s32;
+        library-load: func(p0: s32, p1: s32) -> s32;
+        package-get-entity: func(p0: s32) -> s32;
+        function-call: func(p0: s32, p1: s32, p2: s32, p3: s32, p4: s32, p5: s32) -> s32;
+        lua-get-global: func(p0: s32, p1: s32, p2: s32, p3: s32) -> s32;
+        lua-set-global: func(p0: s32, p1: s32, p2: s32, p3: s32, p4: s32) -> s32;
+        schema-dump: func(buffer: s32, capacity: s32) -> s32;
+        set-result-scratch: func(buffer: s32, capacity: s32);
+    }
+}

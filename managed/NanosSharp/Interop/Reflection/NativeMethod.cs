@@ -4,14 +4,28 @@ using NanosSharp.Threading;
 
 namespace NanosSharp.Interop.Reflection;
 
-internal sealed unsafe class NativeMethod(nint handle)
+internal sealed unsafe class NativeMethod
 {
     public const int StackArgumentLimit = 16;
     public const int StackStringBytes = 512;
 
-    public string Name { get; } = NativeRuntime.ReadString(NativeRuntime.Api.FunctionGetName(handle));
+    private readonly nint _handle;
 
-    public string Signature => NativeRuntime.TakeString(NativeRuntime.Api.FunctionGetSignature(handle));
+    public string Name { get; }
+
+    public string Signature => NativeRuntime.TakeString(NativeRuntime.Api.FunctionGetSignature(_handle));
+
+    public NativeMethod(nint handle)
+    {
+        _handle = handle;
+        Name = NativeRuntime.ReadString(NativeRuntime.Api.FunctionGetName(handle));
+    }
+
+    public NativeMethod(nint handle, string name)
+    {
+        _handle = handle;
+        Name = name;
+    }
 
     public object? Invoke(nint environment, Entity? self, ReadOnlySpan<object?> head, ReadOnlySpan<object?> tail = default)
     {
@@ -31,7 +45,7 @@ internal sealed unsafe class NativeMethod(nint handle)
         byte* error = null;
         fixed (NativeArgument* pointer = arguments)
         {
-            var succeeded = NativeRuntime.Api.FunctionCall(handle, environment, pointer, packer.Count, &result, &error);
+            var succeeded = NativeRuntime.Api.FunctionCall(_handle, environment, pointer, packer.Count, &result, &error);
             NativeRuntime.ThrowIfFailed(succeeded, error);
         }
 

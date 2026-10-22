@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RuntimeIdentifier>wasi-wasm</RuntimeIdentifier>
+    <OutputType>Exe</OutputType>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <WasmSingleFileBundle>true</WasmSingleFileBundle>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- Keep reflection and dynamic loading alive. This is the whole point of the
+         probe: prove the existing attribute scanning, DI and ALC survive on WASI. -->
+    <PublishTrimmed>true</PublishTrimmed>
+    <WasmNativeStrip>false</WasmNativeStrip>
+    <RunAOTCompilation>true</RunAOTCompilation>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <TrimmerRootAssembly Include="Guest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Feed our own component-type world to wasm-component-ld so it can resolve
+         the custom `nanos` import interface. LinkerArg is appended after the
+         SDK's own args, so this adds to (not replaces) the built-in WASI world. -->
+    <LinkerArg Include="-Wl,--component-type,&quot;$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../wit/nanos.wit'))&quot;" />
+  </ItemGroup>
+
+</Project>

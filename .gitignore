@@ -11,3 +11,21 @@ obj/
 .idea/
 .vscode/
 compile_commands.json
+
+# WASM probe build output
+experiments/wasm-probe/out/
+experiments/wasm-probe/host-rs/target/
+experiments/wasm-probe/bench/native/out/
+experiments/wasm-probe/bench/wasm/out-interp/
+experiments/wasm-probe/bench/wasm/out-aot/
+experiments/wasm-probe/bench/probe.so
+experiments/ipc-probe/ipc_bench
+experiments/wasm-probe/host-core-rs/target/
+experiments/wasm-probe/naot/out/
+experiments/wasm-probe/naot/ncore/
+experiments/wasm-probe/naot/bin/
+experiments/wasm-probe/naot/obj/
+experiments/wasm-probe/host-core-rs/target/
+experiments/wasm-probe/bench/probe.so
+managed/NanosSharp.WasmRuntime/devhost/target/
+managed/NanosSharp.WasmRuntime/devhost-core/target/

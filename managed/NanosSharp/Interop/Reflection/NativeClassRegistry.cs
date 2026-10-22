@@ -2,7 +2,7 @@ using NanosSharp.Scripting;
 
 namespace NanosSharp.Interop.Reflection;
 
-internal static unsafe class NativeClassRegistry
+internal static unsafe partial class NativeClassRegistry
 {
     private static readonly Dictionary<string, NativeClass> ClassesByName = new(StringComparer.Ordinal);
     private static readonly Dictionary<ulong, NativeClass> ClassesById = [];
@@ -17,6 +17,9 @@ internal static unsafe class NativeClassRegistry
     public static void Load()
     {
         Clear();
+#if NANOSSHARP_WASM
+        LoadFromSchema();
+#else
         ref readonly var api = ref NativeRuntime.Api;
         var classCount = api.ClassCount();
         for (var index = 0; index < classCount; index++)
@@ -32,7 +35,16 @@ internal static unsafe class NativeClassRegistry
             var function = new NativeMethod(api.GlobalFunctionGet(index));
             GlobalFunctions.TryAdd(function.Name, function);
         }
+#endif
     }
+
+    private static void Register(NativeClass nativeClass)
+    {
+        ClassesByName.TryAdd(nativeClass.Name, nativeClass);
+        ClassesById.TryAdd(nativeClass.Id, nativeClass);
+    }
+
+    private static void Register(NativeMethod function) => GlobalFunctions.TryAdd(function.Name, function);
 
     public static void Clear()
     {

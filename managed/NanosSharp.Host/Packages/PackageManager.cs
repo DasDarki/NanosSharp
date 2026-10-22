@@ -26,6 +26,7 @@ internal static unsafe class PackageManager
 #if CLIENT
     private const string DebugEnvironmentVariable = "NANOSSHARP_DEBUG";
     private static bool _debugOptIn;
+    private static ClientSandbox _sandbox = null!;
 #endif
     private static bool _debugAnnounced;
     private static HostSettings _settings = null!;
@@ -40,6 +41,7 @@ internal static unsafe class PackageManager
             _settings.Compilation.Optimize);
 #if CLIENT
         _debugOptIn = Environment.GetEnvironmentVariable(DebugEnvironmentVariable) is "1" or "true";
+        _sandbox = new ClientSandbox(runtimeDirectory);
 #else
         if (_settings.Debug.Enabled)
         {
@@ -51,6 +53,9 @@ internal static unsafe class PackageManager
         NativeCallbacks.PackageLoaded += OnPackageLoaded;
         NativeCallbacks.PackageUnloading += OnPackageUnloading;
         NativeCallbacks.Tick += _ => UnloadTracker.Tick();
+#if CLIENT
+        NativeCallbacks.Tick += _sandbox.Tick;
+#endif
 #if !CLIENT
         NativeCallbacks.ClientFilesStoring += PackageMarker.Write;
         NativeCallbacks.ClientFilesStored += PackageMarker.Remove;
@@ -60,6 +65,9 @@ internal static unsafe class PackageManager
     private static void OnEngineAttached()
     {
         StartHandshake();
+#if CLIENT
+        _sandbox.EngineAttached();
+#endif
         if (Environment.GetEnvironmentVariable(ApiDumpEnvironmentVariable) is { Length: > 0 } path)
         {
             ScriptApi.DumpApi(path);
@@ -71,6 +79,7 @@ internal static unsafe class PackageManager
     {
 #if CLIENT
         ServerHandshake.Stop();
+        _sandbox.EngineDetaching();
 #else
         NanosSharpClients.Stop();
 #endif
@@ -136,8 +145,9 @@ internal static unsafe class PackageManager
             {
                 var build = PendingBuilds.Remove(package.Name, out var pending) ? pending : BuildPackage(package);
 #if CLIENT
+                package.UseBuild(build);
+                _sandbox.Stage(package.Name, build);
                 SetPackageActive(package.Name, true);
-                MainThread.Post(() => StartDeferred(package, build));
 #else
                 StartPackage(package, build);
 #endif
@@ -162,28 +172,6 @@ internal static unsafe class PackageManager
         package.Start(build, assemblyName => ResolveShared(package.Manifest, assemblyName));
 
 #if CLIENT
-    private static void StartDeferred(ManagedPackage package, PackageBuild build)
-    {
-        if (!Packages.TryGetValue(package.Handle, out var current) || current != package)
-        {
-            return;
-        }
-
-        using (PackageContext.Enter(package.Scope))
-        {
-            try
-            {
-                StartPackage(package, build);
-            }
-            catch (Exception exception)
-            {
-                Log.Error($"Failed to start the C# package: {exception}");
-                SetPackageActive(package.Name, false);
-                TrackUnload(package, package.Stop());
-            }
-        }
-    }
-
     private static void SetPackageActive(string packageName, bool isActive)
     {
         using (PackageContext.Enter(null))
@@ -265,6 +253,9 @@ internal static unsafe class PackageManager
     private static void Unregister(ManagedPackage package)
     {
         Packages.Remove(package.Handle);
+#if CLIENT
+        _sandbox.Unstage(package.Name);
+#endif
         package.SourcesChanged -= OnSourcesChanged;
         package.StopWatching();
         try

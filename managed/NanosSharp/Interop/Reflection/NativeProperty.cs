@@ -4,11 +4,25 @@ using NanosSharp.Threading;
 
 namespace NanosSharp.Interop.Reflection;
 
-internal sealed unsafe class NativeProperty(nint handle)
+internal sealed unsafe class NativeProperty
 {
-    public string Name { get; } = NativeRuntime.ReadString(NativeRuntime.Api.PropertyGetName(handle));
+    private readonly nint _handle;
 
-    public string Signature => NativeRuntime.TakeString(NativeRuntime.Api.PropertyGetSignature(handle));
+    public string Name { get; }
+
+    public string Signature => NativeRuntime.TakeString(NativeRuntime.Api.PropertyGetSignature(_handle));
+
+    public NativeProperty(nint handle)
+    {
+        _handle = handle;
+        Name = NativeRuntime.ReadString(NativeRuntime.Api.PropertyGetName(handle));
+    }
+
+    public NativeProperty(nint handle, string name)
+    {
+        _handle = handle;
+        Name = name;
+    }
 
     public object? Get(Entity self)
     {
@@ -16,7 +30,7 @@ internal sealed unsafe class NativeProperty(nint handle)
         using var values = new NativeValueList([self]);
         nint result;
         byte* error = null;
-        NativeRuntime.ThrowIfFailed(NativeRuntime.Api.PropertyGet(handle, values.Pointer[0], &result, &error), error);
+        NativeRuntime.ThrowIfFailed(NativeRuntime.Api.PropertyGet(_handle, values.Pointer[0], &result, &error), error);
         return ValueMarshaller.TakeFromNative(result);
     }
 
@@ -25,7 +39,7 @@ internal sealed unsafe class NativeProperty(nint handle)
         MainThread.Ensure();
         using var values = new NativeValueList([self, value]);
         byte* error = null;
-        var succeeded = NativeRuntime.Api.PropertySet(handle, values.Pointer[0], values.Pointer[1], &error);
+        var succeeded = NativeRuntime.Api.PropertySet(_handle, values.Pointer[0], values.Pointer[1], &error);
         NativeRuntime.ThrowIfFailed(succeeded, error);
     }
 }

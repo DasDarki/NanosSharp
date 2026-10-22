@@ -24,6 +24,9 @@
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="NanosSharp.Host" />
+    <InternalsVisibleTo Include="NanosSharp.Sandbox" />
+    <InternalsVisibleTo Include="NanosSharp.Sandbox.Harness" />
+    <InternalsVisibleTo Include="NanosSharp.WasmRuntime" Condition="'$(NanosSharpClientRuntime)' == 'Wasm'" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PACKAGE.md" Pack="true" PackagePath="/" />

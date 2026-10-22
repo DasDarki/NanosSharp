@@ -73,7 +73,7 @@ NanosWorld-Win64-Shipping.exe
      ├─ resolves the Lua C API and PushValue/PopValue by byte signatures for Lua interop
      └─ hosts a bundled CoreCLR via hostfxr
          └─ NanosSharp.Host (C#, client flavor)
-             ├─ compiles Client/ and Shared/ of downloaded packages with Roslyn in a sandbox
+             ├─ compiles Client/ and Shared/ of downloaded packages with Roslyn, then runs them in a WebAssembly sandbox
              └─ answers the server handshake and tells Lua fallbacks whether C# runs
 ```
 
@@ -243,9 +243,10 @@ public sealed class Hud : Package
 }
 ```
 
-The client API is generated from the game client. Client code is compiled in a sandbox that checks every used type and
-member against an allow list (no files, processes, reflection, threads, `unsafe` or P/Invoke), it cannot use NuGet
-packages and has no hot reload.
+The client API is generated from the game client. Client code is compiled with Roslyn on the player's machine and runs
+inside a WebAssembly sandbox for real runtime isolation: it has no ambient access to the machine (no files outside its
+own package directory, no network, no processes, no native calls) and reaches the engine only through the brokered
+NanosSharp API. It cannot use NuGet packages and has no hot reload.
 
 The server marks C# packages for the client while it collects their client files, and asks every ready player for its
 NanosSharp version. `NanosSharpClients.Connected`/`Missing` and `player.HasNanosSharp` expose the result. Lua fallbacks

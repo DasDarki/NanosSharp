@@ -1,5 +1,7 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using NanosSharp.Interop.Arguments;
 
 namespace NanosSharp.Interop.Callbacks;
@@ -21,11 +23,40 @@ internal static class CallbackInvoker
             return invoker;
         }
 
-        invoker = Compile(delegateType);
+        invoker = RuntimeFeature.IsDynamicCodeSupported ? Compile(delegateType) : Reflect(delegateType);
         Invokers[delegateType] = invoker;
         return invoker;
     }
 
+    private static Func<Delegate, nint, int, object?> Reflect(Type delegateType)
+    {
+        var invokeMethod = delegateType.GetMethod("Invoke")!;
+        var parameters = invokeMethod.GetParameters();
+        var isVoid = invokeMethod.ReturnType == typeof(void);
+
+        if (parameters is [{ ParameterType: var single }] && single == typeof(object?[]))
+        {
+            return (callback, arguments, count) =>
+            {
+                var result = callback.DynamicInvoke(ArgumentAccess.GetAll(arguments, count));
+                return isVoid ? null : result;
+            };
+        }
+
+        return (callback, arguments, count) =>
+        {
+            var bound = new object?[parameters.Length];
+            for (var index = 0; index < parameters.Length; index++)
+            {
+                bound[index] = ArgumentAccess.GetValue(parameters[index], arguments, count, index);
+            }
+
+            var result = callback.DynamicInvoke(bound);
+            return isVoid ? null : result;
+        };
+    }
+
+    [RequiresDynamicCode("Compiles an expression tree; the reflection fallback is used when dynamic code is unavailable.")]
     private static Func<Delegate, nint, int, object?> Compile(Type delegateType)
     {
         var invokeMethod = delegateType.GetMethod("Invoke")!;
@@ -46,6 +77,7 @@ internal static class CallbackInvoker
         return Expression.Lambda<Func<Delegate, nint, int, object?>>(body, callback, arguments, count).Compile();
     }
 
+    [RequiresDynamicCode("Creates a generic method instantiation for the argument type.")]
     private static Expression BindParameter(ParameterInfo parameter, int index, ParameterExpression arguments,
         ParameterExpression count)
     {

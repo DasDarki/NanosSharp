@@ -22,6 +22,12 @@ option("server_dir")
     set_description("nanos world server directory used by the deploy target")
 option_end()
 
+option("wasmtime_dir")
+    set_default("")
+    set_showmenu(true)
+    set_description("Directory of the extracted wasmtime C API (include/ and lib/)")
+option_end()
+
 target("nanossharp")
     set_kind("shared")
     set_languages("c++20")
@@ -69,6 +75,32 @@ target("nanossharp")
         target:add("includedirs", nethost_dir)
         target:add("linkdirs", nethost_dir)
         target:add("links", "libnethost.a")
+    end)
+target_end()
+
+target("nanossharp-wasmhost-test")
+    set_kind("binary")
+    set_default(false)
+    set_languages("c++20")
+    set_warnings("all", "extra")
+    add_files("native/src/wasm/*.cc")
+    add_includedirs("native/src")
+    add_defines("_GLIBCXX_USE_CXX11_ABI=0")
+    add_syslinks("pthread", "dl", "m")
+
+    on_load(function (target)
+        local wasmtime_dir = get_config("wasmtime_dir")
+        if wasmtime_dir == nil or wasmtime_dir == "" then
+            wasmtime_dir = path.join(os.getenv("HOME"), ".cache", "nanossharp-wasmtime",
+                "wasmtime-v29.0.1-x86_64-linux-c-api")
+        end
+        local include_dir = path.join(wasmtime_dir, "include")
+        local static_lib = path.join(wasmtime_dir, "lib", "libwasmtime.a")
+        if not os.isfile(static_lib) then
+            raise("wasmtime C API not found at %s, set --wasmtime_dir", wasmtime_dir)
+        end
+        target:add("includedirs", include_dir)
+        target:add("ldflags", static_lib, {force = true})
     end)
 target_end()
 
@@ -280,6 +312,14 @@ task("client")
         os.mkdir(path.join(package_dir, "runtime"))
         os.cp(path.join(root, "build", "managed", "Client", "bin", "NanosSharp.Host", configuration, "net10.0", "*"), path.join(package_dir, "runtime"))
 
+        local wasi_sdk = option.get("wasi_sdk") or path.join(os.getenv("HOME"), ".wasi-sdk")
+        if not os.isdir(wasi_sdk) then
+            raise("the WASI SDK was not found in %s, install it or pass --wasi_sdk (needed to build the client sandbox reactor)", wasi_sdk)
+        end
+        cprint("building the client sandbox reactor ...")
+        os.execv("bash", {path.join(root, "managed", "NanosSharp.WasmRuntime", "tools", "build-reactor.sh"),
+            path.join(package_dir, "runtime", "nanossharp-reactor.wasm")}, {envs = {WASI_SDK_PATH = wasi_sdk}})
+
         local cache_dir = path.join(root, "build", "cache")
         local runtime_archive = path.join(cache_dir, "dotnet-runtime-" .. runtime_version .. "-win-x64.zip")
         if not os.isfile(runtime_archive) then
@@ -311,6 +351,7 @@ task("client")
             {"c", "configuration", "kv", "Release", "The .NET build configuration.", values = {"Debug", "Release"}},
             {nil, "runtime", "kv", "10.0.13", "The .NET runtime version shipped with the client."},
             {nil, "xwin", "kv", nil, "Directory of the MSVC CRT and Windows SDK downloaded with xwin."},
+            {nil, "wasi_sdk", "kv", nil, "Directory of the WASI SDK used to build the sandbox reactor (defaults to ~/.wasi-sdk)."},
             {"r", "release", "kv", nil, "Also pack the client into a release archive with this version."}
         }
     }

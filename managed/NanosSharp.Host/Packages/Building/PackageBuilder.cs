@@ -1,7 +1,6 @@
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using NanosSharp.Host.Compilation;
-using NanosSharp.Host.Compilation.Sandbox;
 using NanosSharp.Host.Packages.Dependencies;
 using NanosSharp.Logging;
 
@@ -57,8 +56,7 @@ internal static class PackageBuilder
         if (sources.Length > 0)
         {
             var references = assemblyPaths.Concat(dependencies.CompileReferences).Select(ReadAssembly).Concat(requiredImages);
-            var scripts = CompileScripts($"{packageName}.Scripts", sources, references, options.Optimize,
-                IsSandboxed ? ApiAllowList.Client : null);
+            var scripts = CompileScripts($"{packageName}.Scripts", sources, references, options.Optimize);
             assemblies[scripts.Name] = scripts;
         }
 
@@ -97,9 +95,9 @@ internal static class PackageBuilder
     }
 
     private static AssemblyImage CompileScripts(string assemblyName, IReadOnlyList<string> sources,
-        IEnumerable<AssemblyImage> references, bool optimize, ApiAllowList? allowList)
+        IEnumerable<AssemblyImage> references, bool optimize)
     {
-        var result = ScriptCompiler.Compile(assemblyName, sources, references, optimize, allowList);
+        var result = ScriptCompiler.Compile(assemblyName, sources, references, optimize);
         foreach (var diagnostic in result.Diagnostics)
         {
             Log.Warning(diagnostic);

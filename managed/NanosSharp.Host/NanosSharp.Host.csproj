@@ -7,14 +7,12 @@
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Compilation/Sandbox/client-allowlist.txt" LogicalName="NanosSharp.Host.Compilation.Sandbox.client-allowlist.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <InternalsVisibleTo Include="NanosSharp.Host.Tests" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../NanosSharp/NanosSharp.csproj" />
     <ProjectReference Include="../NanosSharp.Updater/NanosSharp.Updater.csproj" />
+    <ProjectReference Include="../NanosSharp.Sandbox/NanosSharp.Sandbox.csproj" Condition="'$(NanosSharpSide)' == 'Client'" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />

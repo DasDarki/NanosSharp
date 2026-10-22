@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>NanosSharp.Sandbox</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../NanosSharp/NanosSharp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="NanosSharp.Sandbox.Harness" />
+    <InternalsVisibleTo Include="NanosSharp.Host" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Wasmtime" Version="22.0.0" />
+  </ItemGroup>
+
+</Project>
