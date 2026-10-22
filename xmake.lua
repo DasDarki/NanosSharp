@@ -94,13 +94,22 @@ target("nanossharp-wasmhost-test")
             wasmtime_dir = path.join(os.getenv("HOME"), ".cache", "nanossharp-wasmtime",
                 "wasmtime-v29.0.1-x86_64-linux-c-api")
         end
-        local include_dir = path.join(wasmtime_dir, "include")
         local static_lib = path.join(wasmtime_dir, "lib", "libwasmtime.a")
-        if not os.isfile(static_lib) then
+        if os.isfile(static_lib) then
+            target:add("includedirs", path.join(wasmtime_dir, "include"))
+            target:add("ldflags", static_lib, {force = true})
+        end
+    end)
+
+    before_build(function (target)
+        local wasmtime_dir = get_config("wasmtime_dir")
+        if wasmtime_dir == nil or wasmtime_dir == "" then
+            wasmtime_dir = path.join(os.getenv("HOME"), ".cache", "nanossharp-wasmtime",
+                "wasmtime-v29.0.1-x86_64-linux-c-api")
+        end
+        if not os.isfile(path.join(wasmtime_dir, "lib", "libwasmtime.a")) then
             raise("wasmtime C API not found at %s, set --wasmtime_dir", wasmtime_dir)
         end
-        target:add("includedirs", include_dir)
-        target:add("ldflags", static_lib, {force = true})
     end)
 target_end()
 
