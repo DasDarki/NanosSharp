@@ -93,13 +93,15 @@ packages run, exactly as with Lua. This path is unchanged by the client sandbox 
 
 ## Client execution: the WebAssembly sandbox
 
-Client packages are pushed by the server to every player, so they are untrusted. They are compiled with Roslyn on the
-player's machine, outside the sandbox, by the trusted host, and then run inside a WebAssembly sandbox with no ambient
-authority. The sandbox is the reason the interop seam is handle based.
+Client packages are pushed by the server to every player, so they are untrusted. Source is compiled with Roslyn on the
+player's machine, outside the sandbox, by the trusted host; a package may instead ship prebuilt `*.dll` assemblies in its
+`Client/` folder, which skip compilation. Either way the package runs inside a WebAssembly sandbox with no ambient
+authority, so a prebuilt assembly is no more trusted than compiled source. The sandbox is the reason the interop seam is
+handle based.
 
 ```
  trusted host (CoreCLR, client flavor)
-  ├─ compiles Client/ + Shared/ of a downloaded package with Roslyn
+  ├─ compiles Client/ + Shared/ sources with Roslyn, or takes a package's prebuilt Client/ assemblies as is
   ├─ stages the compiled assemblies into a per-package directory the reactor reads
   ├─ boots ONE reactor for the session and drives it each frame
   ├─ WasmHost: embeds Wasmtime, implements the `nanos` imports, owns the handle tables

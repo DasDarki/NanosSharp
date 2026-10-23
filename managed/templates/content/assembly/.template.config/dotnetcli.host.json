@@ -8,6 +8,10 @@
     "packageAuthor": {
       "longName": "package-author",
       "shortName": "a"
+    },
+    "side": {
+      "longName": "side",
+      "shortName": "s"
     }
   }
 }

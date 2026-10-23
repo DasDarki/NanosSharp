@@ -32,9 +32,13 @@ internal static class PackageBuilder
         return FindSources(sideDirectory).Any() || FindAssemblies(sideDirectory).Any() || FindSources(sharedDirectory).Any();
     }
 
-    public static bool HasClientCode(string packageDirectory) =>
-        FindSources(Path.Combine(packageDirectory, ClientDirectoryName)).Any() ||
-        FindSources(Path.Combine(packageDirectory, SharedDirectoryName)).Any();
+    public static bool HasClientCode(string packageDirectory)
+    {
+        var clientDirectory = Path.Combine(packageDirectory, ClientDirectoryName);
+        return FindSources(clientDirectory).Any() ||
+            FindAssemblies(clientDirectory).Any() ||
+            FindSources(Path.Combine(packageDirectory, SharedDirectoryName)).Any();
+    }
 
     public static bool IsRelevantFile(string path) =>
         RelevantExtensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase) && !IsIgnored(path);
@@ -152,9 +156,9 @@ internal static class PackageBuilder
                 .Order(StringComparer.Ordinal)
             : [];
 
-    private static IEnumerable<string> FindAssemblies(string sideDirectory) =>
-        !IsSandboxed && Directory.Exists(sideDirectory)
-            ? Directory.EnumerateFiles(sideDirectory, "*.dll", SearchOption.TopDirectoryOnly)
+    private static IEnumerable<string> FindAssemblies(string directory) =>
+        Directory.Exists(directory)
+            ? Directory.EnumerateFiles(directory, "*.dll", SearchOption.TopDirectoryOnly)
                 .Where(path => Path.GetFileNameWithoutExtension(path) != ApiAssemblyName)
                 .Order(StringComparer.Ordinal)
             : [];

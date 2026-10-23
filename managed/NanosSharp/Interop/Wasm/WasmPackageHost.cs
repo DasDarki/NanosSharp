@@ -103,12 +103,10 @@ internal static class WasmPackageHost
         {
             try
             {
-                var types = new List<Type>();
-                foreach (var path in Directory.GetFiles(directory, "*.dll"))
-                {
-                    var assembly = context.LoadFromStream(new MemoryStream(File.ReadAllBytes(path)));
-                    types.AddRange(GetLoadableTypes(assembly));
-                }
+                var assemblies = Directory.GetFiles(directory, "*.dll")
+                    .Select(path => context.LoadFromStream(new MemoryStream(File.ReadAllBytes(path))))
+                    .ToArray();
+                var types = assemblies.SelectMany(GetLoadableTypes).ToList();
 
                 Start(package, scope, types);
             }

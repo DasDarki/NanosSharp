@@ -10,9 +10,28 @@ dotnet new nanossharp-script -n MyGamemode -o Packages/my-gamemode
 
 # a package compiled into an assembly, built into its Server folder
 dotnet new nanossharp-assembly -n MyGamemode -o Packages/my-gamemode
+
+# the same, but built into its Client folder and run inside the sandbox
+dotnet new nanossharp-assembly -n MyGamemode -o Packages/my-gamemode --side Client
 ```
 
 Use a valid C# identifier as the name, it becomes the class name of the package entry point.
+
+## Source or prebuilt assemblies
+
+Each side can be delivered either as source or as a prebuilt assembly, independently:
+
+- Drop `*.cs` into `Server/`, `Client/` or `Shared/` and NanosSharp compiles them for you. The server compiles on the
+  server and hot reloads on change; the client compiles on each player's machine, inside the trusted host. This is the
+  default and needs no build toolchain of your own.
+- Drop a prebuilt `*.dll` (plus any dependency assemblies it needs) into `Server/` or `Client/` and NanosSharp loads it
+  as is, with no compilation. Reference `NanosSharp` for a server assembly and `NanosSharp.Client` for a client assembly,
+  with `ExcludeAssets="runtime"` so the API assembly itself is not copied. Use this for closed-source packages or to skip
+  per-player compilation of client code.
+
+Both work the same at runtime: a server assembly runs in process with full trust, and a client assembly runs inside the
+WebAssembly sandbox with no ambient authority, exactly like compiled client source. A side may mix both; sources are then
+compiled against the prebuilt assemblies in the same folder.
 
 ## Script package layout
 

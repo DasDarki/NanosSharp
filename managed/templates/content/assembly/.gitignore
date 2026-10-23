@@ -3,7 +3,7 @@
 **/obj/
 
 # Compiled package assembly, rebuild with: dotnet build
-Server/
+SIDE_FOLDER/
 
 # IDE
 .vs/

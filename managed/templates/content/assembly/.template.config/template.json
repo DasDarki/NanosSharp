@@ -4,7 +4,7 @@
   "classifications": ["nanos world", "NanosSharp", "Game"],
   "identity": "NanosSharp.Templates.Assembly",
   "name": "NanosSharp Assembly Package",
-  "description": "A nanos world package compiled into an assembly, built into its Server folder.",
+  "description": "A nanos world package compiled into an assembly, built into its Server or Client folder.",
   "shortName": "nanossharp-assembly",
   "sourceName": "MyPackage",
   "preferNameDirectory": true,
@@ -26,6 +26,23 @@
       "description": "Author of the package.",
       "defaultValue": "Unknown",
       "replaces": "PACKAGE_AUTHOR"
+    },
+    "side": {
+      "type": "parameter",
+      "datatype": "choice",
+      "description": "Which side the assembly runs on.",
+      "defaultValue": "Server",
+      "replaces": "SIDE_FOLDER",
+      "choices": [
+        {
+          "choice": "Server",
+          "description": "Runs on the server in process with full trust."
+        },
+        {
+          "choice": "Client",
+          "description": "Runs on every player inside the WebAssembly sandbox."
+        }
+      ]
     }
   }
 }

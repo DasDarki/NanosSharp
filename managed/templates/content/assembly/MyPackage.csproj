@@ -5,15 +5,24 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>MyPackage</RootNamespace>
-    <OutputPath>Server/</OutputPath>
+    <OutputPath>SIDE_FOLDER/</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <!--#if (side == "Client") -->
+    <DefineConstants>$(DefineConstants);CLIENT</DefineConstants>
+    <!--#else -->
+    <DefineConstants>$(DefineConstants);SERVER</DefineConstants>
+    <!--#endif -->
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Server/**" />
-    <None Remove="Server/**" />
+    <Compile Remove="SIDE_FOLDER/**" />
+    <None Remove="SIDE_FOLDER/**" />
   </ItemGroup>
   <ItemGroup>
+    <!--#if (side == "Client") -->
+    <PackageReference Include="NanosSharp.Client" Version="NANOSSHARP_VERSION" ExcludeAssets="runtime" />
+    <!--#else -->
     <PackageReference Include="NanosSharp" Version="NANOSSHARP_VERSION" ExcludeAssets="runtime" />
+    <!--#endif -->
   </ItemGroup>
 </Project>
