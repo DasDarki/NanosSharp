@@ -21,11 +21,16 @@ constexpr size_t kScanLength = 128;
 constexpr uint8_t kMoveEcxOpcode = 0xB9;
 constexpr uint8_t kMoveEdxOpcode = 0xBA;
 constexpr uint8_t kCallOpcode = 0xE8;
+constexpr uint8_t kJumpOpcode = 0xE9;
 constexpr size_t kImmediateLength = 5;
-constexpr size_t kCallLength = 5;
-constexpr size_t kMaximumCallDistance = 4;
-constexpr uint8_t kAllocatePrologue[] = {0x48, 0x85, 0xC9};
-constexpr uint8_t kFreePrologue[] = {0x48, 0x83, 0xEC, 0x28, 0x48, 0x85, 0xC9};
+constexpr size_t kRelativeLength = 5;
+constexpr size_t kMaximumCallDistance = 8;
+constexpr size_t kMaximumThunkDepth = 8;
+
+struct SizedCall {
+  uint32_t size;
+  uint8_t* target;
+};
 
 template <typename T>
 struct MallocAllocator {
@@ -64,30 +69,46 @@ LocalAllocations& Locals() {
   return *allocations;
 }
 
+uint8_t* FollowJump(uint8_t* function) {
+  for (size_t depth = 0; depth < kMaximumThunkDepth; ++depth) {
+    if (function == nullptr || function[0] != kJumpOpcode) {
+      break;
+    }
+    int32_t displacement = 0;
+    std::memcpy(&displacement, function + 1, sizeof(displacement));
+    function = function + kRelativeLength + displacement;
+  }
+  return function;
+}
+
 uint8_t* CallTarget(uint8_t* call) {
   int32_t displacement = 0;
   std::memcpy(&displacement, call + 1, sizeof(displacement));
-  return call + kCallLength + displacement;
+  return FollowJump(call + kRelativeLength + displacement);
 }
 
-uint8_t* FindCallAfterImmediate(void* function, uint8_t opcode) {
-  auto* bytes = static_cast<uint8_t*>(function);
+bool FindSizedCall(void* function, uint8_t move_opcode, const uint32_t* required_size,
+                   SizedCall& result) {
+  uint8_t* bytes = FollowJump(static_cast<uint8_t*>(function));
   for (size_t index = 0; index < kScanLength; ++index) {
-    if (bytes[index] != opcode) {
+    if (bytes[index] != move_opcode) {
+      continue;
+    }
+    uint32_t size = 0;
+    std::memcpy(&size, bytes + index + 1, sizeof(size));
+    if (required_size != nullptr && *required_size != size) {
       continue;
     }
     for (size_t distance = 0; distance <= kMaximumCallDistance; ++distance) {
       uint8_t* call = bytes + index + kImmediateLength + distance;
       if (*call == kCallOpcode) {
-        return CallTarget(call);
+        result.size = size;
+        result.target = CallTarget(call);
+        return true;
       }
     }
   }
-  return nullptr;
-}
-
-bool StartsWith(const uint8_t* function, const uint8_t* prologue, size_t length) {
-  return function != nullptr && std::memcmp(function, prologue, length) == 0;
+  return false;
 }
 
 void* AllocateLocal(size_t size) {
@@ -148,14 +169,20 @@ void* AllocateOrThrow(size_t size) {
 }
 
 bool Resolve(void* create_environment, void* environment_destructor) {
-  uint8_t* allocate = FindCallAfterImmediate(create_environment, kMoveEcxOpcode);
-  uint8_t* deallocate = FindCallAfterImmediate(environment_destructor, kMoveEdxOpcode);
-  if (!StartsWith(allocate, kAllocatePrologue, sizeof(kAllocatePrologue)) ||
-      !StartsWith(deallocate, kFreePrologue, sizeof(kFreePrologue))) {
+  SizedCall deallocate{};
+  if (!FindSizedCall(environment_destructor, kMoveEdxOpcode, nullptr, deallocate)) {
     return false;
   }
-  game_allocate = reinterpret_cast<AllocateFunction>(allocate);
-  game_free = reinterpret_cast<FreeFunction>(deallocate);
+  SizedCall allocate{};
+  if (!FindSizedCall(create_environment, kMoveEcxOpcode, &deallocate.size, allocate)) {
+    return false;
+  }
+  if (allocate.target == nullptr || deallocate.target == nullptr ||
+      allocate.target == deallocate.target) {
+    return false;
+  }
+  game_allocate = reinterpret_cast<AllocateFunction>(allocate.target);
+  game_free = reinterpret_cast<FreeFunction>(deallocate.target);
   return true;
 }
 
