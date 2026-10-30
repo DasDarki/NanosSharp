@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <cwchar>
+#include <fstream>
 #include <utility>
 
 #include "bridge/native_api.h"
@@ -112,6 +113,70 @@ std::string ReadServerCdnUrl(const std::filesystem::path& base_directory) {
   return host::ReadTomlValue(ConfigurationPath(base_directory), "cdn", "server_cdn_url");
 }
 
+constexpr wchar_t kClientDirectoryName[] = L"Client";
+constexpr wchar_t kSharedDirectoryName[] = L"Shared";
+constexpr wchar_t kHandshakeMarkerFileName[] = L"nanossharp.json";
+constexpr wchar_t kVersionFileName[] = L"VERSION";
+constexpr int kHandshakeProtocolVersion = 1;
+
+bool HasSourceFiles(const std::filesystem::path& directory, bool include_assemblies) {
+  std::error_code error;
+  if (!std::filesystem::is_directory(directory, error)) {
+    return false;
+  }
+  for (const auto& entry : std::filesystem::recursive_directory_iterator(directory, error)) {
+    if (!entry.is_regular_file(error)) {
+      continue;
+    }
+    std::filesystem::path extension = entry.path().extension();
+    if (extension == L".cs" || (include_assemblies && extension == L".dll")) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool HasClientCode(const std::filesystem::path& package) {
+  return HasSourceFiles(package / kClientDirectoryName, true) ||
+         HasSourceFiles(package / kSharedDirectoryName, false);
+}
+
+std::string ReadRuntimeVersion(const std::filesystem::path& base_directory) {
+  std::ifstream file(base_directory / kVersionFileName);
+  std::string version;
+  if (file && std::getline(file, version)) {
+    while (!version.empty() && (version.back() == '\r' || version.back() == '\n' || version.back() == ' ')) {
+      version.pop_back();
+    }
+    if (!version.empty()) {
+      return version;
+    }
+  }
+  return "unknown";
+}
+
+void WriteClientHandshakeMarkers(const std::filesystem::path& base_directory) {
+  std::filesystem::path packages = base_directory.parent_path() / kServerPackagesDirectory;
+  std::error_code error;
+  if (!std::filesystem::is_directory(packages, error)) {
+    return;
+  }
+  std::string version = ReadRuntimeVersion(base_directory);
+  bool debug = host::ReadTomlValue(ConfigurationPath(base_directory), "debug", "enabled") == "true";
+  for (const auto& entry : std::filesystem::directory_iterator(packages, error)) {
+    if (!entry.is_directory(error) || !HasClientCode(entry.path())) {
+      continue;
+    }
+    std::filesystem::path client = entry.path() / kClientDirectoryName;
+    std::filesystem::create_directories(client, error);
+    std::ofstream file(client / kHandshakeMarkerFileName, std::ios::binary | std::ios::trunc);
+    if (file) {
+      file << "{\"protocol\":" << kHandshakeProtocolVersion << ",\"version\":\"" << version
+           << "\",\"debug\":" << (debug ? "true" : "false") << "}";
+    }
+  }
+}
+
 }
 
 Runtime& Runtime::Instance() {
@@ -217,6 +282,7 @@ DWORD WINAPI Runtime::InstallHooks(void* parameter) {
         runtime->Log(game::LogType::kWarning, "CDN file redirect not enabled: " + detail);
       }
     }
+    WriteClientHandshakeMarkers(runtime->base_directory_);
   }
 
   void** vtable = platform::rtti::FindVtable(GetModuleHandleW(nullptr), kLuaEngineType);
@@ -390,9 +456,6 @@ void* Runtime::OnEnvironmentDestroyed(game::Environment* environment, uint32_t f
   Runtime& runtime = Instance();
   if (runtime.packages_.erase(environment) != 0) {
     runtime.Log(game::LogType::kDebug, "package unloading");
-    if (auto client_files_stored = bridge::GetManagedCallbacks().client_files_stored) {
-      client_files_stored(reinterpret_cast<game::Package*>(environment));
-    }
     if (auto package_unloading = bridge::GetManagedCallbacks().package_unloading) {
       package_unloading(reinterpret_cast<game::Package*>(environment));
     }
@@ -456,13 +519,6 @@ void Runtime::LoadPackage(game::Environment* environment, const std::string& nam
   Log(game::LogType::kDebug, "package loaded: " + name + " in " + utf8_directory);
   packages_.insert(environment);
   package_loaded(reinterpret_cast<game::Package*>(environment), name.c_str(), utf8_directory.c_str(), environment);
-
-  if (IsClientExecutable()) {
-    return;
-  }
-  if (auto client_files_storing = bridge::GetManagedCallbacks().client_files_storing) {
-    client_files_storing(reinterpret_cast<game::Package*>(environment), utf8_directory.c_str());
-  }
 }
 
 }
