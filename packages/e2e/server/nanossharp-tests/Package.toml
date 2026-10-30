@@ -9,6 +9,7 @@
     load_level_entities =   false
     compatibility_version = "1.157"
     packages_requirements = [
+        "nanossharp-api-provider",
     ]
     assets_requirements = [
     ]
