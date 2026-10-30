@@ -7,13 +7,25 @@ namespace NanosSharp.Installer.Server;
 internal static class ServerInstaller
 {
     private const string ServerScript = "NanosWorldServer.sh";
+    private const string ServerExecutable = "NanosWorldServer.exe";
     private const string Launcher = "NanosSharp.sh";
+    private const string ProxyLibrary = "version.dll";
     private const string NanosSharpDirectory = "NanosSharp";
     private const string InstallerName = "nanossharp-install";
     private static readonly string[] OwnedEntries = ["runtime", "LICENSE", InstallerName, InstalledVersion.FileName];
+    private static readonly string[] WindowsStaleDirectories = ["runtime", "dotnet"];
+    private static readonly string[] WindowsOwnedEntries = ["runtime", "dotnet", "LICENSE", InstalledVersion.FileName];
+
+    private static string ServerMarker => OperatingSystem.IsWindows() ? ServerExecutable : ServerScript;
 
     public static async Task InstallAsync(Options options, ReleaseDownloader client, string temporaryDirectory)
     {
+        if (OperatingSystem.IsWindows())
+        {
+            await InstallWindowsAsync(options, client, temporaryDirectory);
+            return;
+        }
+
         EnsureLinux();
         var serverDirectory = LocateServer(options.Path);
         var nanosSharpDirectory = Path.Combine(serverDirectory, NanosSharpDirectory);
@@ -50,6 +62,55 @@ internal static class ServerInstaller
         ApplyWithBackup(serverDirectory, temporaryDirectory, () => ArchiveExtractor.ExtractTarGz(archive, serverDirectory));
         Terminal.Success($"NanosSharp {release.Version} is installed.");
         Terminal.Info($"Start the server with ./{Launcher} instead of ./{ServerScript}.");
+    }
+
+    private static async Task InstallWindowsAsync(Options options, ReleaseDownloader client, string temporaryDirectory)
+    {
+        var serverDirectory = LocateServer(options.Path);
+        var nanosSharpDirectory = Path.Combine(serverDirectory, NanosSharpDirectory);
+        var installed = InstalledVersion.Read(nanosSharpDirectory);
+
+        if (options.IfEnabled && !InstallConfig.AutoUpdateEnabled(serverDirectory))
+        {
+            return;
+        }
+
+        if (options.Update && installed is null)
+        {
+            throw new InstallerException($"NanosSharp is not installed in {serverDirectory}, install it before updating.");
+        }
+
+        Terminal.Step($"Server found in {serverDirectory}");
+        var release = await client.GetAsync(options.Version);
+        if (installed == release.Version && !options.Force)
+        {
+            Terminal.Success($"NanosSharp {release.Version} is already installed, use --force to reinstall it.");
+            return;
+        }
+
+        if (options.Update && installed is not null && !ReleaseVersion.IsNewer(release.Version, installed))
+        {
+            Terminal.Success($"NanosSharp {installed} is up to date.");
+            return;
+        }
+
+        Terminal.Step($"Downloading NanosSharp {release.Version}");
+        var archive = await client.DownloadVerifiedAsync(release, Release.ServerWindowsAsset(release.Version), temporaryDirectory);
+        RemoveStaleWindowsDirectories(nanosSharpDirectory);
+        ArchiveExtractor.ExtractZip(archive, serverDirectory);
+        Terminal.Success($"NanosSharp {release.Version} is installed.");
+        Terminal.Info("Start NanosWorldServer.exe as usual, NanosSharp loads automatically.");
+    }
+
+    private static void RemoveStaleWindowsDirectories(string nanosSharpDirectory)
+    {
+        foreach (var directory in WindowsStaleDirectories.Select(name => Path.Combine(nanosSharpDirectory, name)))
+        {
+            if (Directory.Exists(directory))
+            {
+                Directory.Delete(directory, true);
+            }
+        }
     }
 
     private static void ApplyWithBackup(string serverDirectory, string temporaryDirectory, Action apply)
@@ -114,10 +175,46 @@ internal static class ServerInstaller
 
     public static void Uninstall(Options options)
     {
+        if (OperatingSystem.IsWindows())
+        {
+            UninstallWindows(LocateServer(options.Path));
+            return;
+        }
+
         EnsureLinux();
         var serverDirectory = LocateServer(options.Path);
         RemoveOwnedFiles(serverDirectory);
         var nanosSharpDirectory = Path.Combine(serverDirectory, NanosSharpDirectory);
+        if (Directory.Exists(nanosSharpDirectory) && !Directory.EnumerateFileSystemEntries(nanosSharpDirectory).Any())
+        {
+            Directory.Delete(nanosSharpDirectory);
+        }
+
+        Terminal.Success($"NanosSharp was removed from {serverDirectory}.");
+        Terminal.Info("NanosSharp.toml and the NuGet cache in NanosSharp/cache were kept.");
+    }
+
+    private static void UninstallWindows(string serverDirectory)
+    {
+        var proxy = Path.Combine(serverDirectory, ProxyLibrary);
+        if (File.Exists(proxy))
+        {
+            File.Delete(proxy);
+        }
+
+        var nanosSharpDirectory = Path.Combine(serverDirectory, NanosSharpDirectory);
+        foreach (var entry in WindowsOwnedEntries.Select(name => Path.Combine(nanosSharpDirectory, name)))
+        {
+            if (Directory.Exists(entry))
+            {
+                Directory.Delete(entry, true);
+            }
+            else if (File.Exists(entry))
+            {
+                File.Delete(entry);
+            }
+        }
+
         if (Directory.Exists(nanosSharpDirectory) && !Directory.EnumerateFileSystemEntries(nanosSharpDirectory).Any())
         {
             Directory.Delete(nanosSharpDirectory);
@@ -154,10 +251,10 @@ internal static class ServerInstaller
     private static string LocateServer(string? path)
     {
         var directory = Path.GetFullPath(path ?? Directory.GetCurrentDirectory());
-        while (!File.Exists(Path.Combine(directory, ServerScript)))
+        while (!File.Exists(Path.Combine(directory, ServerMarker)))
         {
-            var answer = Terminal.Ask($"{ServerScript} was not found in {directory}. Enter the server directory:")
-                         ?? throw new InstallerException($"{ServerScript} was not found in {directory}, pass the server directory with --path.");
+            var answer = Terminal.Ask($"{ServerMarker} was not found in {directory}. Enter the server directory:")
+                         ?? throw new InstallerException($"{ServerMarker} was not found in {directory}, pass the server directory with --path.");
             directory = Path.GetFullPath(answer);
         }
 
@@ -190,7 +287,7 @@ internal static class ServerInstaller
     {
         if (!OperatingSystem.IsLinux())
         {
-            throw new InstallerException("NanosSharp servers run on Linux only, Windows servers are not supported yet.");
+            throw new InstallerException("NanosSharp servers run on Linux and Windows only.");
         }
     }
 }

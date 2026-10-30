@@ -9,6 +9,8 @@ public sealed partial record Release(string Version, IReadOnlyDictionary<string,
 
     public static string ServerAsset(string version) => $"nanossharp-{version}-linux-x64.tar.gz";
 
+    public static string ServerWindowsAsset(string version) => $"nanossharp-server-{version}-win-x64.zip";
+
     public static string ClientAsset(string version) => $"nanossharp-client-{version}-win-x64.zip";
 
     public static Release FromDirectory(string directory)
@@ -24,6 +26,6 @@ public sealed partial record Release(string Version, IReadOnlyDictionary<string,
         return new Release(version, files);
     }
 
-    [GeneratedRegex(@"^nanossharp-(?:client-)?(?<version>.+?)-(?:linux|win)-x64\.")]
+    [GeneratedRegex(@"^nanossharp-(?:client-|server-)?(?<version>.+?)-(?:linux|win)-x64\.")]
     private static partial Regex AssetPattern();
 }

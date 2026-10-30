@@ -12,7 +12,7 @@ internal static class InstallerApplication
 
         Usage:
           nanossharp-install client [options]      the client for the game
-          nanossharp-install server [options]      NanosSharp for a nanos world server (Linux)
+          nanossharp-install server [options]      NanosSharp for a nanos world server (Linux or Windows)
 
         Options:
           --path <directory>     the game or server directory, found automatically when omitted
