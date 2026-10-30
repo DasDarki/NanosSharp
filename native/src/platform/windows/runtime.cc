@@ -390,6 +390,9 @@ void* Runtime::OnEnvironmentDestroyed(game::Environment* environment, uint32_t f
   Runtime& runtime = Instance();
   if (runtime.packages_.erase(environment) != 0) {
     runtime.Log(game::LogType::kDebug, "package unloading");
+    if (auto client_files_stored = bridge::GetManagedCallbacks().client_files_stored) {
+      client_files_stored(reinterpret_cast<game::Package*>(environment));
+    }
     if (auto package_unloading = bridge::GetManagedCallbacks().package_unloading) {
       package_unloading(reinterpret_cast<game::Package*>(environment));
     }
@@ -453,6 +456,13 @@ void Runtime::LoadPackage(game::Environment* environment, const std::string& nam
   Log(game::LogType::kDebug, "package loaded: " + name + " in " + utf8_directory);
   packages_.insert(environment);
   package_loaded(reinterpret_cast<game::Package*>(environment), name.c_str(), utf8_directory.c_str(), environment);
+
+  if (IsClientExecutable()) {
+    return;
+  }
+  if (auto client_files_storing = bridge::GetManagedCallbacks().client_files_storing) {
+    client_files_storing(reinterpret_cast<game::Package*>(environment), utf8_directory.c_str());
+  }
 }
 
 }
