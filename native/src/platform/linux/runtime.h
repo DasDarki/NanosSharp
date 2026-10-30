@@ -27,7 +27,7 @@ class Runtime {
  private:
   Runtime() = default;
 
-  static void OnEngineInitialize(bool is_server, void (*setup)(game::Engine&),
+  static void OnEngineInitialize(bool is_server, bool flag, void (*setup)(game::Engine&),
                                  void (*post_setup)(), void (*post_initialize)());
   static void OnEngineRelease();
   static void OnServerTick(void* server, float delta_time);

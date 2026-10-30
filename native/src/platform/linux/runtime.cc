@@ -204,11 +204,11 @@ void Runtime::DetachEngine() {
   engine_ = nullptr;
 }
 
-void Runtime::OnEngineInitialize(bool is_server, void (*setup)(game::Engine&),
+void Runtime::OnEngineInitialize(bool is_server, bool flag, void (*setup)(game::Engine&),
                                  void (*post_setup)(), void (*post_initialize)()) {
   Runtime& runtime = Instance();
   runtime.main_thread_ = std::this_thread::get_id();
-  runtime.original_engine_initialize_(is_server, setup, post_setup, post_initialize);
+  runtime.original_engine_initialize_(is_server, flag, setup, post_setup, post_initialize);
   runtime.AttachEngine();
 }
 

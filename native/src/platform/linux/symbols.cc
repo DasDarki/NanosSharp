@@ -9,7 +9,7 @@ namespace {
 constexpr char kEngineInstanceSymbol[] =
     "_ZN2nw4core24ScriptingEngineSingleton11InstanceLuaE";
 constexpr char kEngineInitializeSymbol[] =
-    "_ZN2nw4core24ScriptingEngineSingleton10InitializeEbPFvRNS_9scripting6EngineEEPFvvES8_";
+    "_ZN2nw4core24ScriptingEngineSingleton10InitializeEbbPFvRNS_9scripting6EngineEEPFvvES8_";
 constexpr char kEngineReleaseSymbol[] =
     "_ZN2nw4core24ScriptingEngineSingleton7ReleaseEv";
 constexpr char kServerTickSymbol[] = "_ZN2nw4core10CoreServer4TickEf";

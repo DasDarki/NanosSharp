@@ -15,7 +15,7 @@ namespace nanossharp::game {
 
 
 using EntityFetcher = std::function<ScriptValue(uint32_t)>;
-using EngineInitializeFunction = void (*)(bool, void (*)(Engine&), void (*)(),
+using EngineInitializeFunction = void (*)(bool, bool, void (*)(Engine&), void (*)(),
                                           void (*)());
 using EngineReleaseFunction = void (*)();
 using ServerTickFunction = void (*)(void*, float);
