@@ -84,12 +84,18 @@ internal sealed class ManagedPackage
             container.AddDiscovered(type);
         }
 
+        foreach (var type in loadedTypes.Where(IsApiType))
+        {
+            container.AddDiscovered(type);
+        }
+
         foreach (var entry in _entries)
         {
             container.Add(entry);
         }
 
         container.ResolveInjections();
+        PackageApiRegistry.PublishDeclared(Scope.Name, loadedTypes, container.GetInstance);
 
         foreach (var entry in _entries)
         {
@@ -127,6 +133,7 @@ internal sealed class ManagedPackage
         }
 
         Scope.Events.Clear();
+        PackageApiRegistry.ReleaseScope(Scope.Name);
         Exports.ReleaseScope(Scope);
         TimerScheduler.ReleaseScope(Scope);
         FunctionRegistry.ReleaseScope(Scope);
@@ -199,6 +206,10 @@ internal sealed class ManagedPackage
     private static bool IsServiceType(Type type) =>
         type is { IsClass: true, IsAbstract: false } && !type.IsSubclassOf(typeof(Package)) &&
         (typeof(IService).IsAssignableFrom(type) || typeof(IAutoRegister).IsAssignableFrom(type));
+
+    private static bool IsApiType(Type type) =>
+        type is { IsClass: true, IsAbstract: false } && type.GetCustomAttribute<PackageApiAttribute>() is not null &&
+        !IsServiceType(type) && !IsEntryType(type);
 
     private static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
     {

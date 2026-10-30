@@ -226,7 +226,7 @@ internal static unsafe class PackageManager
 
     private static PackageBuild BuildPackage(ManagedPackage package) =>
         PackageBuilder.Build(package.Name, package.Scope.Directory, CollectRequiredImages(package.Manifest),
-            _buildOptions with { Optimize = _buildOptions.Optimize && !DebugState.IsEnabled });
+            package.Manifest.Dependencies, _buildOptions with { Optimize = _buildOptions.Optimize && !DebugState.IsEnabled });
 
     private static void EnableDebug()
     {
@@ -282,7 +282,7 @@ internal static unsafe class PackageManager
     private static IEnumerable<ManagedPackage> EnumerateRequired(PackageManifest manifest, HashSet<string>? visited = null)
     {
         visited ??= new HashSet<string>(StringComparer.Ordinal);
-        foreach (var requirement in manifest.Requirements)
+        foreach (var requirement in manifest.Dependencies)
         {
             if (!visited.Add(requirement) || FindPackage(requirement) is not { } required)
             {
@@ -310,7 +310,7 @@ internal static unsafe class PackageManager
         while (pending.TryDequeue(out var name))
         {
             var direct = Packages.Values.Where(package =>
-                package.Name != packageName && !dependents.Contains(package) && package.Manifest.Requirements.Contains(name));
+                package.Name != packageName && !dependents.Contains(package) && package.Manifest.Dependencies.Contains(name));
             foreach (var package in direct.ToArray())
             {
                 dependents.Add(package);

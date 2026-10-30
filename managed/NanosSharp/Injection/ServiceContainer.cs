@@ -51,6 +51,8 @@ public sealed class ServiceContainer
 
     internal IReadOnlyList<object> AutoRegisters => _autoRegisters;
 
+    internal object? GetInstance(Type type) => _services.GetValueOrDefault(type);
+
     internal void AddDiscovered(Type type)
     {
         var instance = Construct(type);
@@ -178,7 +180,7 @@ public sealed class ServiceContainer
     {
         foreach (var field in instance.GetType().GetFields(MemberFlags))
         {
-            if (field.GetCustomAttribute<InjectAttribute>() is not { } attribute)
+            if (field.GetCustomAttribute<InjectAttribute>() is not { } attribute || IsPackageApiHandle(field.FieldType))
             {
                 continue;
             }
@@ -191,7 +193,8 @@ public sealed class ServiceContainer
 
         foreach (var property in instance.GetType().GetProperties(MemberFlags))
         {
-            if (property.GetCustomAttribute<InjectAttribute>() is not { } attribute || !property.CanWrite)
+            if (property.GetCustomAttribute<InjectAttribute>() is not { } attribute || !property.CanWrite ||
+                IsPackageApiHandle(property.PropertyType))
             {
                 continue;
             }
@@ -221,8 +224,11 @@ public sealed class ServiceContainer
             return service;
         }
 
-        return _services.Values.FirstOrDefault(type.IsInstanceOfType);
+        return _services.Values.FirstOrDefault(type.IsInstanceOfType) ?? PackageApiRegistry.Resolve(type);
     }
+
+    private static bool IsPackageApiHandle(Type type) =>
+        type.IsGenericType && type.GetGenericTypeDefinition() == typeof(PackageApi<>);
 
     private static async Task RunBackground(BackgroundService service, CancellationToken token)
     {

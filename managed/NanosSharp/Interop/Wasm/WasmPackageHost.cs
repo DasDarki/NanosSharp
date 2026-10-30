@@ -147,12 +147,18 @@ internal static class WasmPackageHost
             container.AddDiscovered(type);
         }
 
+        foreach (var type in types.Where(IsApiType))
+        {
+            container.AddDiscovered(type);
+        }
+
         foreach (var entry in package.Entries)
         {
             container.Add(entry);
         }
 
         container.ResolveInjections();
+        PackageApiRegistry.PublishDeclared(scope.Name, types, container.GetInstance);
 
         foreach (var entry in package.Entries)
         {
@@ -216,6 +222,7 @@ internal static class WasmPackageHost
         }
 
         scope.Events.Clear();
+        PackageApiRegistry.ReleaseScope(scope.Name);
         Exports.ReleaseScope(scope);
         TimerScheduler.ReleaseScope(scope);
         FunctionRegistry.ReleaseScope(scope);
@@ -244,6 +251,10 @@ internal static class WasmPackageHost
     private static bool IsServiceType(Type type) =>
         type is { IsClass: true, IsAbstract: false } && !type.IsSubclassOf(typeof(Package)) &&
         (typeof(IService).IsAssignableFrom(type) || typeof(IAutoRegister).IsAssignableFrom(type));
+
+    private static bool IsApiType(Type type) =>
+        type is { IsClass: true, IsAbstract: false } && type.GetCustomAttribute<PackageApiAttribute>() is not null &&
+        !IsServiceType(type) && !IsEntryType(type);
 
     [RequiresUnreferencedCode("Enumerates package types at runtime; only used on the runtime-loading (Mono) client.")]
     private static IEnumerable<Type> GetLoadableTypes(Assembly assembly)

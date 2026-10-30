@@ -44,41 +44,41 @@ internal static class PackageBuilder
         RelevantExtensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase) && !IsIgnored(path);
 
     public static PackageBuild Build(string packageName, string packageDirectory, IEnumerable<AssemblyImage> requiredImages,
-        PackageBuildOptions options)
+        IReadOnlyList<string> dependencies, PackageBuildOptions options)
     {
         var sideDirectory = Path.Combine(packageDirectory, SideDirectoryName);
         var assemblyPaths = FindAssemblies(sideDirectory).ToArray();
         var assemblies = assemblyPaths.Select(ReadAssembly).ToDictionary(image => image.Name, StringComparer.Ordinal);
         var sources = FindSources(sideDirectory).Concat(FindSources(Path.Combine(packageDirectory, SharedDirectoryName))).ToArray();
-        var dependencies = IsSandboxed ? ResolvedDependencies.Empty : RestoreDependencies(packageName, sideDirectory, sources.Length > 0, options);
+        var resolved = IsSandboxed ? ResolvedDependencies.Empty : RestoreDependencies(packageName, sideDirectory, dependencies, sources.Length > 0, options);
 
-        foreach (var runtimeAssembly in dependencies.RuntimeAssemblies.Select(ReadAssembly))
+        foreach (var runtimeAssembly in resolved.RuntimeAssemblies.Select(ReadAssembly))
         {
             assemblies.TryAdd(runtimeAssembly.Name, runtimeAssembly);
         }
 
         if (sources.Length > 0)
         {
-            var references = assemblyPaths.Concat(dependencies.CompileReferences).Select(ReadAssembly).Concat(requiredImages);
+            var references = assemblyPaths.Concat(resolved.CompileReferences).Select(ReadAssembly).Concat(requiredImages);
             var scripts = CompileScripts($"{packageName}.Scripts", sources, references, options.Optimize);
             assemblies[scripts.Name] = scripts;
         }
 
         var nativeLibraries = FindNativeLibraries(sideDirectory)
-            .Concat(dependencies.NativeLibraries)
+            .Concat(resolved.NativeLibraries)
             .DistinctBy(entry => entry.Key)
             .ToDictionary(StringComparer.Ordinal);
         var manifests = assemblyPaths.Where(path => File.Exists(Path.ChangeExtension(path, DependencyManifestExtension))).ToArray();
         return new PackageBuild(assemblies, nativeLibraries, manifests);
     }
 
-    private static ResolvedDependencies RestoreDependencies(string packageName, string sideDirectory, bool hasSources,
-        PackageBuildOptions options)
+    private static ResolvedDependencies RestoreDependencies(string packageName, string sideDirectory,
+        IReadOnlyList<string> dependencies, bool hasSources, PackageBuildOptions options)
     {
         var projectPath = ProjectFile.Find(sideDirectory);
         if (projectPath is null && hasSources && options.GenerateProjectFiles)
         {
-            projectPath = ProjectGenerator.Generate(packageName, sideDirectory);
+            projectPath = ProjectGenerator.Generate(packageName, sideDirectory, dependencies);
             LaunchConfiguration.Write(sideDirectory);
             Log.Info($"Generated {Path.GetFileName(projectPath)} for IDE support and NuGet references.");
         }

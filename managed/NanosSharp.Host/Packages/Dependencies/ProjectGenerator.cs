@@ -8,7 +8,7 @@ internal static class ProjectGenerator
 {
     private const string SharedDirectoryName = "Shared";
 
-    public static string Generate(string packageName, string sideDirectory)
+    public static string Generate(string packageName, string sideDirectory, IReadOnlyList<string> dependencies)
     {
         var packageDirectory = Directory.GetParent(sideDirectory)!.FullName;
         var sharedProject = EnsureSharedProject(packageName, packageDirectory);
@@ -17,6 +17,11 @@ internal static class ProjectGenerator
         if (sharedProject is not null)
         {
             items.Add(new XElement("ProjectReference", new XAttribute("Include", Path.GetRelativePath(sideDirectory, sharedProject))));
+        }
+
+        foreach (var reference in DependencyReferences(sideDirectory, dependencies))
+        {
+            items.Add(reference);
         }
 
         items.Add(new XElement("None", new XAttribute("Include", "../Package.toml"), new XAttribute("Link", "Package.toml")));
@@ -78,6 +83,58 @@ internal static class ProjectGenerator
         new("Reference",
             new XAttribute("Include", "NanosSharp"),
             new XElement("HintPath", Path.GetRelativePath(directory, typeof(Package).Assembly.Location)),
+            new XElement("Private", "false"));
+
+    private static IEnumerable<XElement> DependencyReferences(string sideDirectory, IReadOnlyList<string> dependencies)
+    {
+        var sideName = Path.GetFileName(sideDirectory);
+        var packagesRoot = Directory.GetParent(sideDirectory)?.Parent?.FullName;
+        if (packagesRoot is null)
+        {
+            return [];
+        }
+
+        return dependencies.SelectMany(dependency =>
+            ReferencesFor(sideDirectory, Path.Combine(packagesRoot, dependency), dependency, sideName));
+    }
+
+    private static IEnumerable<XElement> ReferencesFor(string sideDirectory, string dependencyDirectory, string dependency,
+        string sideName)
+    {
+        var sideProject = Path.Combine(dependencyDirectory, sideName, $"{dependency}.csproj");
+        if (File.Exists(sideProject))
+        {
+            return [ProjectReference(sideDirectory, sideProject)];
+        }
+
+        var sharedProject = Path.Combine(dependencyDirectory, SharedDirectoryName, $"{dependency}.Shared.csproj");
+        if (File.Exists(sharedProject))
+        {
+            return [ProjectReference(sideDirectory, sharedProject)];
+        }
+
+        var assemblyDirectory = Path.Combine(dependencyDirectory, sideName);
+        if (!Directory.Exists(assemblyDirectory))
+        {
+            return [];
+        }
+
+        return Directory.EnumerateFiles(assemblyDirectory, "*.dll", SearchOption.TopDirectoryOnly)
+            .Where(path => Path.GetFileNameWithoutExtension(path) is not "NanosSharp")
+            .Order(StringComparer.Ordinal)
+            .Select(path => AssemblyReference(sideDirectory, path));
+    }
+
+    private static XElement ProjectReference(string sideDirectory, string projectPath) =>
+        new("ProjectReference",
+            new XAttribute("Include", Path.GetRelativePath(sideDirectory, projectPath)),
+            new XElement("Private", "false"),
+            new XElement("ReferenceOutputAssembly", "true"));
+
+    private static XElement AssemblyReference(string sideDirectory, string assemblyPath) =>
+        new("Reference",
+            new XAttribute("Include", Path.GetFileNameWithoutExtension(assemblyPath)),
+            new XElement("HintPath", Path.GetRelativePath(sideDirectory, assemblyPath)),
             new XElement("Private", "false"));
 
     private static XElement GlobalUsings() =>
