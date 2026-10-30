@@ -22,6 +22,7 @@ constexpr char kLuaEnvironmentType[] = ".?AVLuaEnvironment@lua@scripting@nw@@";
 constexpr char kHostEnvironmentName[] = "nanossharp";
 constexpr wchar_t kLocalApplicationData[] = L"LOCALAPPDATA";
 constexpr wchar_t kPackagesDirectory[] = L"NanosWorld\\Saved\\Packages";
+constexpr wchar_t kServerPackagesDirectory[] = L"Packages";
 constexpr char kClassTypePrefix[] = ".?AV?$Class@";
 constexpr wchar_t kGameExecutablePrefix[] = L"NanosWorld";
 constexpr wchar_t kHelperProcessArgument[] = L"--type=";
@@ -439,10 +440,15 @@ void Runtime::LoadPackage(game::Environment* environment, const std::string& nam
     return;
   }
 
-  std::wstring local_data(MAX_PATH, L'\0');
-  local_data.resize(GetEnvironmentVariableW(kLocalApplicationData, local_data.data(), MAX_PATH));
-  std::filesystem::path directory = std::filesystem::path(local_data) / kPackagesDirectory /
-                                    std::filesystem::path(reinterpret_cast<const char8_t*>(name.c_str()));
+  std::filesystem::path package_name(reinterpret_cast<const char8_t*>(name.c_str()));
+  std::filesystem::path directory;
+  if (IsClientExecutable()) {
+    std::wstring local_data(MAX_PATH, L'\0');
+    local_data.resize(GetEnvironmentVariableW(kLocalApplicationData, local_data.data(), MAX_PATH));
+    directory = std::filesystem::path(local_data) / kPackagesDirectory / package_name;
+  } else {
+    directory = base_directory_.parent_path() / kServerPackagesDirectory / package_name;
+  }
   std::string utf8_directory = ToUtf8(directory);
   Log(game::LogType::kDebug, "package loaded: " + name + " in " + utf8_directory);
   packages_.insert(environment);
