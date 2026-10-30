@@ -85,6 +85,13 @@ container, registers `[EntityFactory]` types and `[Export]` members, and wires B
 compiles `*.cs` with Roslyn (or loads prebuilt `*.dll`), supports NuGet `PackageReference`, and hot reloads a package
 when its sources change.
 
+A package can also expose a typed API to other C# packages through `PackageApi`: a provider publishes an implementation
+with `[PackageApi]` or `PackageApi.Provide`, consumers resolve it by contract with `PackageApi.Require`/`Get`/`TryGet`, a
+re resolving `PackageApi<T>` handle or `[Inject]`. This is the type safe alternative to the Lua-mediated `Exports` for
+package to package calls. The contract keeps one `Type` identity across packages because a dependency's own loaded
+assembly is shared with its dependents (`packages_requirements`, or `packages_optional` for soft dependencies); the
+registry is managed only, so it works identically in the client sandbox and grants no extra authority there.
+
 ## Server execution
 
 On the server each package is loaded into its own collectible `AssemblyLoadContext` and its own scripting environment,

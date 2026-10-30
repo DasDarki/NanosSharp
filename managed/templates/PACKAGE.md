@@ -33,6 +33,41 @@ Both work the same at runtime: a server assembly runs in process with full trust
 WebAssembly sandbox with no ambient authority, exactly like compiled client source. A side may mix both; sources are then
 compiled against the prebuilt assemblies in the same folder.
 
+## Calling other C# packages
+
+One C# package can call another's public API directly, with full type safety, instead of going through the untyped Lua
+`Exports`. Declare the dependency in `Package.toml` and resolve the API by its contract:
+
+```toml
+packages_requirements = ["economy"]   # hard, must be present
+packages_optional = ["bonus"]         # soft, used only when present
+```
+
+The provider publishes an implementation, by attribute or explicitly:
+
+```csharp
+public interface IEconomyApi { void AddMoney(Player player, long amount); }
+
+[PackageApi]                                        // published under IEconomyApi and the concrete type
+public sealed class EconomyApi : IEconomyApi { /* ... */ }
+// or from OnStart: PackageApi.Provide<IEconomyApi>(new EconomyApi());
+```
+
+The consumer resolves it by contract:
+
+```csharp
+var economy = PackageApi.Require<IEconomyApi>();     // throws when absent
+PackageApi.TryGet<IBonusApi>(out var bonus);         // for optional dependencies
+
+[Inject] private IEconomyApi _economy = null!;       // or injected like any service
+[Inject] private PackageApi<IEconomyApi> _economy;   // a handle that survives provider reloads
+```
+
+Changing a required package reloads its dependents, so a resolved instance stays valid. Prefer a `PackageApi<T>` handle
+(or re resolve through `PackageApi.Get`) when the provider should hot reload without restarting the consumer, and keep
+the contract in a small library package both sides require so its type identity stays stable. This works the same on the
+server and inside the client sandbox. `Exports` stays the way to talk to Lua packages and for loose, dynamic coupling.
+
 ## Script package layout
 
 ```
