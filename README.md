@@ -3,7 +3,7 @@
 .NET runtime for [nanos world](https://nanos-world.com). Write packages in C# next to (or instead of) Lua, on the
 dedicated server and in the game client.
 
-> Early development. The server runs on Linux x64, the client on Windows and under Proton.
+> Early development. The server runs on Linux x64 and Windows x64, the client on Windows and under Proton.
 
 Documentation: https://nanossharp.dasdarki.de
 
