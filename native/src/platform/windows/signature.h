@@ -9,6 +9,7 @@
 namespace nanossharp::platform::signature {
 
 uint8_t* FindUnique(HMODULE module, const char* pattern, size_t& length);
+uint8_t* FindFirst(HMODULE module, const char* pattern, size_t& length);
 uint8_t* CallTarget(uint8_t* call);
 
 }

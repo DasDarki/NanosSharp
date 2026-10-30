@@ -4,11 +4,11 @@
 #include <cwchar>
 #include <utility>
 
-#include <fstream>
-
 #include "bridge/native_api.h"
+#include "host/toml_settings.h"
 #include "platform/windows/allocator.h"
 #include "platform/windows/file_transfer_patch.h"
+#include "platform/windows/file_transfer_redirect.h"
 #include "platform/windows/lua_symbols.h"
 #include "platform/windows/rtti.h"
 #include "platform/windows/self_update.h"
@@ -98,48 +98,17 @@ bool IsClientExecutable() {
   return name.find(L"Server") == std::wstring::npos;
 }
 
-void Trim(std::string& text) {
-  size_t begin = text.find_first_not_of(" \t\r\n");
-  size_t end = text.find_last_not_of(" \t\r\n");
-  text = begin == std::string::npos ? std::string() : text.substr(begin, end - begin + 1);
+std::filesystem::path ConfigurationPath(const std::filesystem::path& base_directory) {
+  return base_directory.parent_path() / L"NanosSharp.toml";
 }
 
 uint32_t ReadClientFileTransferThresholdKib(const std::filesystem::path& base_directory) {
-  std::ifstream file(base_directory.parent_path() / L"NanosSharp.toml");
-  if (!file) {
-    return 0;
-  }
-  std::string line;
-  bool in_section = false;
-  while (std::getline(file, line)) {
-    size_t comment = line.find('#');
-    if (comment != std::string::npos) {
-      line.erase(comment);
-    }
-    Trim(line);
-    if (line.empty()) {
-      continue;
-    }
-    if (line.front() == '[') {
-      in_section = line == "[cdn]";
-      continue;
-    }
-    if (!in_section) {
-      continue;
-    }
-    size_t equals = line.find('=');
-    if (equals == std::string::npos) {
-      continue;
-    }
-    std::string key = line.substr(0, equals);
-    std::string value = line.substr(equals + 1);
-    Trim(key);
-    Trim(value);
-    if (key == "client_file_transfer_kib") {
-      return static_cast<uint32_t>(std::strtoul(value.c_str(), nullptr, 10));
-    }
-  }
-  return 0;
+  std::string value = host::ReadTomlValue(ConfigurationPath(base_directory), "cdn", "client_file_transfer_kib");
+  return static_cast<uint32_t>(std::strtoul(value.c_str(), nullptr, 10));
+}
+
+std::string ReadServerCdnUrl(const std::filesystem::path& base_directory) {
+  return host::ReadTomlValue(ConfigurationPath(base_directory), "cdn", "server_cdn_url");
 }
 
 }
@@ -224,6 +193,31 @@ bool Runtime::IsGameProcess() const {
 DWORD WINAPI Runtime::InstallHooks(void* parameter) {
   auto* runtime = static_cast<Runtime*>(parameter);
   runtime->PinNvapiUnderWine();
+
+  // The CDN file transfer runs independently of the scripting engine, so it is configured
+  // before the engine hooks and is not affected when an unsupported build disables them.
+  if (IsClientExecutable()) {
+    uint32_t threshold_kib = ReadClientFileTransferThresholdKib(runtime->base_directory_);
+    if (threshold_kib > 0) {
+      std::string detail;
+      if (platform::file_transfer::PatchSizeThreshold(GetModuleHandleW(nullptr), threshold_kib, detail)) {
+        runtime->Log(game::LogType::kInfo, "CDN file transfer enabled: " + detail);
+      } else {
+        runtime->Log(game::LogType::kWarning, "CDN file transfer not enabled: " + detail);
+      }
+    }
+  } else {
+    std::string cdn_url = ReadServerCdnUrl(runtime->base_directory_);
+    if (!cdn_url.empty()) {
+      std::string detail;
+      if (platform::file_transfer::InstallFileRedirect(GetModuleHandleW(nullptr), cdn_url, detail)) {
+        runtime->Log(game::LogType::kInfo, "CDN file redirect enabled: " + detail);
+      } else {
+        runtime->Log(game::LogType::kWarning, "CDN file redirect not enabled: " + detail);
+      }
+    }
+  }
+
   void** vtable = platform::rtti::FindVtable(GetModuleHandleW(nullptr), kLuaEngineType);
   if (vtable == nullptr) {
     runtime->disabled_ = true;
@@ -257,17 +251,6 @@ DWORD WINAPI Runtime::InstallHooks(void* parameter) {
     runtime->Log(game::LogType::kDebug, "Lua interop is available");
   } else {
     runtime->Log(game::LogType::kWarning, "Lua interop is disabled: " + lua_error);
-  }
-  if (IsClientExecutable()) {
-    uint32_t threshold_kib = ReadClientFileTransferThresholdKib(runtime->base_directory_);
-    if (threshold_kib > 0) {
-      std::string detail;
-      if (platform::file_transfer::PatchSizeThreshold(GetModuleHandleW(nullptr), threshold_kib, detail)) {
-        runtime->Log(game::LogType::kInfo, "CDN file transfer enabled: " + detail);
-      } else {
-        runtime->Log(game::LogType::kWarning, "CDN file transfer not enabled: " + detail);
-      }
-    }
   }
   runtime->Log(game::LogType::kInfo, "waiting for the scripting engine");
   return 0;

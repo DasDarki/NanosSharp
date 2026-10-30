@@ -9,6 +9,8 @@
 #include "bridge/native_api.h"
 #include "bridge/lua_interop.h"
 #include "game/lua.h"
+#include "host/toml_settings.h"
+#include "platform/linux/file_transfer_redirect.h"
 #include "platform/linux/validation.h"
 #include "platform/linux/isolated_libraries.h"
 
@@ -69,6 +71,19 @@ bool Runtime::IsMainThread() const {
 bool Runtime::InstallHooks(std::string& error) {
   game::Symbols& symbols = game::GetSymbols();
   hooks_ = std::make_unique<hooks::HookManager>();
+
+  // The CDN file redirect runs independently of the scripting engine hooks, so it is
+  // installed first and is not affected when an unsupported build disables them.
+  std::filesystem::path configuration = runtime_directory_.parent_path().parent_path() / "NanosSharp.toml";
+  std::string cdn_url = host::ReadTomlValue(configuration, "cdn", "server_cdn_url");
+  if (!cdn_url.empty()) {
+    std::string detail;
+    if (platform::file_transfer::InstallFileRedirect(cdn_url, detail)) {
+      std::fprintf(stderr, "%sCDN file redirect enabled: %s\n", kLogPrefix, detail.c_str());
+    } else {
+      std::fprintf(stderr, "%sCDN file redirect not enabled: %s\n", kLogPrefix, detail.c_str());
+    }
+  }
 
   original_engine_initialize_ = symbols.engine_initialize;
   original_engine_release_ = symbols.engine_release;

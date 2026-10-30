@@ -68,9 +68,7 @@ void LongestFixedRun(const Pattern& pattern, size_t& start, size_t& length) {
   }
 }
 
-}
-
-uint8_t* FindUnique(HMODULE module, const char* text, size_t& length) {
+uint8_t* Find(HMODULE module, const char* text, size_t& length, bool require_unique) {
   Pattern pattern = Parse(text);
   length = pattern.bytes.size();
   size_t anchor_start = 0;
@@ -99,6 +97,9 @@ uint8_t* FindUnique(HMODULE module, const char* text, size_t& length) {
       if (candidate < start || candidate + length > end || !Matches(candidate, pattern)) {
         continue;
       }
+      if (!require_unique) {
+        return candidate;
+      }
       if (found != nullptr) {
         return nullptr;
       }
@@ -106,6 +107,16 @@ uint8_t* FindUnique(HMODULE module, const char* text, size_t& length) {
     }
   }
   return found;
+}
+
+}
+
+uint8_t* FindUnique(HMODULE module, const char* text, size_t& length) {
+  return Find(module, text, length, true);
+}
+
+uint8_t* FindFirst(HMODULE module, const char* text, size_t& length) {
+  return Find(module, text, length, false);
 }
 
 uint8_t* CallTarget(uint8_t* call) {
