@@ -29,8 +29,6 @@ internal static class ScriptCompiler
     public const string SideSymbol = "SERVER";
 #endif
 
-    private static readonly CSharpParseOptions ParseOptions = new(LanguageVersion.Latest, preprocessorSymbols: [SideSymbol]);
-
     private static readonly CSharpCompilationOptions CompilationOptions = new(
         OutputKind.DynamicallyLinkedLibrary,
         allowUnsafe: true,
@@ -42,15 +40,21 @@ internal static class ScriptCompiler
         });
 
     public static CompilationResult Compile(string assemblyName, IReadOnlyList<string> sourceFiles,
-        IEnumerable<AssemblyImage> referenceImages, bool optimize)
+        IEnumerable<AssemblyImage> referenceImages, bool optimize, string? targetSide = null,
+        AssemblyImage? apiReference = null)
     {
+        var parseOptions = new CSharpParseOptions(LanguageVersion.Latest, preprocessorSymbols: [targetSide ?? SideSymbol]);
         var globalUsings = string.Concat(GlobalUsings.Select(name => $"global using {name};\n"));
         var syntaxTrees = sourceFiles
             .Select(file => CSharpSyntaxTree.ParseText(SourceText.From(File.ReadAllText(file), Encoding.UTF8),
-                ParseOptions, file))
-            .Append(CSharpSyntaxTree.ParseText(SourceText.From(globalUsings, Encoding.UTF8), ParseOptions, "GlobalUsings.g.cs"));
+                parseOptions, file))
+            .Append(CSharpSyntaxTree.ParseText(SourceText.From(globalUsings, Encoding.UTF8), parseOptions, "GlobalUsings.g.cs"));
 
+        var apiReferenceMetadata = apiReference is { } image
+            ? MetadataReference.CreateFromImage(image.Image)
+            : MetadataReference.CreateFromFile(typeof(Package).Assembly.Location);
         var references = FrameworkReferences.Value
+            .Append(apiReferenceMetadata)
             .Concat(referenceImages.Select(reference => MetadataReference.CreateFromImage(reference.Image)));
         var options = CompilationOptions
             .WithOptimizationLevel(optimize ? OptimizationLevel.Release : OptimizationLevel.Debug);
@@ -81,7 +85,6 @@ internal static class ScriptCompiler
                            Path.GetFileName(path) is "mscorlib.dll" or "netstandard.dll" ||
                            Path.GetFileName(path) == DynamicRuntimeAssembly);
         return trustedAssemblies
-            .Append(typeof(Package).Assembly.Location)
             .Select(path => (MetadataReference)MetadataReference.CreateFromFile(path))
             .ToArray();
     }
