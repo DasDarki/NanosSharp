@@ -25,10 +25,13 @@ in `%LOCALAPPDATA%\...\Packages\<name>\`.
 
 ### C# precompilation
 
-The server compiles each package's `Client/` and `Shared/` C# into a client assembly using its own Roslyn and ships
-the DLL instead of the source. The client loads the prebuilt DLL into the Mono-WASM runtime and caches it, keyed by a
-content hash, so it is reused across connects. Roslyn is removed from the client runtime, which becomes smaller and
-faster and no longer carries package source on disk. A later phase obfuscates the IL before shipping.
+The server compiles each package's `Client/` and `Shared/` C# into a client assembly using its own Roslyn, against the
+client API reference bundled with the server. The compiled assembly is delivered to the client over the NanosSharp
+event channel (the client requests it on package load, the server sends it in base64 chunks), not through nanos world's
+file transfer, which sidesteps the server-side timing where client files are cached before the scripting environment
+exists. The client requests on a short retry until the player is fully connected, caches the assembly keyed by a
+content hash, and loads it into the Mono-WASM runtime. Roslyn is removed from the client runtime, which becomes smaller
+and faster and no longer carries a compiler or package source. A later phase obfuscates the IL before shipping.
 
 ### Per-server key without a global secret
 
@@ -60,8 +63,9 @@ design defeats casual copying, not a determined reverse engineer.
 
 ## Phases
 
-1. **C# server-side precompile** (in progress): compile client C# to a DLL on the server, ship and cache it on the
-   client, drop Roslyn from the client. No cryptography; already removes source on disk.
+1. **C# server-side precompile** (done): the server compiles client C# to a DLL, delivers it over the event channel,
+   the client caches and loads it, and Roslyn is gone from the client. No cryptography yet; source no longer needs to
+   reach the client.
 2. **C# IL obfuscation** of the shipped client assembly.
 3. **Per-server key + ephemeral ECIES exchange + in-memory decryption** for C# and Lua.
 4. **Lua bytecode or obfuscation** under the same encryption.
