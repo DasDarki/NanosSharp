@@ -1,3 +1,4 @@
+#if !CLIENT
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -5,6 +6,7 @@ using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.Text;
 using NanosSharp.Host.Packages.Building;
 using NanosSharp.Packages;
+#endif
 
 namespace NanosSharp.Host.Compilation;
 
@@ -19,15 +21,14 @@ internal static class ScriptCompiler
         "NanosSharp.Logging", "NanosSharp.Mathematics", "NanosSharp.Packages", "NanosSharp.Scripting", "NanosSharp.Threading", "NanosSharp.Diagnostics",
     ];
 
-    private const string DynamicRuntimeAssembly = "Microsoft.CSharp.dll";
-
-    private static readonly Lazy<MetadataReference[]> FrameworkReferences = new(LoadFrameworkReferences);
-
 #if CLIENT
     public const string SideSymbol = "CLIENT";
 #else
     public const string SideSymbol = "SERVER";
-#endif
+
+    private const string DynamicRuntimeAssembly = "Microsoft.CSharp.dll";
+
+    private static readonly Lazy<MetadataReference[]> FrameworkReferences = new(LoadFrameworkReferences);
 
     private static readonly CSharpCompilationOptions CompilationOptions = new(
         OutputKind.DynamicallyLinkedLibrary,
@@ -88,4 +89,5 @@ internal static class ScriptCompiler
             .Select(path => (MetadataReference)MetadataReference.CreateFromFile(path))
             .ToArray();
     }
+#endif
 }

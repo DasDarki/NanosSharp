@@ -42,6 +42,7 @@ internal static unsafe class PackageManager
 #if CLIENT
         _debugOptIn = Environment.GetEnvironmentVariable(DebugEnvironmentVariable) is "1" or "true";
         _sandbox = new ClientSandbox(runtimeDirectory);
+        ClientAssemblyTransfer.Initialize(runtimeDirectory, StageClientPackage);
 #else
         ClientAssemblyBuilder.Initialize(runtimeDirectory);
         if (_settings.Debug.Enabled)
@@ -80,9 +81,11 @@ internal static unsafe class PackageManager
     {
 #if CLIENT
         ServerHandshake.Stop();
+        ClientAssemblyTransfer.Stop();
         _sandbox.EngineDetaching();
 #else
         NanosSharpClients.Stop();
+        ClientAssemblyServer.Stop();
 #endif
         PendingBuilds.Clear();
         foreach (var package in Packages.Values.ToArray())
@@ -97,10 +100,12 @@ internal static unsafe class PackageManager
         {
 #if CLIENT
             ServerHandshake.Start();
+            ClientAssemblyTransfer.Start();
 #else
             var clients = _settings.Clients;
             NanosSharpClients.Start(new ClientPolicy(clients.Required, TimeSpan.FromSeconds(clients.HandshakeTimeoutSeconds),
                 clients.KickMessage));
+            ClientAssemblyServer.Start();
 #endif
         }
         catch (Exception exception)
@@ -142,18 +147,15 @@ internal static unsafe class PackageManager
 
         var package = new ManagedPackage(nativePackage, PackageManifest.Read(nativePackage.Directory));
         Packages[package.Handle] = package;
+#if CLIENT
+        ClientAssemblyTransfer.Request(package.Name);
+#else
         using (PackageContext.Enter(package.Scope))
         {
             try
             {
                 var build = PendingBuilds.Remove(package.Name, out var pending) ? pending : BuildPackage(package);
-#if CLIENT
-                package.UseBuild(build);
-                _sandbox.Stage(package.Name, build);
-                SetPackageActive(package.Name, true);
-#else
                 StartPackage(package, build);
-#endif
             }
             catch (Exception exception)
             {
@@ -169,7 +171,27 @@ internal static unsafe class PackageManager
             package.SourcesChanged += OnSourcesChanged;
             package.WatchSources(TimeSpan.FromMilliseconds(_settings.HotReload.DelayMilliseconds));
         }
+#endif
     }
+
+#if CLIENT
+    private static void StageClientPackage(string packageName, PackageBuild build)
+    {
+        var package = Packages.Values.FirstOrDefault(candidate => candidate.Name == packageName);
+        if (package is null)
+        {
+            return;
+        }
+
+        using (PackageContext.Enter(package.Scope))
+        {
+            package.UseBuild(build);
+            _sandbox.Stage(package.Name, build);
+        }
+
+        SetPackageActive(package.Name, true);
+    }
+#endif
 
     private static void StartPackage(ManagedPackage package, PackageBuild build) =>
         package.Start(build, assemblyName => ResolveShared(package.Manifest, assemblyName));
@@ -213,6 +235,7 @@ internal static unsafe class PackageManager
         }
     }
 
+#if !CLIENT
     private static void OnSourcesChanged(ManagedPackage package)
     {
         if (!Packages.ContainsKey(package.Handle))
@@ -251,6 +274,7 @@ internal static unsafe class PackageManager
     private static PackageBuild BuildPackage(ManagedPackage package) =>
         PackageBuilder.Build(package.Name, package.Scope.Directory, CollectRequiredImages(package.Manifest),
             package.Manifest.Dependencies, _buildOptions with { Optimize = _buildOptions.Optimize && !DebugState.IsEnabled });
+#endif
 
     private static void EnableDebug()
     {
@@ -279,9 +303,10 @@ internal static unsafe class PackageManager
         Packages.Remove(package.Handle);
 #if CLIENT
         _sandbox.Unstage(package.Name);
-#endif
+#else
         package.SourcesChanged -= OnSourcesChanged;
         package.StopWatching();
+#endif
         try
         {
             TrackUnload(package, package.Stop());

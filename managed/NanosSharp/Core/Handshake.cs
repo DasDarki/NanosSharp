@@ -11,6 +11,12 @@ internal static class Handshake
     public const int MissingProtocolVersion = 0;
     public const string MarkerFileName = "nanossharp.json";
     public const string PackageValuePrefix = "NanosSharp:";
+    public const string ClientAssemblyRequestEvent = "nanossharp:client-asm-request";
+    public const string ClientAssemblyEvent = "nanossharp:client-asm";
+    public const int ClientAssemblyNone = 0;
+    public const int ClientAssemblyCached = 1;
+    public const int ClientAssemblyChunk = 2;
+    public const int ClientAssemblyChunkSize = 12288;
 
     public static string RuntimeVersion { get; } =
         typeof(Handshake).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0] ?? "unknown";

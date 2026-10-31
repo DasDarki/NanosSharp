@@ -43,6 +43,7 @@ internal static class PackageBuilder
     public static bool IsRelevantFile(string path) =>
         RelevantExtensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase) && !IsIgnored(path);
 
+#if !CLIENT
     public static PackageBuild Build(string packageName, string packageDirectory, IEnumerable<AssemblyImage> requiredImages,
         IReadOnlyList<string> dependencies, PackageBuildOptions options)
     {
@@ -111,6 +112,7 @@ internal static class PackageBuilder
             ? new AssemblyImage(assemblyName, result.Assembly!, result.Symbols)
             : throw new PackageBuildException($"Compilation of {sources.Count} C# file(s) failed.");
     }
+#endif
 
     private static AssemblyImage ReadAssembly(string path)
     {

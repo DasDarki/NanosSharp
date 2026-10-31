@@ -187,6 +187,10 @@ task("bundle")
         os.mkdir(runtime_dir)
         os.cp(path.join(root, "build", "managed", "bin", "NanosSharp.Host", "Release", "net10.0", "*"), runtime_dir)
         os.cp(project.target("nanossharp"):targetfile(), runtime_dir)
+        os.execv("dotnet", {"build", path.join(root, "managed", "NanosSharp", "NanosSharp.csproj"), "-c", "Release",
+            "-p:NanosSharpSide=Client", "-p:Version=" .. version, "--nologo", "-v", "q"})
+        os.cp(path.join(root, "build", "managed", "Client", "bin", "NanosSharp", "Release", "net10.0", "NanosSharp.dll"),
+            path.join(runtime_dir, "NanosSharp.ClientReference.dll"))
         os.cp(path.join(root, "scripts", "NanosSharp.sh"), bundle_dir)
         os.cp(path.join(root, "LICENSE"), path.join(bundle_dir, "NanosSharp"))
         io.writefile(path.join(bundle_dir, "NanosSharp", "VERSION"), version .. "\n")
@@ -346,6 +350,10 @@ task("server-windows")
         os.execv("dotnet", build_arguments)
         os.mkdir(path.join(package_dir, "runtime"))
         os.cp(path.join(root, "build", "managed", "bin", "NanosSharp.Host", configuration, "net10.0", "*"), path.join(package_dir, "runtime"))
+        os.execv("dotnet", {"build", path.join(root, "managed", "NanosSharp", "NanosSharp.csproj"), "-c", configuration,
+            "-p:NanosSharpSide=Client", "--nologo", "-v", "q"})
+        os.cp(path.join(root, "build", "managed", "Client", "bin", "NanosSharp", configuration, "net10.0", "NanosSharp.dll"),
+            path.join(package_dir, "runtime", "NanosSharp.ClientReference.dll"))
 
         local cache_dir = path.join(root, "build", "cache")
         local runtime_archive = path.join(cache_dir, "dotnet-runtime-" .. runtime_version .. "-win-x64.zip")
