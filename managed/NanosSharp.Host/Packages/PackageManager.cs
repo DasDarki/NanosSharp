@@ -43,6 +43,7 @@ internal static unsafe class PackageManager
         _debugOptIn = Environment.GetEnvironmentVariable(DebugEnvironmentVariable) is "1" or "true";
         _sandbox = new ClientSandbox(runtimeDirectory);
 #else
+        ClientAssemblyBuilder.Initialize(runtimeDirectory);
         if (_settings.Debug.Enabled)
         {
             EnableDebug();
@@ -112,6 +113,8 @@ internal static unsafe class PackageManager
     {
 #if CLIENT
         SetPackageActive(nativePackage.Name, false);
+#else
+        PrecompileClientAssembly(nativePackage);
 #endif
         if (!PackageBuilder.HasManagedCode(nativePackage.Directory))
         {
@@ -170,6 +173,27 @@ internal static unsafe class PackageManager
 
     private static void StartPackage(ManagedPackage package, PackageBuild build) =>
         package.Start(build, assemblyName => ResolveShared(package.Manifest, assemblyName));
+
+#if !CLIENT
+    private static void PrecompileClientAssembly(NativePackage package)
+    {
+        if (!PackageBuilder.HasClientCode(package.Directory))
+        {
+            return;
+        }
+
+        try
+        {
+            ClientAssemblyBuilder.Build(package.Name, package.Directory, _buildOptions.Optimize && !DebugState.IsEnabled);
+        }
+        catch (Exception exception)
+        {
+            Log.Error(exception is PackageBuildException buildException
+                ? buildException.Message
+                : $"Failed to precompile the client code of {package.Name}: {exception}");
+        }
+    }
+#endif
 
 #if CLIENT
     private static void SetPackageActive(string packageName, bool isActive)
