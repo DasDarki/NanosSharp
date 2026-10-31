@@ -71,6 +71,7 @@ internal static class ClientAssemblyBuilder
 
         var assembly = new ClientAssembly(hash, result.Assembly!);
         Cache[packageName] = assembly;
+        Log.Info($"Precompiled the client assembly of {packageName} ({assembly.Image.Length} bytes).");
         return assembly;
     }
 

@@ -136,6 +136,10 @@ task("deploy")
         os.mkdir(runtime_dir)
         os.cp(path.join(root, "build", "managed", "bin", "NanosSharp.Host", configuration, "net10.0", "*"), runtime_dir)
         os.cp(project.target("nanossharp"):targetfile(), runtime_dir)
+        os.execv("dotnet", {"build", path.join(root, "managed", "NanosSharp", "NanosSharp.csproj"), "-c", configuration,
+            "-p:NanosSharpSide=Client", "--nologo", "-v", "q"})
+        os.cp(path.join(root, "build", "managed", "Client", "bin", "NanosSharp", configuration, "net10.0", "NanosSharp.dll"),
+            path.join(runtime_dir, "NanosSharp.ClientReference.dll"))
         os.cp(path.join(root, "scripts", "NanosSharp.sh"), server_dir)
 
         for _, example_dir in ipairs(os.dirs(path.join(root, "packages", "examples", "*"))) do
