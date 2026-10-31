@@ -3,6 +3,7 @@ using NanosSharp.Core;
 using NanosSharp.Host.Packages.Building;
 using NanosSharp.Logging;
 using NanosSharp.Scripting;
+using NanosSharp.Threading;
 
 namespace NanosSharp.Host.Packages;
 
@@ -16,11 +17,14 @@ internal static class ClientAssemblyTransfer
 {
     private const string AssemblySuffix = ".Scripts";
     private const string CacheDirectoryName = "client-assemblies";
+    private const int MaxRequestAttempts = 8;
+    private const int RequestRetryMilliseconds = 2000;
 
     private static string _cacheDirectory = string.Empty;
     private static Action<string, PackageBuild>? _stage;
     private static ScriptSubscription? _subscription;
     private static readonly Dictionary<string, Pending> Pendings = new(StringComparer.Ordinal);
+    private static readonly HashSet<string> Awaiting = new(StringComparer.Ordinal);
 
     private delegate void ResponseHandler(string packageName, string header, string data);
 
@@ -47,15 +51,35 @@ internal static class ClientAssemblyTransfer
         _subscription?.Dispose();
         _subscription = null;
         Pendings.Clear();
+        Awaiting.Clear();
     }
 
-    public static void Request(string packageName) => Request(packageName, ReadCachedHash(packageName));
+    public static void Request(string packageName)
+    {
+        Awaiting.Add(packageName);
+        SendRequest(packageName, 0, forceFull: false);
+    }
 
-    private static void Request(string packageName, string haveHash) =>
+    private static void SendRequest(string packageName, int attempt, bool forceFull)
+    {
+        if (!Awaiting.Contains(packageName))
+        {
+            return;
+        }
+
+        var haveHash = forceFull ? string.Empty : ReadCachedHash(packageName);
+        Log.Debug($"[client-asm] requesting {packageName} (attempt {attempt + 1}, cached: {(haveHash.Length == 0 ? "none" : haveHash)})");
         Events.CallRemote(Handshake.ClientAssemblyRequestEvent, packageName, haveHash);
+        if (attempt + 1 < MaxRequestAttempts)
+        {
+            ScriptTimer.SetTimeout(() => SendRequest(packageName, attempt + 1, forceFull), RequestRetryMilliseconds);
+        }
+    }
 
     private static void OnResponse(string packageName, string header, string data)
     {
+        Awaiting.Remove(packageName);
+        Log.Debug($"[client-asm] response for {packageName}: {header} ({data.Length} chars)");
         var parts = header.Split('|');
         if (parts.Length != 4 || !int.TryParse(parts[0], out var status))
         {
@@ -128,7 +152,8 @@ internal static class ClientAssemblyTransfer
             return;
         }
 
-        Request(packageName, string.Empty);
+        Awaiting.Add(packageName);
+        SendRequest(packageName, 0, forceFull: true);
     }
 
     private static void Stage(string packageName, byte[] image)

@@ -1,6 +1,7 @@
 #if !CLIENT
 using NanosSharp.Core;
 using NanosSharp.Entities;
+using NanosSharp.Logging;
 using NanosSharp.Scripting;
 
 namespace NanosSharp.Host.Packages;
@@ -29,6 +30,7 @@ internal static class ClientAssemblyServer
 
     private static void OnRequest(Player player, string packageName, string haveHash)
     {
+        Log.Debug($"[client-asm] request from {player.Name} for {packageName} (have: {(haveHash.Length == 0 ? "none" : haveHash)})");
         var assembly = ClientAssemblyBuilder.Get(packageName);
         if (assembly is null)
         {
