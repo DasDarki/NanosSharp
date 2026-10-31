@@ -67,7 +67,12 @@ design defeats casual copying, not a determined reverse engineer.
    the client caches and loads it, and Roslyn is gone from the client. No cryptography yet; source no longer needs to
    reach the client.
 2. **C# IL obfuscation** of the shipped client assembly.
-3. **Per-server key + ephemeral ECIES exchange + in-memory decryption** for C# and Lua.
+3. **Per-server key + ephemeral ECIES exchange + in-memory decryption** (done for C#): the server generates a
+   per-server AES-256 key in its data directory, seals each compiled client assembly with it, and delivers the key to
+   each client with a per-request ephemeral ECDH (P-256) exchange, so no secret ships in any binary. The client unwraps
+   the key in its host (full .NET, outside the sandbox), unseals the assembly, caches only the sealed bytes, and loads
+   the plaintext into the sandbox straight from host memory through a `package-read-assemblies` import, so the
+   decrypted assembly never touches disk. Lua is still open.
 4. **Lua bytecode or obfuscation** under the same encryption.
 
 Protection is opt-in per package, for example `Package.toml [script] protect = true`.
