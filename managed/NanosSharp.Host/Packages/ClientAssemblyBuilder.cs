@@ -18,14 +18,22 @@ internal static class ClientAssemblyBuilder
     private const string ClientReferenceFileName = "NanosSharp.ClientReference.dll";
     private const string ClientDirectoryName = "Client";
     private const string SharedDirectoryName = "Shared";
+    private const string KeyFileName = "client-assembly.key";
 
     private static readonly Dictionary<string, ClientAssembly> Cache = new(StringComparer.Ordinal);
     private static string _referencePath = string.Empty;
+    private static byte[] _key = [];
     private static AssemblyImage? _clientApi;
     private static bool _clientApiLoaded;
 
-    public static void Initialize(string runtimeDirectory) =>
+    /// <summary>The per-server key that seals every client assembly, generated on first use and never shipped.</summary>
+    public static byte[] Key => _key;
+
+    public static void Initialize(string runtimeDirectory)
+    {
         _referencePath = Path.Combine(runtimeDirectory, ClientReferenceFileName);
+        _key = LoadOrCreateKey(Path.GetFullPath(Path.Combine(runtimeDirectory, "..", "cache", KeyFileName)));
+    }
 
     /// <summary>The compiled client assembly for a package, or null when it has no client code.</summary>
     public static ClientAssembly? Get(string packageName) => Cache.GetValueOrDefault(packageName);
@@ -69,10 +77,27 @@ internal static class ClientAssemblyBuilder
             throw new PackageBuildException($"Compilation of the client code of {packageName} failed.");
         }
 
-        var assembly = new ClientAssembly(hash, result.Assembly!);
+        var assembly = new ClientAssembly(hash, ClientAssemblyCrypto.Seal(_key, result.Assembly!));
         Cache[packageName] = assembly;
-        Log.Info($"Precompiled the client assembly of {packageName} ({assembly.Image.Length} bytes).");
+        Log.Info($"Precompiled and sealed the client assembly of {packageName} ({assembly.Sealed.Length} bytes).");
         return assembly;
+    }
+
+    private static byte[] LoadOrCreateKey(string path)
+    {
+        if (File.Exists(path))
+        {
+            var existing = File.ReadAllBytes(path);
+            if (existing.Length == ClientAssemblyCrypto.KeySize)
+            {
+                return existing;
+            }
+        }
+
+        var key = ClientAssemblyCrypto.GenerateKey();
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        File.WriteAllBytes(path, key);
+        return key;
     }
 
     private static List<string> CollectSources(string packageDirectory)
@@ -120,6 +145,6 @@ internal static class ClientAssemblyBuilder
     }
 }
 
-/// <summary>A compiled client assembly together with the hash of the sources it was built from.</summary>
-internal sealed record ClientAssembly(string Hash, byte[] Image);
+/// <summary>A sealed client assembly together with the hash of the sources it was built from.</summary>
+internal sealed record ClientAssembly(string Hash, byte[] Sealed);
 #endif

@@ -10,7 +10,7 @@ namespace NanosSharp.Host.Packages;
 /// </summary>
 internal static class ClientAssemblyCrypto
 {
-    private const int KeySize = 32;
+    public const int KeySize = 32;
     private const int NonceSize = 12;
     private const int TagSize = 16;
 
