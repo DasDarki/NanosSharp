@@ -10,6 +10,7 @@ OUT_WIT = pathlib.Path("managed/NanosSharp.WasmRuntime/wit/nanos.wit")
 WASM_ONLY_WIT = [
     "        schema-dump: func(buffer: s32, capacity: s32) -> s32;",
     "        set-result-scratch: func(buffer: s32, capacity: s32);",
+    "        package-read-assemblies: func(name: s32, name-length: s32, buffer: s32, capacity: s32) -> s32;",
 ]
 
 text = SRC.read_text()

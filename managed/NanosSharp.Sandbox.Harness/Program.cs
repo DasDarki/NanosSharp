@@ -21,7 +21,9 @@ internal static unsafe class Program
 
         var module = args[0];
         var sourcePackage = args[1];
-        var bench = args.Length >= 3 && args[2] == "bench";
+        var mode = args.Length >= 3 ? args[2] : "run";
+        var bench = mode == "bench";
+        var inMemory = mode == "inmem";
 
         var api = (NativeApi*)NativeMemory.Alloc((nuint)sizeof(NativeApi));
         *api = MockEngine.Build();
@@ -38,8 +40,16 @@ internal static unsafe class Program
             var staging = Directory.CreateTempSubdirectory("nanossharp-harness-").FullName;
             try
             {
-                StagePackage(staging, sourcePackage, 1);
-                using var host = new WasmHost(api, module, staging);
+                var images = inMemory ? LoadImages(sourcePackage) : null;
+                Action<int> stage = inMemory
+                    ? generation => StageManifest(staging, generation)
+                    : generation => StagePackage(staging, sourcePackage, generation);
+
+                stage(1);
+                using var host = new WasmHost(api, module, staging)
+                {
+                    AssemblyProvider = inMemory ? name => name == PackageName ? images : null : null,
+                };
                 host.Boot();
 
                 Console.WriteLine(">> engine attached");
@@ -56,7 +66,7 @@ internal static unsafe class Program
                 host.SyncPackages();
 
                 Console.WriteLine(">> sync: reload");
-                StagePackage(staging, sourcePackage, 2);
+                stage(2);
                 host.SyncPackages();
 
                 for (var i = 0; i < 3; i++)
@@ -103,6 +113,18 @@ internal static unsafe class Program
 
         File.WriteAllText(Path.Combine(directory, ".gen"), generation.ToString());
     }
+
+    private static void StageManifest(string staging, int generation)
+    {
+        var directory = Path.Combine(staging, PackageName);
+        Directory.CreateDirectory(directory);
+        File.WriteAllText(Path.Combine(directory, ".gen"), generation.ToString());
+    }
+
+    private static IReadOnlyList<(string Name, byte[] Image)> LoadImages(string source) =>
+        Directory.GetFiles(source, "*.dll")
+            .Select(path => (Path.GetFileNameWithoutExtension(path), File.ReadAllBytes(path)))
+            .ToArray();
 
     private static void TryDelete(string directory)
     {

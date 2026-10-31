@@ -42,6 +42,9 @@ internal sealed unsafe class WasmHost : IDisposable
     private int _resultScratch;
     private int _resultScratchCapacity;
 
+    /// <summary>Resolves a package's decrypted assemblies from host memory, so they never reach the guest's file system.</summary>
+    public Func<string, IReadOnlyList<(string Name, byte[] Image)>?>? AssemblyProvider { get; init; }
+
     public WasmHost(NativeApi* api, string reactorModule, string packageDirectory)
     {
         _api = api;
@@ -288,6 +291,9 @@ internal sealed unsafe class WasmHost : IDisposable
             case "schema-dump":
                 r[0] = SchemaDump(a[0].AsInt32(), a[1].AsInt32());
                 break;
+            case "package-read-assemblies":
+                r[0] = PackageReadAssemblies(a[0].AsInt32(), a[1].AsInt32(), a[2].AsInt32(), a[3].AsInt32());
+                break;
             case "function-call":
                 r[0] = FunctionCall(a[0].AsInt32(), a[1].AsInt32(), a[2].AsInt32(), a[3].AsInt32(),
                     a[4].AsInt32(), a[5].AsInt32());
@@ -434,6 +440,49 @@ internal sealed unsafe class WasmHost : IDisposable
 
         blob.CopyTo(_memory.GetSpan(buffer, blob.Length));
         return blob.Length;
+    }
+
+    private int PackageReadAssemblies(int namePointer, int nameLength, int buffer, int capacity)
+    {
+        if (AssemblyProvider is null)
+        {
+            return 0;
+        }
+
+        var assemblies = AssemblyProvider(ReadGuestString(namePointer, nameLength));
+        if (assemblies is null || assemblies.Count == 0)
+        {
+            return 0;
+        }
+
+        var blob = BuildAssemblyBlob(assemblies);
+        if (blob.Length > capacity)
+        {
+            return blob.Length;
+        }
+
+        blob.CopyTo(_memory.GetSpan(buffer, blob.Length));
+        return blob.Length;
+    }
+
+    private static byte[] BuildAssemblyBlob(IReadOnlyList<(string Name, byte[] Image)> assemblies)
+    {
+        var blob = new List<byte>();
+
+        void PutU16(int value) { blob.Add((byte)value); blob.Add((byte)(value >> 8)); }
+        void PutU32(uint value) { for (var i = 0; i < 4; i++) blob.Add((byte)(value >> (i * 8))); }
+
+        PutU32((uint)assemblies.Count);
+        foreach (var (name, image) in assemblies)
+        {
+            var nameBytes = Encoding.UTF8.GetBytes(name);
+            PutU16(nameBytes.Length);
+            blob.AddRange(nameBytes);
+            PutU32((uint)image.Length);
+            blob.AddRange(image);
+        }
+
+        return [.. blob];
     }
 
     private byte[] BuildSchemaBlob()

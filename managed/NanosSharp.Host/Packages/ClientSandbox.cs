@@ -28,6 +28,7 @@ internal sealed unsafe class ClientSandbox : IDisposable
     private readonly string _reactorModule;
     private readonly string _stagingDirectory;
     private readonly Dictionary<string, int> _generations = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, IReadOnlyList<(string Name, byte[] Image)>> _assemblies = new(StringComparer.Ordinal);
 
     private ReactorModule? _reactor;
     private WasmHost? _host;
@@ -62,6 +63,7 @@ internal sealed unsafe class ClientSandbox : IDisposable
             return;
         }
 
+        _assemblies.Remove(packageName);
         TryDeleteDirectory(Path.Combine(_stagingDirectory, packageName));
         _syncPending = true;
     }
@@ -139,7 +141,10 @@ internal sealed unsafe class ClientSandbox : IDisposable
 
         try
         {
-            var host = new WasmHost(NativeRuntime.ApiPointer, _reactor!, _stagingDirectory);
+            var host = new WasmHost(NativeRuntime.ApiPointer, _reactor!, _stagingDirectory)
+            {
+                AssemblyProvider = name => _assemblies.GetValueOrDefault(name),
+            };
             host.Boot();
             host.EngineAttached();
             host.SyncPackages();
@@ -205,10 +210,7 @@ internal sealed unsafe class ClientSandbox : IDisposable
         var directory = Path.Combine(_stagingDirectory, packageName);
         TryDeleteDirectory(directory);
         Directory.CreateDirectory(directory);
-        foreach (var image in build.Assemblies.Values)
-        {
-            File.WriteAllBytes(Path.Combine(directory, image.Name + ".dll"), image.Image);
-        }
+        _assemblies[packageName] = build.Assemblies.Values.Select(image => (image.Name, image.Image)).ToArray();
 
         var generation = _generations.TryGetValue(packageName, out var previous) ? previous + 1 : 1;
         _generations[packageName] = generation;
@@ -224,6 +226,7 @@ internal sealed unsafe class ClientSandbox : IDisposable
     private void ResetStagingDirectory()
     {
         _generations.Clear();
+        _assemblies.Clear();
         TryDeleteDirectory(_stagingDirectory);
         Directory.CreateDirectory(_stagingDirectory);
     }

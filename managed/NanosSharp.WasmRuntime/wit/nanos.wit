@@ -62,5 +62,6 @@ world sandbox {
         lua-set-global: func(p0: s32, p1: s32, p2: s32, p3: s32, p4: s32) -> s32;
         schema-dump: func(buffer: s32, capacity: s32) -> s32;
         set-result-scratch: func(buffer: s32, capacity: s32);
+        package-read-assemblies: func(name: s32, name-length: s32, buffer: s32, capacity: s32) -> s32;
     }
 }

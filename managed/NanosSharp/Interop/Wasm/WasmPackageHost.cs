@@ -1,9 +1,11 @@
 #if NANOSSHARP_WASM
+using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
+using System.Text;
 using NanosSharp.Core;
 using NanosSharp.Entities;
 using NanosSharp.Entities.Binding;
@@ -26,10 +28,11 @@ namespace NanosSharp.Interop.Wasm;
 /// (entry points, dependency injection, entity factories, exports and events), so
 /// unloading one tears down just that package and leaves the others running.
 /// </summary>
-internal static class WasmPackageHost
+internal static unsafe partial class WasmPackageHost
 {
     private const string PackageDirectory = "/package";
     private const string GenerationFileName = ".gen";
+    private const int InitialAssemblyCapacity = 512 * 1024;
 
     private sealed class LoadedPackage
     {
@@ -87,6 +90,62 @@ internal static class WasmPackageHost
         return File.Exists(path) ? File.ReadAllText(path).Trim() : "0";
     }
 
+    [LibraryImport("nanos", EntryPoint = "package-read-assemblies")]
+    [WasmImportLinkage]
+    private static partial int ReadAssemblies(byte* name, int nameLength, byte* buffer, int capacity);
+
+    private static List<byte[]>? ReadStagedAssemblies(string name)
+    {
+        var nameBytes = Encoding.UTF8.GetBytes(name);
+        var capacity = InitialAssemblyCapacity;
+        fixed (byte* namePointer = nameBytes)
+        {
+            while (true)
+            {
+                var buffer = new byte[capacity];
+                int needed;
+                fixed (byte* pointer = buffer)
+                {
+                    needed = ReadAssemblies(namePointer, nameBytes.Length, pointer, capacity);
+                }
+
+                if (needed == 0)
+                {
+                    return null;
+                }
+
+                if (needed <= capacity)
+                {
+                    return ParseAssemblies(new ReadOnlySpan<byte>(buffer, 0, needed));
+                }
+
+                capacity = needed;
+            }
+        }
+    }
+
+    private static List<byte[]> ParseAssemblies(ReadOnlySpan<byte> blob)
+    {
+        var images = new List<byte[]>();
+        var offset = 0;
+        var count = BinaryPrimitives.ReadUInt32LittleEndian(blob[offset..]);
+        offset += sizeof(uint);
+        for (var index = 0u; index < count; index++)
+        {
+            var nameLength = BinaryPrimitives.ReadUInt16LittleEndian(blob[offset..]);
+            offset += sizeof(ushort) + nameLength;
+            var imageLength = (int)BinaryPrimitives.ReadUInt32LittleEndian(blob[offset..]);
+            offset += sizeof(uint);
+            images.Add(blob.Slice(offset, imageLength).ToArray());
+            offset += imageLength;
+        }
+
+        return images;
+    }
+
+    private static List<byte[]> ReadAssembliesFromDisk(string directory) =>
+        Directory.GetFiles(directory, "*.dll").Select(File.ReadAllBytes).ToList();
+
     [RequiresUnreferencedCode("Loads package assemblies at runtime; only used on the runtime-loading (Mono) client.")]
     private static void Load(string directory, string name, string generation)
     {
@@ -103,8 +162,9 @@ internal static class WasmPackageHost
         {
             try
             {
-                var assemblies = Directory.GetFiles(directory, "*.dll")
-                    .Select(path => context.LoadFromStream(new MemoryStream(File.ReadAllBytes(path))))
+                var images = ReadStagedAssemblies(name) ?? ReadAssembliesFromDisk(directory);
+                var assemblies = images
+                    .Select(image => context.LoadFromStream(new MemoryStream(image)))
                     .ToArray();
                 var types = assemblies.SelectMany(GetLoadableTypes).ToList();
 
