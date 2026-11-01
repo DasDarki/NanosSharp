@@ -15,6 +15,7 @@
     <ProjectReference Include="../NanosSharp.Sandbox/NanosSharp.Sandbox.csproj" Condition="'$(NanosSharpSide)' == 'Client'" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" Condition="'$(NanosSharpSide)' != 'Client'" />
     <PackageReference Include="NuGet.Protocol" Version="7.9.0" />
     <PackageReference Include="NuGet.Resolver" Version="7.9.0" />

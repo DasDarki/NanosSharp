@@ -29,7 +29,7 @@ public class ClientAssemblyCryptoTests
     public void KeyExchangeDeliversTheKeyToTheHolderOfThePrivateKey()
     {
         var key = ClientAssemblyCrypto.GenerateKey();
-        using var client = ClientAssemblyCrypto.CreateEphemeral();
+        var client = ClientAssemblyCrypto.CreateEphemeral();
         var clientPublicKey = ClientAssemblyCrypto.ExportPublicKey(client);
 
         var (serverPublicKey, wrapped) = ClientAssemblyCrypto.WrapKey(key, clientPublicKey);
@@ -41,8 +41,8 @@ public class ClientAssemblyCryptoTests
     public void KeyExchangeDoesNotLeakToAnotherClient()
     {
         var key = ClientAssemblyCrypto.GenerateKey();
-        using var client = ClientAssemblyCrypto.CreateEphemeral();
-        using var attacker = ClientAssemblyCrypto.CreateEphemeral();
+        var client = ClientAssemblyCrypto.CreateEphemeral();
+        var attacker = ClientAssemblyCrypto.CreateEphemeral();
 
         var (serverPublicKey, wrapped) = ClientAssemblyCrypto.WrapKey(key, ClientAssemblyCrypto.ExportPublicKey(client));
 
