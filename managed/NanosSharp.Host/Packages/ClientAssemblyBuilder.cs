@@ -77,10 +77,24 @@ internal static class ClientAssemblyBuilder
             throw new PackageBuildException($"Compilation of the client code of {packageName} failed.");
         }
 
-        var assembly = new ClientAssembly(hash, ClientAssemblyCrypto.Seal(_key, result.Assembly!));
+        var image = Protect(packageName, result.Assembly!);
+        var assembly = new ClientAssembly(hash, ClientAssemblyCrypto.Seal(_key, image));
         Cache[packageName] = assembly;
         Log.Info($"Precompiled and sealed the client assembly of {packageName} ({assembly.Sealed.Length} bytes).");
         return assembly;
+    }
+
+    private static byte[] Protect(string packageName, byte[] image)
+    {
+        try
+        {
+            return ClientAssemblyObfuscator.Obfuscate(image);
+        }
+        catch (Exception exception)
+        {
+            Log.Warning($"Obfuscation of the client code of {packageName} failed, shipping it unobfuscated: {exception.Message}");
+            return image;
+        }
     }
 
     private static byte[] LoadOrCreateKey(string path)
