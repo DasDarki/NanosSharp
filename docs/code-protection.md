@@ -66,7 +66,11 @@ design defeats casual copying, not a determined reverse engineer.
 1. **C# server-side precompile** (done): the server compiles client C# to a DLL, delivers it over the event channel,
    the client caches and loads it, and Roslyn is gone from the client. No cryptography yet; source no longer needs to
    reach the client.
-2. **C# IL obfuscation** of the shipped client assembly.
+2. **C# IL obfuscation** of the shipped client assembly (done): the server encrypts every string literal in the
+   compiled assembly and injects a helper that decrypts them at runtime, so a decompiled assembly no longer exposes
+   its literals. Types, members and attributes are deliberately left untouched, because the sandbox discovers package
+   entry points, services, APIs and entity factories by reflection and renaming them would break loading. Control flow
+   and logic therefore stay readable; this raises the effort bar without the fragility of a renaming pass.
 3. **Per-server key + ephemeral ECIES exchange + in-memory decryption** (done for C#): the server generates a
    per-server AES-256 key in its data directory, seals each compiled client assembly with it, and delivers the key to
    each client with a per-request ephemeral ECDH (P-256) exchange, so no secret ships in any binary. The client unwraps
