@@ -47,8 +47,14 @@ use a non-secret public server-identity key embedded in `version.dll`, since a p
 
 ### Lua
 
-Defense in depth, in order of strength: minify and obfuscate the source; compile to Lua 5.4 bytecode if the nanos Lua VM
-accepts it (needs verification); decrypt in memory through a native hook on the Lua load path.
+Reverse engineering settled the approach. The nanos Lua VM is stock Lua 5.4.9 on both the server and the client, and it
+loads scripts with mode `"t"`, which rejects precompiled bytecode. Shipping Lua bytecode is therefore not an option, so
+Lua is protected the same way as C#: the source is encrypted at rest and in transit and decrypted in memory, never on
+disk. The decryption point is the Lua load path: nanos reads a package script into a buffer and loads it through
+`luaL_loadbufferx` (via `nw::scripting::lua::LuaEngine::LoadScriptFromBuffer`), so the client host hooks that call,
+recognises an encrypted buffer by a magic prefix, decrypts it in place and passes the plaintext source on unchanged,
+leaving every other buffer untouched. On the client the loader is not an exported symbol, so the hook has to find it by
+a byte-pattern signature, which is the main fragility and ties the build to the engine version.
 
 ### In-memory decryption
 
@@ -80,13 +86,15 @@ design defeats casual copying, not a determined reverse engineer.
    client host runs under Wine, whose EC key provider is unavailable, so the key exchange uses a pure managed X25519
    implementation rather than the operating system one; and the engine's remote event payload is size limited, so the
    assembly is delivered in small chunks and the key material travels as its own event arguments.
-4. **Lua bytecode or obfuscation** under the same encryption.
+4. **Lua source encryption with in-memory decryption** under the same per-server key, hooking `luaL_loadbufferx` on the
+   client (bytecode is not an option, the VM loads with mode `"t"`). Reverse engineering is done; implementation is
+   pending, with the client-side signature for the loader as the main risk.
 
 Protection is opt-in per package, for example `Package.toml [script] protect = true`.
 
 ## Open questions
 
-- Does the nanos Lua VM accept bytecode (`load` mode `b`)? Needs a reverse-engineering check.
-- The Lua load hook point for in-memory decryption, with the usual caution about fragile byte signatures.
+- The client-side byte-pattern signature for `luaL_loadbufferx`, which is not exported there, and keeping it working
+  across engine versions.
 - Key management details: rotation and storage permissions.
 - Tradeoffs: client hot-reload of protected code, debuggability under obfuscation, and client startup cost.
