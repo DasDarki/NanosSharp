@@ -72,7 +72,10 @@ design defeats casual copying, not a determined reverse engineer.
    each client with a per-request ephemeral ECDH (P-256) exchange, so no secret ships in any binary. The client unwraps
    the key in its host (full .NET, outside the sandbox), unseals the assembly, caches only the sealed bytes, and loads
    the plaintext into the sandbox straight from host memory through a `package-read-assemblies` import, so the
-   decrypted assembly never touches disk. Lua is still open.
+   decrypted assembly never touches disk. Lua is still open. Two platform constraints shape the implementation: the
+   client host runs under Wine, whose EC key provider is unavailable, so the key exchange uses a pure managed X25519
+   implementation rather than the operating system one; and the engine's remote event payload is size limited, so the
+   assembly is delivered in small chunks and the key material travels as its own event arguments.
 4. **Lua bytecode or obfuscation** under the same encryption.
 
 Protection is opt-in per package, for example `Package.toml [script] protect = true`.
