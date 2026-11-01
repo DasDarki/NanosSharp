@@ -16,7 +16,7 @@ internal static class Handshake
     public const int ClientAssemblyNone = 0;
     public const int ClientAssemblyCached = 1;
     public const int ClientAssemblyChunk = 2;
-    public const int ClientAssemblyChunkSize = 12288;
+    public const int ClientAssemblyChunkSize = 512;
 
     public static string RuntimeVersion { get; } =
         typeof(Handshake).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0] ?? "unknown";

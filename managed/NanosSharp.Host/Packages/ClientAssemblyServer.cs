@@ -32,6 +32,11 @@ internal static class ClientAssemblyServer
 
     private static void OnRequest(Player player, string packageName, string haveHash, string clientPublicKey)
     {
+        if (!player.IsValid)
+        {
+            return;
+        }
+
         Log.Debug($"[client-asm] request from {player.Name} for {packageName} (have: {(haveHash.Length == 0 ? "none" : haveHash)})");
         var assembly = ClientAssemblyBuilder.Get(packageName);
         if (assembly is null)
@@ -89,7 +94,7 @@ internal static class ClientAssemblyServer
 
     private static void Send(Player player, string packageName, int status, string hash, int total, int index,
         string serverPublicKey, string wrappedKey, string data) =>
-        Events.CallRemote(Handshake.ClientAssemblyEvent, player, packageName,
-            $"{status}|{hash}|{total}|{index}|{serverPublicKey}|{wrappedKey}", data);
+        Events.CallRemote(Handshake.ClientAssemblyEvent, player, packageName, $"{status}|{hash}|{total}|{index}",
+            serverPublicKey, wrappedKey, data);
 }
 #endif

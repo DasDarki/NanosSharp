@@ -28,9 +28,9 @@ internal static class ClientAssemblyTransfer
     private static ScriptSubscription? _subscription;
     private static readonly Dictionary<string, Pending> Pendings = new(StringComparer.Ordinal);
     private static readonly HashSet<string> Awaiting = new(StringComparer.Ordinal);
-    private static readonly Dictionary<string, ECDiffieHellman> KeyPairs = new(StringComparer.Ordinal);
+    private static readonly Dictionary<string, EphemeralKeyPair> KeyPairs = new(StringComparer.Ordinal);
 
-    private delegate void ResponseHandler(string packageName, string header, string data);
+    private delegate void ResponseHandler(string packageName, string header, string serverPublicKey, string wrappedKey, string data);
 
     private sealed class Pending
     {
@@ -56,11 +56,6 @@ internal static class ClientAssemblyTransfer
         _subscription = null;
         Pendings.Clear();
         Awaiting.Clear();
-        foreach (var keyPair in KeyPairs.Values)
-        {
-            keyPair.Dispose();
-        }
-
         KeyPairs.Clear();
     }
 
@@ -89,12 +84,12 @@ internal static class ClientAssemblyTransfer
         }
     }
 
-    private static void OnResponse(string packageName, string header, string data)
+    private static void OnResponse(string packageName, string header, string serverPublicKey, string wrappedKey, string data)
     {
         Awaiting.Remove(packageName);
         Log.Debug($"[client-asm] response for {packageName}: {header.Split('|')[0]} ({data.Length} chars)");
         var parts = header.Split('|');
-        if (parts.Length != 6 || !int.TryParse(parts[0], out var status))
+        if (parts.Length != 4 || !int.TryParse(parts[0], out var status))
         {
             Discard(packageName);
             return;
@@ -107,7 +102,7 @@ internal static class ClientAssemblyTransfer
             return;
         }
 
-        if (!TryUnwrapKey(packageName, parts[4], parts[5], out var key))
+        if (!TryUnwrapKey(packageName, serverPublicKey, wrappedKey, out var key))
         {
             Log.Error($"The server key for the client assembly of {packageName} could not be unwrapped.");
             Discard(packageName);
@@ -223,10 +218,7 @@ internal static class ClientAssemblyTransfer
     private static void Discard(string packageName)
     {
         Pendings.Remove(packageName);
-        if (KeyPairs.Remove(packageName, out var keyPair))
-        {
-            keyPair.Dispose();
-        }
+        KeyPairs.Remove(packageName);
     }
 
     private static string CachePath(string packageName, string hash) =>
